@@ -1,0 +1,77 @@
+# Ricerca clienti della Linea 1.1 Outbound Websites.
+# Parte dal Centro Gestione con il codice della ricerca. Ogni giro: il piano sceglie fino a 20 coppie tipo e comune,
+# i motori lavorano tutti insieme, poi se l'obiettivo non è raggiunto il giro successivo parte subito. Nessun orario fisso.
+# Ogni voce dell'elenco dei lavori: TIPO|Comune|Provincia
+name: Ricerca clienti
+run-name: "${{ inputs.codice }}"
+on:
+  workflow_dispatch:
+    inputs:
+      codice: { description: "Codice della ricerca, per esempio Ricerca001", required: true }
+concurrency: { group: "ricerca-${{ inputs.codice }}", cancel-in-progress: false }
+permissions:
+  contents: read
+  actions: write
+env:
+  PYTHONIOENCODING: utf-8
+  TZ: Europe/Rome
+  DATI_RICERCA: dati
+jobs:
+  piano:
+    name: Piano del giro
+    runs-on: ubuntu-latest
+    outputs:
+      lavori: ${{ steps.piano.outputs.lavori }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with: { repository: depthxlabs/depthx-dati-1.1, ssh-key: "${{ secrets.CHIAVE_DATI_RICERCA }}", path: dati }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -q requests
+      - id: piano
+        run: python -B -I "_01_Ricerca/_05_PianoDeiGiriDellaRicerca.py" --fase piano --codice "${{ inputs.codice }}"
+  lavoro:
+    name: ${{ matrix.voce }}
+    needs: piano
+    if: needs.piano.outputs.lavori != '' && needs.piano.outputs.lavori != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        voce: ${{ fromJSON(needs.piano.outputs.lavori) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with: { repository: depthxlabs/depthx-dati-1.1, ssh-key: "${{ secrets.CHIAVE_DATI_RICERCA }}", path: dati }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -q requests
+      - name: Motore al lavoro
+        env:
+          VOCE: ${{ matrix.voce }}
+          CHIAVE_GOOGLE_MAPS: ${{ secrets.CHIAVE_GOOGLE_MAPS }}
+        run: |
+          IFS='|' read -r TIPO COMUNE PROV <<< "$VOCE"
+          python -B -I "_01_Ricerca/_04_MotoreDellaRicercaSuMaps.py" --codice "${{ inputs.codice }}" --tipo "$TIPO" --comune "$COMUNE" --provincia "$PROV"
+  continua:
+    name: Giro successivo
+    needs: [piano, lavoro]
+    if: always() && needs.piano.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with: { repository: depthxlabs/depthx-dati-1.1, ssh-key: "${{ secrets.CHIAVE_DATI_RICERCA }}", path: dati }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -q requests
+      - id: stato
+        run: python -B -I "_01_Ricerca/_05_PianoDeiGiriDellaRicerca.py" --fase continua --codice "${{ inputs.codice }}"
+      - name: Parte il giro successivo
+        if: steps.stato.outputs.attiva == 'si' && needs.piano.outputs.lavori != '[]'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run _01_RicercaClienti.yml -R "${{ github.repository }}" -f codice="${{ inputs.codice }}"
