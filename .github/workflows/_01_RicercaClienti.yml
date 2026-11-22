@@ -1,7 +1,7 @@
 # Ricerca clienti della Linea 1.1 Outbound Websites.
 # Parte dal Centro Gestione con il codice della ricerca. Ogni giro: il piano sceglie fino a 20 coppie tipo e comune,
 # i motori lavorano tutti insieme, poi se l'obiettivo non è raggiunto il giro successivo parte subito. Nessun orario fisso.
-# Ogni voce dell'elenco dei lavori: TIPO|Comune|Provincia
+# Ogni voce dell'elenco dei lavori: fino a 5 coppie TIPO|Comune|Provincia separate da punto e virgola
 name: Ricerca clienti
 run-name: "${{ inputs.codice }}"
 on:
@@ -54,8 +54,13 @@ jobs:
           VOCE: ${{ matrix.voce }}
           CHIAVE_GOOGLE_MAPS: ${{ secrets.CHIAVE_GOOGLE_MAPS }}
         run: |
-          IFS='|' read -r TIPO COMUNE PROV <<< "$VOCE"
-          python -B -I "_01_Ricerca/_04_MotoreDellaRicercaSuMaps.py" --codice "${{ inputs.codice }}" --tipo "$TIPO" --comune "$COMUNE" --provincia "$PROV"
+          ESITO=0
+          IFS=';' read -ra COPPIE <<< "$VOCE"
+          for COPPIA in "${COPPIE[@]}"; do
+            IFS='|' read -r TIPO COMUNE PROV <<< "$COPPIA"
+            python -B -I "_01_Ricerca/_04_MotoreDellaRicercaSuMaps.py" --codice "${{ inputs.codice }}" --tipo "$TIPO" --comune "$COMUNE" --provincia "$PROV" || ESITO=1
+          done
+          exit $ESITO
   continua:
     name: Giro successivo
     needs: [piano, lavoro]

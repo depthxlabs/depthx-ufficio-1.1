@@ -2,7 +2,7 @@
 
 La ricerca parte dal Centro Gestione e va avanti da sola, un giro dopo l'altro, senza orari fissi:
   --fase piano     legge la ricerca; al primo giro trova i comuni intorno alla partenza, dal più vicino;
-                   dà ai motori le prossime coppie tipo e comune non ancora fatte, fino a 20 motori insieme.
+                   dà ai motori le prossime coppie tipo e comune non ancora fatte, fino a 20 motori insieme, 5 coppie per motore.
                    Quando tutti i comuni sono fatti il raggio si allarga di 20 km, fino a 400 km.
   --fase continua  a giro finito conta i contatti raccolti: se l'obiettivo non è raggiunto e la ricerca
                    è ancora attiva, il giro successivo parte subito.
@@ -14,6 +14,7 @@ import importlib
 D = importlib.import_module("_01_DatiSuGitHub")
 
 MOTORI_INSIEME = 20
+COPPIE_PER_MOTORE = 5   # ogni motore lavora 5 coppie tipo e comune una dopo l'altra: 100 coppie per giro
 PASSO_KM, RAGGIO_MASSIMO_KM = 20, 400
 AGENTE_WEB = {"User-Agent": "DepthX-Ricerca/1.1 (comuni della ricerca)", "Accept": "application/json"}
 ADESSO = lambda: datetime.datetime.now().isoformat(timespec="seconds")
@@ -83,7 +84,7 @@ def piano(codice):
     if not zone:
         zone = nuove_zone = comuni_intorno(r["Latitudine"], r["Longitudine"], raggio)
     tipi, fatti = r["Tipi"].split(), giri_fatti(codice)
-    scegli = lambda zone: [(t, z) for z in zone for t in tipi if f"{t}_{D.nome_file(z[0])}" not in fatti][:MOTORI_INSIEME]
+    scegli = lambda zone: [(t, z) for z in zone for t in tipi if f"{t}_{D.nome_file(z[0])}" not in fatti][:MOTORI_INSIEME * COPPIE_PER_MOTORE]
     coppie = scegli(zone)
     while not coppie and raggio < RAGGIO_MASSIMO_KM:
         raggio += PASSO_KM
@@ -96,7 +97,9 @@ def piano(codice):
     if not coppie:
         valori["Stato"] = "zone finite"
     aggiorna(codice, valori, nuove_zone)
-    uscita("lavori", json.dumps([f"{t}|{z[0]}|{z[1]}" for t, z in coppie], ensure_ascii=False))
+    voci = [f"{t}|{z[0]}|{z[1]}" for t, z in coppie]
+    gruppi = [";".join(voci[k::MOTORI_INSIEME]) for k in range(min(MOTORI_INSIEME, len(voci)))]
+    uscita("lavori", json.dumps(gruppi, ensure_ascii=False))
 
 
 def continua(codice):
