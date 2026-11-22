@@ -30,6 +30,8 @@ PORTALI = re.compile(r"booking\.com|airbnb\.|expedia\.|tripadvisor\.|facebook\.c
 CAMPI = ("places.id,places.displayName,places.websiteUri,places.internationalPhoneNumber,places.addressComponents,places.googleMapsUri,"
          "places.rating,places.userRatingCount,places.photos,places.primaryType,places.types,places.businessStatus,nextPageToken")
 SITI_INSIEME = 8
+# tipi principali di Google che sono un alloggio: ristoranti, bar, aree di sosta e campeggi restano fuori
+ALLOGGIO = re.compile(r"hotel|motel|inn$|lodging|bed_and_breakfast|guest_house|farmstay|farm$|cottage|private_guest_room|vacation_rental|hostel|resort", re.I)
 
 
 def semplice(t):
@@ -116,6 +118,8 @@ def main():
             scarta("fuori dal comune"); continue
         if pl.get("primaryType") in altri:
             scarta("di un altro tipo"); continue
+        if pl.get("primaryType") and not ALLOGGIO.search(pl["primaryType"]):
+            scarta("non è un alloggio (" + pl["primaryType"] + ")"); continue
         if not sito:
             scarta("senza sito"); continue
         if PORTALI.search(sito):
