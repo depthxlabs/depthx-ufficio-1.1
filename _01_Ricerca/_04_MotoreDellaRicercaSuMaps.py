@@ -101,6 +101,8 @@ def main():
     tipo = T.TIPI[p.tipo]
     altri = set().union(*[t["google"] for k, t in T.TIPI.items() if k != p.tipo]) - {"lodging"}
     domini, email_note, telefoni = gia_noti(p.codice)
+    ricerca = next((r for r in D.leggi_tabella("_01_Ricerche/Ricerche.csv") if r["Codice"] == p.codice), {})
+    sezioni = set((ricerca.get("Sezioni") or "S2 S3 S4").split())
     scarti, candidati = {}, []
     scarta = lambda motivo: scarti.__setitem__(motivo, scarti.get(motivo, 0) + 1)
 
@@ -130,6 +132,8 @@ def main():
     for pl, s in zip(candidati, controlli):
         if not s["letto"]:
             scarta("sito non raggiungibile"); continue
+        if s["sezione"] not in sezioni:
+            scarta(f"sezione {s['sezione']} non cercata"); continue
         email = [e for e in s["email"] if e not in email_note][:3]
         if not s["email"]:
             scarta("nessuna email pubblica"); continue

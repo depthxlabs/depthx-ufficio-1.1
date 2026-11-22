@@ -88,4 +88,4 @@ def salva(scrivi, messaggio):
     return False
 
 
-COLONNE_RICERCHE = ["Codice", "Tipi", "Obiettivo", "Dal", "Partenza", "Latitudine", "Longitudine", "RaggioKm", "Stato", "Raggiunti", "Giri", "Aggiornato"]
+COLONNE_RICERCHE = ["Codice", "Tipi", "Obiettivo", "Dal", "Partenza", "Latitudine", "Longitudine", "RaggioKm", "Stato", "Raggiunti", "Giri", "Aggiornato", "Sezioni"]
