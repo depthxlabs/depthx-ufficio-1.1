@@ -114,8 +114,8 @@ def main():
         dominio = urllib.parse.urlparse(sito).netloc.replace("www.", "").lower()
         if pl.get("businessStatus") not in (None, "OPERATIONAL"):
             scarta("struttura chiusa"); continue
-        if semplice(componente(pl, "locality") or componente(pl, "administrative_area_level_3")) != semplice(p.comune):
-            scarta("fuori dal comune"); continue
+        # dal 23/11/2026: le strutture dei comuni vicini che Google restituisce si tengono (prima il 92% dei risultati si scartava);
+        # i doppioni restano fuori con il controllo su dominio, email e telefono
         if pl.get("primaryType") in altri:
             scarta("di un altro tipo"); continue
         if pl.get("primaryType") and not ALLOGGIO.search(pl["primaryType"]):
