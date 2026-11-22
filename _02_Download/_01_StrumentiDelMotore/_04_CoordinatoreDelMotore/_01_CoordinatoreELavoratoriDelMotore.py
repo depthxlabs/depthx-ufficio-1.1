@@ -256,7 +256,7 @@ def soloRapportoDiUnicita(argomenti):
     for cliente in clienti:
         voce = scaricati.get(cliente["idCliente"], {})
         # un rapporto GO già scritto non si rifà: meno token sull'abbonamento
-        if voce.get("esito") not in ("GO", "PARZIALE", "NOTGO") or ((voce.get("passi", {}).get("Rapporto di unicità") or {}).get("esito") == "GO"
+        if voce.get("esito") not in ("GO", "PARZIALE", "NOTGO", "DA RICONOSCERE") or ((voce.get("passi", {}).get("Rapporto di unicità") or {}).get("esito") == "GO"
                                                                      and ((voce.get("passi", {}).get("Rapporto di unicità") or {}).get("dettagli") or {}).get("formato") == "settori"):
             continue
         contesto = Contesto(cliente, voceIndustria, destinazione)
@@ -321,7 +321,7 @@ def chiaveDelBattito(numero, parte):
 FILE_DEL_BLOCCO = comune.FILE_DEL_BLOCCO_DI_DOWNLOAD
 CLIENTI_PER_PARTE = 3
 PASSATE = 3  # passate sui blocchi: la prima scarica, le altre recuperano i NOTGO (9/11/2026)
-ESITI_CHIUSI = ("GO", "ESCLUSO", "DA RICONOSCERE")  # escluso per materiale insufficiente; scaricato su GitHub in attesa del riconoscimento sul server
+ESITI_CHIUSI = ("GO", "ESCLUSO", "DA RICONOSCERE", "IN CODA SU GITHUB")  # escluso per materiale insufficiente; scaricato su GitHub in attesa del riconoscimento sul server
 # su GitHub (dal 23/11/2026) il riconoscimento delle foto e il rapporto di unicità con Claude si fanno sul server, dopo il download
 SENZA_CLAUDE = os.environ.get("MOTORE_SENZA_CLAUDE") == "1"  # dal 9/11/2026: i SALTATO si rifanno e diventano GO; i vecchi PARZIALE hanno già più dei tetti nuovi
 

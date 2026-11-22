@@ -49,6 +49,8 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.14" }
       - run: pip install -q -r _02_Download/_00_LibrerieDelMotore.txt
+      - name: ffmpeg e ffprobe per i video
+        run: choco install ffmpeg --no-progress -y > /dev/null && ffprobe -version | head -1
       - name: Chiavi del motore dai segreti
         env:
           MAPPE: ${{ secrets.MOTORE_CHIAVE_MAPPE }}

@@ -71,9 +71,8 @@ class Passo:
         if self.limite:
             return "NOTGO"
         # dal 9/11/2026 (Michele) non esistono più i PARZIALE: un tetto o un tempo raggiunto è GO, scritto nel motivo
-        # irraggiungibili dopo le ripetizioni e il giro di recupero: NOTGO solo se non è arrivato niente
-        if self.irraggiungibili and not self.scaricati:
-            return "NOTGO"
+        # dal 23/11/2026 (Michele): un elemento irraggiungibile dopo le ripetizioni e il giro di recupero è un limite del sito o della
+        # piattaforma del cliente, non un nostro guasto: il passo è GO e il numero degli irraggiungibili resta scritto nel motivo
         if self.scaricati != self.attesi and not self.piattaforma and not self.irraggiungibili:
             return "NOTGO"
         return "GO"
