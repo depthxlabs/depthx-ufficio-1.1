@@ -3,7 +3,7 @@
 Un lavoro = un tipo (HOT, BEB, AGR, CAV) in un comune, per la ricerca indicata.
 1. Cerca su Google Places API (New) le parole del tipo nel comune.
 2. Tiene solo le strutture aperte, del comune, del tipo giusto, con un sito proprio non ancora noto.
-3. Controlla ogni sito: email pubblicata (obbligatoria, il contatto è solo per email), sezione S2, S3 o S4, social, piattaforma.
+3. Controlla ogni sito: email pubblicata oppure Instagram (almeno uno dei due), sezione S2, S3 o S4, social, piattaforma.
 4. Scrive i contatti in _03_Contatti/<Codice>/<TIPO>_<Comune>.csv e l'esito in _02_Giri/<Codice>/<TIPO>_<Comune>.json.
 
 Uso:  python -B -I _04_MotoreDellaRicercaSuMaps.py --codice Ricerca001 --tipo HOT --comune Brescia --provincia BS
@@ -139,9 +139,10 @@ def main():
         if s["sezione"] not in sezioni:
             scarta(f"sezione {s['sezione']} non cercata"); continue
         email = [e for e in s["email"] if e not in email_note][:3]
-        if not s["email"]:
-            scarta("nessuna email pubblica"); continue
-        if not email:
+        # dal 23/11/2026 (Michele): si tiene chi ha un'email pubblica oppure Instagram; chi non ha nessuno dei due resta fuori
+        if not s["email"] and not s["social"]["instagram"]:
+            scarta("né email pubblica né Instagram"); continue
+        if s["email"] and not email:
             scarta("email già nel CRM"); continue
         email_note.update(email)
         prov = componente(pl, "administrative_area_level_2", True) or p.provincia
