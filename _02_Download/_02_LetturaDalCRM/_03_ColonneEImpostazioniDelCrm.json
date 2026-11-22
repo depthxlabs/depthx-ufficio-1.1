@@ -1,0 +1,58 @@
+{
+ "descrizione": "CRM della Linea 1.2 a sezioni (dal 4/11/2026): [01] a [04] CRM_Section, poi tipo, sottocategoria, regione, un foglio. Il motore li legge in sola lettura. Elenco dei fogli: _04_FogliDeiCrmNuovi.json.",
+ "idCartellaDeiCrm": "1Mqc9nDqLQpPIk21agOP87Hr9WipKphva",
+ "regioni": [],
+ "cartelleEscluse": [
+  "[99] CRM Clienti Esclusi"
+ ],
+ "statoDelRiempimentoDeiCrm": "C:/Users/Administrator/AppData/Local/Temp/1/claude/C--/5bf3400e-9f57-4f7b-b0f4-eb2b8127fab2/scratchpad/crm_riempimento/stato.json",
+ "tettoChiamatePlacesDelMese": 950,
+ "chiamatePlacesRiservatePerCliente": 12,
+ "tipi": {
+  "[01] Hotel": {
+   "sigla": "HOT",
+   "tipoDiAttivita": "hotel o albergo",
+   "descrizioneDeiProdotti": "camere, suite, colazione, ristorante, spa, piscina, servizi della struttura",
+   "campiGoogleDellIndustria": [
+    "servesBreakfast",
+    "allowsDogs",
+    "goodForChildren"
+   ]
+  },
+  "[02] B&B": {
+   "sigla": "BEB",
+   "tipoDiAttivita": "bed and breakfast",
+   "descrizioneDeiProdotti": "camere, bagni, colazioni, spazi comuni, servizi della struttura",
+   "campiGoogleDellIndustria": [
+    "servesBreakfast",
+    "allowsDogs",
+    "goodForChildren"
+   ]
+  },
+  "[03] Agriturismi": {
+   "sigla": "AGR",
+   "tipoDiAttivita": "agriturismo",
+   "descrizioneDeiProdotti": "camere, piatti, prodotti dell'azienda agricola, vini, piscina, animali, campagna",
+   "campiGoogleDellIndustria": [
+    "servesBreakfast",
+    "servesLunch",
+    "servesDinner",
+    "servesWine",
+    "outdoorSeating",
+    "reservable",
+    "goodForGroups",
+    "allowsDogs",
+    "goodForChildren"
+   ]
+  },
+  "[04] Case Vacanze": {
+   "sigla": "CAV",
+   "tipoDiAttivita": "casa vacanze o appartamento per le vacanze",
+   "descrizioneDeiProdotti": "appartamenti, camere, cucina, giardino, terrazza, piscina, vista, servizi della casa",
+   "campiGoogleDellIndustria": [
+    "allowsDogs",
+    "goodForChildren"
+   ]
+  }
+ }
+}

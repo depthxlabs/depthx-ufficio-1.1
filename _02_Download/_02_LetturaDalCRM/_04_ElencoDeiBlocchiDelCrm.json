@@ -1,0 +1,457 @@
+[
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[01] HOTEL (HOT)/[01] S1_HOT_LOM.xlsx",
+  "nome": "[01] S1_HOT_LOM",
+  "percorso": "/[01] S1_ClientiSenzaSito/[01] HOTEL (HOT)/[01] S1_HOT_LOM"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[01] S1_BEB_ABR.xlsx",
+  "nome": "[01] S1_BEB_ABR",
+  "percorso": "/[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[01] S1_BEB_ABR"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[02] S1_BEB_BAS.xlsx",
+  "nome": "[02] S1_BEB_BAS",
+  "percorso": "/[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[02] S1_BEB_BAS"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[03] S1_BEB_CAL.xlsx",
+  "nome": "[03] S1_BEB_CAL",
+  "percorso": "/[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[03] S1_BEB_CAL"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[04] S1_BEB_CAM.xlsx",
+  "nome": "[04] S1_BEB_CAM",
+  "percorso": "/[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[04] S1_BEB_CAM"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[05] S1_BEB_EMR.xlsx",
+  "nome": "[05] S1_BEB_EMR",
+  "percorso": "/[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[05] S1_BEB_EMR"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[06] S1_BEB_FVG.xlsx",
+  "nome": "[06] S1_BEB_FVG",
+  "percorso": "/[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[06] S1_BEB_FVG"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[07] S1_BEB_LAZ.xlsx",
+  "nome": "[07] S1_BEB_LAZ",
+  "percorso": "/[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[07] S1_BEB_LAZ"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[08] S1_BEB_LIG.xlsx",
+  "nome": "[08] S1_BEB_LIG",
+  "percorso": "/[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[08] S1_BEB_LIG"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[09] S1_BEB_LOM.xlsx",
+  "nome": "[09] S1_BEB_LOM",
+  "percorso": "/[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[09] S1_BEB_LOM"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[10] S1_BEB_MAR.xlsx",
+  "nome": "[10] S1_BEB_MAR",
+  "percorso": "/[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[10] S1_BEB_MAR"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[11] S1_BEB_MOL.xlsx",
+  "nome": "[11] S1_BEB_MOL",
+  "percorso": "/[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[11] S1_BEB_MOL"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[12] S1_BEB_PIE.xlsx",
+  "nome": "[12] S1_BEB_PIE",
+  "percorso": "/[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[12] S1_BEB_PIE"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[13] S1_BEB_PUG.xlsx",
+  "nome": "[13] S1_BEB_PUG",
+  "percorso": "/[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[13] S1_BEB_PUG"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[14] S1_BEB_SAR.xlsx",
+  "nome": "[14] S1_BEB_SAR",
+  "percorso": "/[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[14] S1_BEB_SAR"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[15] S1_BEB_SIC.xlsx",
+  "nome": "[15] S1_BEB_SIC",
+  "percorso": "/[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[15] S1_BEB_SIC"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[16] S1_BEB_TAA.xlsx",
+  "nome": "[16] S1_BEB_TAA",
+  "percorso": "/[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[16] S1_BEB_TAA"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[17] S1_BEB_TOS.xlsx",
+  "nome": "[17] S1_BEB_TOS",
+  "percorso": "/[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[17] S1_BEB_TOS"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[18] S1_BEB_UMB.xlsx",
+  "nome": "[18] S1_BEB_UMB",
+  "percorso": "/[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[18] S1_BEB_UMB"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[19] S1_BEB_VDA.xlsx",
+  "nome": "[19] S1_BEB_VDA",
+  "percorso": "/[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[19] S1_BEB_VDA"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[20] S1_BEB_VEN.xlsx",
+  "nome": "[20] S1_BEB_VEN",
+  "percorso": "/[01] S1_ClientiSenzaSito/[02] BED&BREAKFAST(B&B)/[20] S1_BEB_VEN"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[01] S1_AGR_ABR.xlsx",
+  "nome": "[01] S1_AGR_ABR",
+  "percorso": "/[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[01] S1_AGR_ABR"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[02] S1_AGR_BAS.xlsx",
+  "nome": "[02] S1_AGR_BAS",
+  "percorso": "/[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[02] S1_AGR_BAS"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[03] S1_AGR_CAL.xlsx",
+  "nome": "[03] S1_AGR_CAL",
+  "percorso": "/[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[03] S1_AGR_CAL"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[04] S1_AGR_CAM.xlsx",
+  "nome": "[04] S1_AGR_CAM",
+  "percorso": "/[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[04] S1_AGR_CAM"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[05] S1_AGR_EMR.xlsx",
+  "nome": "[05] S1_AGR_EMR",
+  "percorso": "/[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[05] S1_AGR_EMR"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[06] S1_AGR_FVG.xlsx",
+  "nome": "[06] S1_AGR_FVG",
+  "percorso": "/[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[06] S1_AGR_FVG"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[07] S1_AGR_LAZ.xlsx",
+  "nome": "[07] S1_AGR_LAZ",
+  "percorso": "/[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[07] S1_AGR_LAZ"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[08] S1_AGR_LIG.xlsx",
+  "nome": "[08] S1_AGR_LIG",
+  "percorso": "/[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[08] S1_AGR_LIG"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[09] S1_AGR_LOM.xlsx",
+  "nome": "[09] S1_AGR_LOM",
+  "percorso": "/[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[09] S1_AGR_LOM"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[10] S1_AGR_MAR.xlsx",
+  "nome": "[10] S1_AGR_MAR",
+  "percorso": "/[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[10] S1_AGR_MAR"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[11] S1_AGR_MOL.xlsx",
+  "nome": "[11] S1_AGR_MOL",
+  "percorso": "/[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[11] S1_AGR_MOL"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[12] S1_AGR_PIE.xlsx",
+  "nome": "[12] S1_AGR_PIE",
+  "percorso": "/[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[12] S1_AGR_PIE"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[13] S1_AGR_PUG.xlsx",
+  "nome": "[13] S1_AGR_PUG",
+  "percorso": "/[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[13] S1_AGR_PUG"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[14] S1_AGR_SAR.xlsx",
+  "nome": "[14] S1_AGR_SAR",
+  "percorso": "/[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[14] S1_AGR_SAR"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[15] S1_AGR_SIC.xlsx",
+  "nome": "[15] S1_AGR_SIC",
+  "percorso": "/[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[15] S1_AGR_SIC"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[16] S1_AGR_TAA.xlsx",
+  "nome": "[16] S1_AGR_TAA",
+  "percorso": "/[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[16] S1_AGR_TAA"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[17] S1_AGR_TOS.xlsx",
+  "nome": "[17] S1_AGR_TOS",
+  "percorso": "/[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[17] S1_AGR_TOS"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[18] S1_AGR_UMB.xlsx",
+  "nome": "[18] S1_AGR_UMB",
+  "percorso": "/[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[18] S1_AGR_UMB"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[19] S1_AGR_VEN.xlsx",
+  "nome": "[19] S1_AGR_VEN",
+  "percorso": "/[01] S1_ClientiSenzaSito/[03] AGRITURISMI (AGR)/[19] S1_AGR_VEN"
+ },
+ {
+  "id": "disco:[01] S1_ClientiSenzaSito/[04] CASE VACANZE (CAV)/[01] S1_CAV_LOM.xlsx",
+  "nome": "[01] S1_CAV_LOM",
+  "percorso": "/[01] S1_ClientiSenzaSito/[04] CASE VACANZE (CAV)/[01] S1_CAV_LOM"
+ },
+ {
+  "id": "disco:[02] S2_ClientiConSitoDebole/[01] HOTEL (HOT)/[01] S2_HOT_LOM.xlsx",
+  "nome": "[01] S2_HOT_LOM",
+  "percorso": "/[02] S2_ClientiConSitoDebole/[01] HOTEL (HOT)/[01] S2_HOT_LOM"
+ },
+ {
+  "id": "disco:[02] S2_ClientiConSitoDebole/[01] HOTEL (HOT)/[02] S2_HOT_VEN.xlsx",
+  "nome": "[02] S2_HOT_VEN",
+  "percorso": "/[02] S2_ClientiConSitoDebole/[01] HOTEL (HOT)/[02] S2_HOT_VEN"
+ },
+ {
+  "id": "disco:[02] S2_ClientiConSitoDebole/[01] HOTEL (HOT)/[03] S2_HOT_TAA.xlsx",
+  "nome": "[03] S2_HOT_TAA",
+  "percorso": "/[02] S2_ClientiConSitoDebole/[01] HOTEL (HOT)/[03] S2_HOT_TAA"
+ },
+ {
+  "id": "disco:[02] S2_ClientiConSitoDebole/[01] HOTEL (HOT)/[04] S2_HOT_EMR.xlsx",
+  "nome": "[04] S2_HOT_EMR",
+  "percorso": "/[02] S2_ClientiConSitoDebole/[01] HOTEL (HOT)/[04] S2_HOT_EMR"
+ },
+ {
+  "id": "disco:[02] S2_ClientiConSitoDebole/[02] BED&BREAKFAST(B&B)/[01] S2_BEB_ABR.xlsx",
+  "nome": "[01] S2_BEB_ABR",
+  "percorso": "/[02] S2_ClientiConSitoDebole/[02] BED&BREAKFAST(B&B)/[01] S2_BEB_ABR"
+ },
+ {
+  "id": "disco:[02] S2_ClientiConSitoDebole/[02] BED&BREAKFAST(B&B)/[02] S2_BEB_CAL.xlsx",
+  "nome": "[02] S2_BEB_CAL",
+  "percorso": "/[02] S2_ClientiConSitoDebole/[02] BED&BREAKFAST(B&B)/[02] S2_BEB_CAL"
+ },
+ {
+  "id": "disco:[02] S2_ClientiConSitoDebole/[02] BED&BREAKFAST(B&B)/[03] S2_BEB_FVG.xlsx",
+  "nome": "[03] S2_BEB_FVG",
+  "percorso": "/[02] S2_ClientiConSitoDebole/[02] BED&BREAKFAST(B&B)/[03] S2_BEB_FVG"
+ },
+ {
+  "id": "disco:[02] S2_ClientiConSitoDebole/[02] BED&BREAKFAST(B&B)/[04] S2_BEB_LAZ.xlsx",
+  "nome": "[04] S2_BEB_LAZ",
+  "percorso": "/[02] S2_ClientiConSitoDebole/[02] BED&BREAKFAST(B&B)/[04] S2_BEB_LAZ"
+ },
+ {
+  "id": "disco:[02] S2_ClientiConSitoDebole/[02] BED&BREAKFAST(B&B)/[05] S2_BEB_LIG.xlsx",
+  "nome": "[05] S2_BEB_LIG",
+  "percorso": "/[02] S2_ClientiConSitoDebole/[02] BED&BREAKFAST(B&B)/[05] S2_BEB_LIG"
+ },
+ {
+  "id": "disco:[02] S2_ClientiConSitoDebole/[02] BED&BREAKFAST(B&B)/[06] S2_BEB_LOM.xlsx",
+  "nome": "[06] S2_BEB_LOM",
+  "percorso": "/[02] S2_ClientiConSitoDebole/[02] BED&BREAKFAST(B&B)/[06] S2_BEB_LOM"
+ },
+ {
+  "id": "disco:[02] S2_ClientiConSitoDebole/[02] BED&BREAKFAST(B&B)/[07] S2_BEB_MAR.xlsx",
+  "nome": "[07] S2_BEB_MAR",
+  "percorso": "/[02] S2_ClientiConSitoDebole/[02] BED&BREAKFAST(B&B)/[07] S2_BEB_MAR"
+ },
+ {
+  "id": "disco:[02] S2_ClientiConSitoDebole/[02] BED&BREAKFAST(B&B)/[08] S2_BEB_MOL.xlsx",
+  "nome": "[08] S2_BEB_MOL",
+  "percorso": "/[02] S2_ClientiConSitoDebole/[02] BED&BREAKFAST(B&B)/[08] S2_BEB_MOL"
+ },
+ {
+  "id": "disco:[02] S2_ClientiConSitoDebole/[02] BED&BREAKFAST(B&B)/[09] S2_BEB_PIE.xlsx",
+  "nome": "[09] S2_BEB_PIE",
+  "percorso": "/[02] S2_ClientiConSitoDebole/[02] BED&BREAKFAST(B&B)/[09] S2_BEB_PIE"
+ },
+ {
+  "id": "disco:[02] S2_ClientiConSitoDebole/[02] BED&BREAKFAST(B&B)/[10] S2_BEB_PUG.xlsx",
+  "nome": "[10] S2_BEB_PUG",
+  "percorso": "/[02] S2_ClientiConSitoDebole/[02] BED&BREAKFAST(B&B)/[10] S2_BEB_PUG"
+ },
+ {
+  "id": "disco:[02] S2_ClientiConSitoDebole/[02] BED&BREAKFAST(B&B)/[11] S2_BEB_SIC.xlsx",
+  "nome": "[11] S2_BEB_SIC",
+  "percorso": "/[02] S2_ClientiConSitoDebole/[02] BED&BREAKFAST(B&B)/[11] S2_BEB_SIC"
+ },
+ {
+  "id": "disco:[02] S2_ClientiConSitoDebole/[02] BED&BREAKFAST(B&B)/[12] S2_BEB_TAA.xlsx",
+  "nome": "[12] S2_BEB_TAA",
+  "percorso": "/[02] S2_ClientiConSitoDebole/[02] BED&BREAKFAST(B&B)/[12] S2_BEB_TAA"
+ },
+ {
+  "id": "disco:[02] S2_ClientiConSitoDebole/[02] BED&BREAKFAST(B&B)/[13] S2_BEB_TOS.xlsx",
+  "nome": "[13] S2_BEB_TOS",
+  "percorso": "/[02] S2_ClientiConSitoDebole/[02] BED&BREAKFAST(B&B)/[13] S2_BEB_TOS"
+ },
+ {
+  "id": "disco:[02] S2_ClientiConSitoDebole/[02] BED&BREAKFAST(B&B)/[14] S2_BEB_UMB.xlsx",
+  "nome": "[14] S2_BEB_UMB",
+  "percorso": "/[02] S2_ClientiConSitoDebole/[02] BED&BREAKFAST(B&B)/[14] S2_BEB_UMB"
+ },
+ {
+  "id": "disco:[02] S2_ClientiConSitoDebole/[02] BED&BREAKFAST(B&B)/[15] S2_BEB_VEN.xlsx",
+  "nome": "[15] S2_BEB_VEN",
+  "percorso": "/[02] S2_ClientiConSitoDebole/[02] BED&BREAKFAST(B&B)/[15] S2_BEB_VEN"
+ },
+ {
+  "id": "disco:[02] S2_ClientiConSitoDebole/[02] BED&BREAKFAST(B&B)/[16] S2_BEB_EMR.xlsx",
+  "nome": "[16] S2_BEB_EMR",
+  "percorso": "/[02] S2_ClientiConSitoDebole/[02] BED&BREAKFAST(B&B)/[16] S2_BEB_EMR"
+ },
+ {
+  "id": "disco:[02] S2_ClientiConSitoDebole/[03] AGRITURISMI (AGR)/[01] S2_AGR_CAL.xlsx",
+  "nome": "[01] S2_AGR_CAL",
+  "percorso": "/[02] S2_ClientiConSitoDebole/[03] AGRITURISMI (AGR)/[01] S2_AGR_CAL"
+ },
+ {
+  "id": "disco:[02] S2_ClientiConSitoDebole/[03] AGRITURISMI (AGR)/[02] S2_AGR_CAM.xlsx",
+  "nome": "[02] S2_AGR_CAM",
+  "percorso": "/[02] S2_ClientiConSitoDebole/[03] AGRITURISMI (AGR)/[02] S2_AGR_CAM"
+ },
+ {
+  "id": "disco:[02] S2_ClientiConSitoDebole/[03] AGRITURISMI (AGR)/[03] S2_AGR_LOM.xlsx",
+  "nome": "[03] S2_AGR_LOM",
+  "percorso": "/[02] S2_ClientiConSitoDebole/[03] AGRITURISMI (AGR)/[03] S2_AGR_LOM"
+ },
+ {
+  "id": "disco:[02] S2_ClientiConSitoDebole/[03] AGRITURISMI (AGR)/[04] S2_AGR_MAR.xlsx",
+  "nome": "[04] S2_AGR_MAR",
+  "percorso": "/[02] S2_ClientiConSitoDebole/[03] AGRITURISMI (AGR)/[04] S2_AGR_MAR"
+ },
+ {
+  "id": "disco:[02] S2_ClientiConSitoDebole/[03] AGRITURISMI (AGR)/[05] S2_AGR_PUG.xlsx",
+  "nome": "[05] S2_AGR_PUG",
+  "percorso": "/[02] S2_ClientiConSitoDebole/[03] AGRITURISMI (AGR)/[05] S2_AGR_PUG"
+ },
+ {
+  "id": "disco:[02] S2_ClientiConSitoDebole/[03] AGRITURISMI (AGR)/[06] S2_AGR_SAR.xlsx",
+  "nome": "[06] S2_AGR_SAR",
+  "percorso": "/[02] S2_ClientiConSitoDebole/[03] AGRITURISMI (AGR)/[06] S2_AGR_SAR"
+ },
+ {
+  "id": "disco:[02] S2_ClientiConSitoDebole/[03] AGRITURISMI (AGR)/[07] S2_AGR_SIC.xlsx",
+  "nome": "[07] S2_AGR_SIC",
+  "percorso": "/[02] S2_ClientiConSitoDebole/[03] AGRITURISMI (AGR)/[07] S2_AGR_SIC"
+ },
+ {
+  "id": "disco:[02] S2_ClientiConSitoDebole/[03] AGRITURISMI (AGR)/[08] S2_AGR_TOS.xlsx",
+  "nome": "[08] S2_AGR_TOS",
+  "percorso": "/[02] S2_ClientiConSitoDebole/[03] AGRITURISMI (AGR)/[08] S2_AGR_TOS"
+ },
+ {
+  "id": "disco:[02] S2_ClientiConSitoDebole/[03] AGRITURISMI (AGR)/[09] S2_AGR_UMB.xlsx",
+  "nome": "[09] S2_AGR_UMB",
+  "percorso": "/[02] S2_ClientiConSitoDebole/[03] AGRITURISMI (AGR)/[09] S2_AGR_UMB"
+ },
+ {
+  "id": "disco:[02] S2_ClientiConSitoDebole/[03] AGRITURISMI (AGR)/[10] S2_AGR_VEN.xlsx",
+  "nome": "[10] S2_AGR_VEN",
+  "percorso": "/[02] S2_ClientiConSitoDebole/[03] AGRITURISMI (AGR)/[10] S2_AGR_VEN"
+ },
+ {
+  "id": "disco:[02] S2_ClientiConSitoDebole/[03] AGRITURISMI (AGR)/[11] S2_AGR_TAA.xlsx",
+  "nome": "[11] S2_AGR_TAA",
+  "percorso": "/[02] S2_ClientiConSitoDebole/[03] AGRITURISMI (AGR)/[11] S2_AGR_TAA"
+ },
+ {
+  "id": "disco:[02] S2_ClientiConSitoDebole/[04] CASE VACANZE (CAV)/[01] S2_CAV_LOM.xlsx",
+  "nome": "[01] S2_CAV_LOM",
+  "percorso": "/[02] S2_ClientiConSitoDebole/[04] CASE VACANZE (CAV)/[01] S2_CAV_LOM"
+ },
+ {
+  "id": "disco:[03] S3_ClientiConSitoDatato/[01] HOTEL (HOT)/[01] S3_HOT_LOM.xlsx",
+  "nome": "[01] S3_HOT_LOM",
+  "percorso": "/[03] S3_ClientiConSitoDatato/[01] HOTEL (HOT)/[01] S3_HOT_LOM"
+ },
+ {
+  "id": "disco:[03] S3_ClientiConSitoDatato/[01] HOTEL (HOT)/[02] S3_HOT_VEN.xlsx",
+  "nome": "[02] S3_HOT_VEN",
+  "percorso": "/[03] S3_ClientiConSitoDatato/[01] HOTEL (HOT)/[02] S3_HOT_VEN"
+ },
+ {
+  "id": "disco:[03] S3_ClientiConSitoDatato/[01] HOTEL (HOT)/[03] S3_HOT_TAA.xlsx",
+  "nome": "[03] S3_HOT_TAA",
+  "percorso": "/[03] S3_ClientiConSitoDatato/[01] HOTEL (HOT)/[03] S3_HOT_TAA"
+ },
+ {
+  "id": "disco:[03] S3_ClientiConSitoDatato/[01] HOTEL (HOT)/[04] S3_HOT_EMR.xlsx",
+  "nome": "[04] S3_HOT_EMR",
+  "percorso": "/[03] S3_ClientiConSitoDatato/[01] HOTEL (HOT)/[04] S3_HOT_EMR"
+ },
+ {
+  "id": "disco:[03] S3_ClientiConSitoDatato/[02] BED&BREAKFAST(B&B)/[01] S3_BEB_EMR.xlsx",
+  "nome": "[01] S3_BEB_EMR",
+  "percorso": "/[03] S3_ClientiConSitoDatato/[02] BED&BREAKFAST(B&B)/[01] S3_BEB_EMR"
+ },
+ {
+  "id": "disco:[03] S3_ClientiConSitoDatato/[02] BED&BREAKFAST(B&B)/[02] S3_BEB_LOM.xlsx",
+  "nome": "[02] S3_BEB_LOM",
+  "percorso": "/[03] S3_ClientiConSitoDatato/[02] BED&BREAKFAST(B&B)/[02] S3_BEB_LOM"
+ },
+ {
+  "id": "disco:[03] S3_ClientiConSitoDatato/[02] BED&BREAKFAST(B&B)/[03] S3_BEB_SIC.xlsx",
+  "nome": "[03] S3_BEB_SIC",
+  "percorso": "/[03] S3_ClientiConSitoDatato/[02] BED&BREAKFAST(B&B)/[03] S3_BEB_SIC"
+ },
+ {
+  "id": "disco:[03] S3_ClientiConSitoDatato/[02] BED&BREAKFAST(B&B)/[04] S3_BEB_VEN.xlsx",
+  "nome": "[04] S3_BEB_VEN",
+  "percorso": "/[03] S3_ClientiConSitoDatato/[02] BED&BREAKFAST(B&B)/[04] S3_BEB_VEN"
+ },
+ {
+  "id": "disco:[03] S3_ClientiConSitoDatato/[02] BED&BREAKFAST(B&B)/[05] S3_BEB_TAA.xlsx",
+  "nome": "[05] S3_BEB_TAA",
+  "percorso": "/[03] S3_ClientiConSitoDatato/[02] BED&BREAKFAST(B&B)/[05] S3_BEB_TAA"
+ },
+ {
+  "id": "disco:[03] S3_ClientiConSitoDatato/[03] AGRITURISMI (AGR)/[01] S3_AGR_EMR.xlsx",
+  "nome": "[01] S3_AGR_EMR",
+  "percorso": "/[03] S3_ClientiConSitoDatato/[03] AGRITURISMI (AGR)/[01] S3_AGR_EMR"
+ },
+ {
+  "id": "disco:[03] S3_ClientiConSitoDatato/[03] AGRITURISMI (AGR)/[02] S3_AGR_LIG.xlsx",
+  "nome": "[02] S3_AGR_LIG",
+  "percorso": "/[03] S3_ClientiConSitoDatato/[03] AGRITURISMI (AGR)/[02] S3_AGR_LIG"
+ },
+ {
+  "id": "disco:[03] S3_ClientiConSitoDatato/[03] AGRITURISMI (AGR)/[03] S3_AGR_LOM.xlsx",
+  "nome": "[03] S3_AGR_LOM",
+  "percorso": "/[03] S3_ClientiConSitoDatato/[03] AGRITURISMI (AGR)/[03] S3_AGR_LOM"
+ },
+ {
+  "id": "disco:[03] S3_ClientiConSitoDatato/[03] AGRITURISMI (AGR)/[04] S3_AGR_SIC.xlsx",
+  "nome": "[04] S3_AGR_SIC",
+  "percorso": "/[03] S3_ClientiConSitoDatato/[03] AGRITURISMI (AGR)/[04] S3_AGR_SIC"
+ },
+ {
+  "id": "disco:[03] S3_ClientiConSitoDatato/[03] AGRITURISMI (AGR)/[05] S3_AGR_TOS.xlsx",
+  "nome": "[05] S3_AGR_TOS",
+  "percorso": "/[03] S3_ClientiConSitoDatato/[03] AGRITURISMI (AGR)/[05] S3_AGR_TOS"
+ },
+ {
+  "id": "disco:[03] S3_ClientiConSitoDatato/[03] AGRITURISMI (AGR)/[06] S3_AGR_VEN.xlsx",
+  "nome": "[06] S3_AGR_VEN",
+  "percorso": "/[03] S3_ClientiConSitoDatato/[03] AGRITURISMI (AGR)/[06] S3_AGR_VEN"
+ },
+ {
+  "id": "disco:[03] S3_ClientiConSitoDatato/[03] AGRITURISMI (AGR)/[07] S3_AGR_TAA.xlsx",
+  "nome": "[07] S3_AGR_TAA",
+  "percorso": "/[03] S3_ClientiConSitoDatato/[03] AGRITURISMI (AGR)/[07] S3_AGR_TAA"
+ },
+ {
+  "id": "disco:[03] S3_ClientiConSitoDatato/[04] CASE VACANZE (CAV)/[01] S3_CAV_LOM.xlsx",
+  "nome": "[01] S3_CAV_LOM",
+  "percorso": "/[03] S3_ClientiConSitoDatato/[04] CASE VACANZE (CAV)/[01] S3_CAV_LOM"
+ },
+ {
+  "id": "disco:[03] S3_ClientiConSitoDatato/[04] CASE VACANZE (CAV)/[02] S3_CAV_VEN.xlsx",
+  "nome": "[02] S3_CAV_VEN",
+  "percorso": "/[03] S3_ClientiConSitoDatato/[04] CASE VACANZE (CAV)/[02] S3_CAV_VEN"
+ }
+]

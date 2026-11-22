@@ -1,0 +1,38 @@
+{
+ "industrieInsieme": 12,
+ "ripetizioniPerMetodo": 4,
+ "secondiDiAttesaTraLeRipetizioni": [
+  10,
+  30,
+  90
+ ],
+ "secondiPrimaDelGiroDiRecupero": 120,
+ "oreSenzaBattitoPrimaDelRiavvio": 3,
+ "oreMassimePerClienteNelPrimoGiro": 2,
+ "oreMassimePerClienteNelSecondoGiro": 3,
+ "recensioniGoogleDaScaricare": 100000,
+ "pagineMassimeDelSito": 60,
+ "altezzaMassimaDeiVideo": 1080,
+ "byteMinimiDiUnFile": 1,
+ "fotoPerMosaicoDelRiconoscimento": 9,
+ "modelloDelRiconoscimento": "sonnet",
+ "secondiMassimiDelRiconoscimento": 300,
+ "secondiTraUnControlloEAltroDelConsensoDrive": 300,
+ "descrizioneIndustrieInsieme": "dal 22/11/2026: 12 lavoratori insieme, Google Maps con Places API; con il blocco ogni lavoratore ha una parte di 3 clienti",
+ "caricamentiInParalleloSuDrive": 8,
+ "descrizioneCaricamentiInParallelo": "dal 4/11/2026: mentre le fonti scaricano, 8 file alla volta salgono su Drive insieme; il giro di recupero carica uno alla volta",
+ "modelloDelRapportoDiUnicita": "sonnet",
+ "secondiMassimiDelRapportoDiUnicita": 180,
+ "descrizioneRapportoDiUnicita": "dal 4/11/2026 (Michele): abbonamento Claude Max, sonnet con sforzo basso, nessuno strumento, circa 10.000 caratteri di materiale; il modello sceglie da 3 a 8 settori, ognuno con una frase e una citazione vera",
+ "postInstagramMassimi": 100,
+ "minutiMassimiPerFonte": {
+  "descrizione": "dal 22/11/2026 (Michele): servono al massimo 15 foto per cliente e Maps con Places ne dà 10 in pochi secondi; sito e Instagram 5 minuti, YouTube 3",
+  "Google Maps": 20,
+  "sito": 5,
+  "instagram": 5,
+  "youtube": 3
+ },
+ "fotoMapsInParallelo": 6,
+ "minutiDiPausaDiInstagramDopoIlLimiteMeta": 15,
+ "descrizioneGiroUnico": "dal 9/11/2026 (Michele): un solo giro, esiti solo GO o NOTGO. Sito: le 60 pagine meno profonde, senza pagine inutili. Instagram: i 100 post più recenti. Maps: tutte le foto e tutte le recensioni. Fonti dello stesso cliente in parallelo."
+}

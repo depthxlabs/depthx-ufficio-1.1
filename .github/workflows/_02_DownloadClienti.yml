@@ -1,0 +1,90 @@
+# Download del materiale clienti della Linea 1.1 su GitHub (dal 23/11/2026).
+# Il server prepara la coda nel repository privato dei dati (_04_Download/Coda/<codice>.json): fino a 20 gruppi di clienti.
+# Ogni motore, su una macchina Windows, fa girare il lavoratore del motore di download per il suo gruppo: Google Maps con Places,
+# sito, Instagram e YouTube, caricamento su Drive nella cartella del cliente. Il riconoscimento delle foto e il rapporto di unicità
+# con Claude si fanno sul server: qui il cliente resta "DA RICONOSCERE". Le righe del registro tornano nel repository dei dati.
+name: Download clienti
+run-name: "${{ inputs.codice }}"
+on:
+  workflow_dispatch:
+    inputs:
+      codice: { description: "Codice della coda, per esempio Download001", required: true }
+concurrency: { group: "download-${{ inputs.codice }}", cancel-in-progress: false }
+permissions:
+  contents: read
+jobs:
+  piano:
+    name: Piano della coda
+    runs-on: ubuntu-latest
+    outputs:
+      gruppi: ${{ steps.piano.outputs.gruppi }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { repository: depthxlabs/depthx-dati-1.1, ssh-key: "${{ secrets.CHIAVE_DATI_RICERCA }}", path: dati, sparse-checkout: _04_Download/Coda }
+      - id: piano
+        run: |
+          python3 -c "import json,os; c=json.load(open('dati/_04_Download/Coda/${{ inputs.codice }}.json',encoding='utf-8')); open(os.environ['GITHUB_OUTPUT'],'a').write('gruppi='+json.dumps([str(n) for n in range(len(c['gruppi']))])+'\n')"
+  download:
+    name: Gruppo ${{ matrix.gruppo }}
+    needs: piano
+    runs-on: windows-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        gruppo: ${{ fromJSON(needs.piano.outputs.gruppi) }}
+    defaults:
+      run: { shell: bash }
+    env:
+      PYTHONIOENCODING: utf-8
+      TZ: Europe/Rome
+      MOTORE_SENZA_CLAUDE: "1"
+      MOTORE_CODA: ${{ github.workspace }}\dati\_04_Download\Coda\${{ inputs.codice }}.json
+      CHIAVE_GOOGLE_MAPS: ${{ secrets.CHIAVE_GOOGLE_MAPS }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with: { repository: depthxlabs/depthx-dati-1.1, ssh-key: "${{ secrets.CHIAVE_DATI_RICERCA }}", path: dati, sparse-checkout: _04_Download }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.14" }
+      - run: pip install -q -r _02_Download/_00_LibrerieDelMotore.txt
+      - name: Chiavi del motore dai segreti
+        env:
+          MAPPE: ${{ secrets.MOTORE_CHIAVE_MAPPE }}
+          YOUTUBE: ${{ secrets.MOTORE_CHIAVE_YOUTUBE }}
+          META: ${{ secrets.MOTORE_TOKEN_META }}
+          OAUTH: ${{ secrets.MOTORE_DRIVE_OAUTH }}
+          TOKEN: ${{ secrets.MOTORE_DRIVE_TOKEN }}
+        run: |
+          K=_02_Download/_01_StrumentiDelMotore/_02_ChiaviDiAccessoAServiziDiTerzeParti
+          mkdir -p "$K"
+          printf '%s' "$MAPPE" > "$K/_01_ChiaveGoogleMapsApi.md"
+          printf '%s' "$YOUTUBE" > "$K/_02_ChiaveAPIYoutube.md"
+          printf '%s' "$META" > "$K/_04_TokenAccessoMetaDevelopers.md"
+          printf '%s' "$OAUTH" > "$K/_05_AccessoGoogleDriveOAuth.json"
+          printf '%s' "$TOKEN" > "$K/_06_TokenGoogleDrive.json"
+      - name: Il motore scarica il gruppo
+        run: |
+          python -c "import json,os; c=json.load(open(os.environ['MOTORE_CODA'],encoding='utf-8')); json.dump(c['elenco'], open('_02_Download/_02_LetturaDalCRM/_04_ElencoDeiBlocchiDelCrm.json','w',encoding='utf-8'), ensure_ascii=False)"
+          python -c "import json,os; c=json.load(open(os.environ['MOTORE_CODA'],encoding='utf-8')); print('\n'.join(f\"{l['industria']} {','.join(l['clienti'])}\" for l in c['gruppi'][${{ matrix.gruppo }}]))" > lotti.txt
+          ESITO=0
+          while read -r IND IDS; do
+            python -B _02_Download/_01_StrumentiDelMotore/_04_CoordinatoreDelMotore/_01_CoordinatoreELavoratoriDelMotore.py --lavoratore --industria "$IND" --clienti "$IDS" --giro 2 || ESITO=1
+          done < lotti.txt
+          exit $ESITO
+      - name: Le righe del registro tornano nei dati
+        if: always()
+        run: |
+          R=_02_Download/_01_StrumentiDelMotore/_05_RegistroEStatoDelMotore/registro.jsonl
+          [ -f "$R" ] || exit 0
+          cd dati
+          git config user.name "DepthX Download 1.1"; git config user.email outbound@depthxlabs.com
+          for n in 1 2 3 4 5 6 7 8; do
+            mkdir -p "_04_Download/Esiti/${{ inputs.codice }}"
+            cp "../$R" "_04_Download/Esiti/${{ inputs.codice }}/Gruppo${{ matrix.gruppo }}.jsonl"
+            git add -A && git commit -qm "${{ inputs.codice }}: esiti del gruppo ${{ matrix.gruppo }}" || exit 0
+            git pull -q --rebase origin main && git push -q origin HEAD:main && exit 0
+            sleep $((n * 4))
+          done
+          exit 1
