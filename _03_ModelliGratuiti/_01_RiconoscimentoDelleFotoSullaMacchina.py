@@ -39,14 +39,26 @@ class Riconoscimento:
             self.testi = torch.stack(vettori)
             self.testi = self.testi / self.testi.norm(dim=-1, keepdim=True)
 
-    def categorie(self, percorsi, insieme=16):
-        """La categoria di ogni foto, nell'ordine dei percorsi."""
+    def vettori(self, percorsi, insieme=16):
+        """La rappresentazione di ogni foto (normalizzata), nell'ordine dei percorsi."""
         uscita = []
         for k in range(0, len(percorsi), insieme):
             immagini = torch.stack([self.prepara(Image.open(p).convert("RGB")) for p in percorsi[k:k + insieme]])
             with torch.no_grad():
                 v = self.modello.encode_image(immagini)
                 v = v / v.norm(dim=-1, keepdim=True)
-                punteggi = v @ self.testi.T
-            uscita += [self.nomi[i] for i in punteggi.argmax(dim=-1).tolist()]
+            uscita += v.tolist()
         return uscita
+
+    def categorie_da_vettori(self, vettori):
+        """Senza addestramento: vince la categoria con la descrizione più vicina."""
+        punteggi = torch.tensor(vettori, dtype=torch.float32) @ self.testi.T
+        return [self.nomi[i] for i in punteggi.argmax(dim=-1).tolist()]
+
+    def categorie(self, percorsi, strato=None):
+        """La categoria di ogni foto; con lo strato addestrato (_06_ModelloDelleFoto/_01_StratoDiDecisione.json) decide lui."""
+        vettori = self.vettori(percorsi)
+        if not strato or not vettori:
+            return self.categorie_da_vettori(vettori)
+        punteggi = torch.tensor(vettori) @ torch.tensor(strato["pesi"]).T + torch.tensor(strato["scarti"])
+        return [strato["categorie"][i] for i in punteggi.argmax(dim=-1).tolist()]

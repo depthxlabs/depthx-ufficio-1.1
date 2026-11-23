@@ -1,0 +1,48 @@
+# Addestramento del riconoscimento delle foto, Linea 1.1 Outbound Websites.
+# Il modello di immagini impara le 12 categorie dalle risposte di Claude (esempi giusti e, con peso triplo, quelli che da solo sbaglia),
+# poi rifà la prova sui clienti di dati/_05_ProveDeiModelli. Il modello e gli esiti vanno nell'archivio privato; nel registro solo numeri.
+name: Addestramento riconoscimento foto
+on:
+  workflow_dispatch:
+    inputs:
+      perCategoria: { description: "Foto per categoria", required: false, default: "400" }
+permissions:
+  contents: read
+jobs:
+  addestramento:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    env:
+      PYTHONIOENCODING: utf-8
+      DATI_RICERCA: dati
+      FOTO_PER_CATEGORIA: ${{ inputs.perCategoria }}
+      FOTO_PER_CLIENTE: "90"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: depthxlabs/depthx-dati-1.1
+          ssh-key: "${{ secrets.CHIAVE_DATI_RICERCA }}"
+          path: dati
+          sparse-checkout: |
+            _05_ProveDeiModelli
+            _06_ModelloDelleFoto
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -q --index-url https://download.pytorch.org/whl/cpu torch torchvision && pip install -q open_clip_torch pillow requests scikit-learn numpy
+      - name: L'addestramento
+        env:
+          MOTORE_DRIVE_TOKEN: ${{ secrets.MOTORE_DRIVE_TOKEN }}
+        run: python -B _03_ModelliGratuiti/_04_AddestramentoDelRiconoscimento.py
+      - name: La prova con il modello addestrato
+        env:
+          MOTORE_DRIVE_TOKEN: ${{ secrets.MOTORE_DRIVE_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python -B _03_ModelliGratuiti/_03_ProvaSuiClientiGiaFatti.py
+      - name: Modello ed esiti tornano nei dati
+        if: always()
+        run: |
+          cd dati
+          git add _05_ProveDeiModelli _06_ModelloDelleFoto
+          git -c user.name="DepthX Prove 1.1" -c user.email=outbound@depthxlabs.com commit -q -m "Addestramento del riconoscimento delle foto: modello ed esiti" || exit 0
+          for n in 1 2 3 4 5; do git pull -q --rebase origin main && git push -q origin HEAD:main && break; sleep $((n * 3)); done

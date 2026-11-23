@@ -63,7 +63,8 @@ def main():
                 percorsi.append(p); categorieClaude.append(v["categoria"])
         scaricamento = round(time.time() - inizio, 1)
         inizio = time.time()
-        categorieMacchina = riconoscimento.categorie(percorsi) if percorsi else []
+        strato = leggi(os.path.join(DATI, "_06_ModelloDelleFoto", "_01_StratoDiDecisione.json"))
+        categorieMacchina = riconoscimento.categorie(percorsi, strato) if percorsi else []
         uguali = sum(1 for a, b in zip(categorieClaude, categorieMacchina) if a == b)
         diverse = collections.Counter(f"{a} -> {b}" for a, b in zip(categorieClaude, categorieMacchina) if a != b)
         foto = {"fotoConfrontate": len(percorsi), "uguali": uguali, "percentualeUguali": round(100 * uguali / len(percorsi), 1) if percorsi else 0,
