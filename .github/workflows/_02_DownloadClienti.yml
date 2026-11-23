@@ -82,11 +82,11 @@ jobs:
           [ -f "$R" ] || exit 0
           cd dati
           git config user.name "DepthX Download 1.1"; git config user.email outbound@depthxlabs.com
-          for n in 1 2 3 4 5 6 7 8; do
-            mkdir -p "_04_Download/Esiti/${{ inputs.codice }}"
-            cp "../$R" "_04_Download/Esiti/${{ inputs.codice }}/Gruppo${{ matrix.gruppo }}.jsonl"
-            git add -A && git commit -qm "${{ inputs.codice }}: esiti del gruppo ${{ matrix.gruppo }}" || exit 0
+          mkdir -p "_04_Download/Esiti/${{ inputs.codice }}"
+          cp "../$R" "_04_Download/Esiti/${{ inputs.codice }}/Gruppo${{ matrix.gruppo }}.jsonl"
+          git add -A && git commit -qm "${{ inputs.codice }}: esiti del gruppo ${{ matrix.gruppo }}"
+          for n in $(seq 1 30); do
             git pull -q --rebase origin main && git push -q origin HEAD:main && exit 0
-            sleep $((n * 4))
+            sleep $((RANDOM % 5 + 1))
           done
           exit 1
