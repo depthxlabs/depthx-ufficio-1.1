@@ -43,6 +43,6 @@ jobs:
         if: always()
         run: |
           cd dati
-          git add _05_ProveDeiModelli _06_ModelloDelleFoto
+          git add --sparse _05_ProveDeiModelli _06_ModelloDelleFoto
           git -c user.name="DepthX Prove 1.1" -c user.email=outbound@depthxlabs.com commit -q -m "Addestramento del riconoscimento delle foto: modello ed esiti" || exit 0
           for n in 1 2 3 4 5; do git pull -q --rebase origin main && git push -q origin HEAD:main && break; sleep $((n * 3)); done
