@@ -14,7 +14,10 @@ AGENTE = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, l
 PAUSA_PAGINA = 1.0   # secondi tra due pagine dello stesso sito
 RE_EMAIL = re.compile(r"[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}")
 SCARTA_EMAIL = re.compile(r"\.(png|jpe?g|gif|webp|svg|css|js)$|example\.|sentry|wixpress|domain\.|@2x|yourdomain|email\.(com|it)$|nome\.cognome|mario\.rossi|"
-                          r"@([\w-]+\.)*(pec|pecaruba|arubapec|legalmail|pecimprese|postacert|sicurezzapostale|cert)\.|\.pec\.|booking\.com|airbnb|expedia", re.I)
+                          r"@([\w-]+\.)*(pec|pecaruba|arubapec|legalmail|pecimprese|postacert|sicurezzapostale|cert)\.|\.pec\.|booking\.com|airbnb|expedia|"
+                          # le mail personali, sui domini di posta gratuita, non si contattano mai: restano fuori dal CRM
+                          r"@([\w-]+\.)*(gmail|googlemail|libero|hotmail|yahoo|ymail|alice|virgilio|tiscali|outlook|live|msn|icloud|me|mac|aol|tin|"
+                          r"inwind|iol|katamail|fastwebnet|teletu|tim|vodafone|wind|proton|protonmail|gmx|web|mail|yandex|zoho)\.[a-z.]+$", re.I)
 COSTRUTTORI = [("Wix", r"wix\.com|wixstatic\.com|_wixCIDX"), ("Jimdo", r"jimdo|jimcdn\.com"), ("Weebly", r"weebly\.com|editmysite\.com"),
                ("Webnode", r"webnode\."), ("Site123", r"site123\.|s123-cdn"), ("Strikingly", r"strikingly|strikinglycdn"),
                ("GoDaddy", r"img1\.wsimg\.com|godaddy.{0,40}website builder"), ("IONOS MyWebsite", r"mywebsite-editor|ionos.{0,40}mywebsite|website-editor\.net")]
