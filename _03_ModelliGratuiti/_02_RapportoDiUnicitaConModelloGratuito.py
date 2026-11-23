@@ -37,14 +37,24 @@ def materiale(crm, recensioni, massimo=8000):
     return "\n".join(uscita)
 
 
+# i due indirizzi di GitHub Models: il nuovo e quello di Azure; vale il primo che risponde con una risposta vera
+INDIRIZZI = [(INDIRIZZO, MODELLO), ("https://models.inference.ai.azure.com/chat/completions", MODELLO.split("/")[-1])]
+
+
 def chiedi(domanda):
-    """Una domanda al modello gratuito; restituisce (testo, codice HTTP, limiti rimasti)."""
-    r = requests.post(INDIRIZZO, timeout=120, headers={"Authorization": "Bearer " + os.environ["GITHUB_TOKEN"], "Content-Type": "application/json"},
-                      json={"model": MODELLO, "messages": [{"role": "system", "content": SISTEMA}, {"role": "user", "content": domanda}], "temperature": 0.2})
-    limiti = {k: v for k, v in r.headers.items() if "ratelimit" in k.lower()}
-    if r.status_code != 200:
-        return "", r.status_code, limiti
-    return r.json()["choices"][0]["message"]["content"], 200, limiti
+    """Una domanda al modello gratuito; restituisce (testo, codice HTTP, note sulla risposta senza contenuti)."""
+    note = []
+    for indirizzo, modello in INDIRIZZI:
+        r = requests.post(indirizzo, timeout=120, headers={"Authorization": "Bearer " + os.environ["GITHUB_TOKEN"], "Content-Type": "application/json",
+                                                           "Accept": "application/json", "X-GitHub-Api-Version": "2022-11-28"},
+                          json={"model": modello, "messages": [{"role": "system", "content": SISTEMA}, {"role": "user", "content": domanda}], "temperature": 0.2})
+        note.append({"indirizzo": indirizzo.split("/")[2], "http": r.status_code, "tipo": r.headers.get("content-type", ""), "byte": len(r.content),
+                     **{k: v for k, v in r.headers.items() if "ratelimit" in k.lower()}})
+        try:
+            return r.json()["choices"][0]["message"]["content"], r.status_code, note
+        except (ValueError, KeyError, IndexError, TypeError):
+            continue
+    return "", 0, note
 
 
 def rapporto(nome, tipo, crm, recensioni):

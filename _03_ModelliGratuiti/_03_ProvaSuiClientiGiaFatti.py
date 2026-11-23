@@ -70,7 +70,10 @@ def main():
                 "secondiDiScaricamento": scaricamento, "secondiDiRiconoscimento": round(time.time() - inizio, 1),
                 "categorieClaude": collections.Counter(categorieClaude), "categorieMacchina": collections.Counter(categorieMacchina),
                 "differenzePiuFrequenti": diverse.most_common(10)}
-        gratuito = U.rapporto(crm.get("Nome commerciale") or crm.get("nome") or idCliente, "struttura ricettiva", crm, recensioni)
+        try:
+            gratuito = U.rapporto(crm.get("Nome commerciale") or crm.get("nome") or idCliente, "struttura ricettiva", crm, recensioni)
+        except Exception as e:
+            gratuito = {"codiceHttp": 0, "settori": {}, "settoriScartatiPerCitazioneNonTrovata": [], "secondi": 0, "limiti": [], "errore": type(e).__name__}
         esito = {"idCliente": idCliente, "foto": foto,
                  "rapporto": {"gratuito": gratuito, "claude": {"sintesi": rapportoClaude.get("sintesi", ""), "settori": rapportoClaude.get("settori", {})}}}
         with open(os.path.join(cartella, "_02_EsitoDellaProva.json"), "w", encoding="utf-8") as f:
