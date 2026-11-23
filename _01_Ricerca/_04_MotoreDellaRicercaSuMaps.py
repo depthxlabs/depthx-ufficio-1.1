@@ -136,10 +136,12 @@ def main():
     for pl, s in zip(candidati, controlli):
         if not s["letto"]:
             scarta("sito non raggiungibile"); continue
+        if s["agenzia"]:
+            continue   # sito con i crediti di un'agenzia nel footer: ignorato, senza traccia
         if s["sezione"] not in sezioni:
             scarta(f"sezione {s['sezione']} non cercata"); continue
         email = [e for e in s["email"] if e not in email_note][:3]
-        # dal 23/11/2026 (Michele): si tiene chi ha un'email pubblica oppure Instagram; chi non ha nessuno dei due resta fuori
+        # si tiene chi ha un'email pubblica oppure Instagram; chi non ha nessuno dei due resta fuori
         if not s["email"] and not s["social"]["instagram"]:
             scarta("né email pubblica né Instagram"); continue
         if s["email"] and not email:

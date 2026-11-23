@@ -97,6 +97,27 @@ def testo_di_presentazione(testo):
     return html.unescape(re.sub(r"<[^>]+>", " ", " ".join(pezzi)))
 
 
+# i crediti di chi ha fatto il sito, nel footer: "realizzato da", "web design", "powered by" con il link a un altro dominio
+PAROLE_DEI_CREDITI = re.compile(r"realizzat[oa]|sviluppat[oa]|progettat[oa]|creat[oa]\s+(?:da|by)|design(?:ed)?\s+by|web\s*design|web\s*agency|"
+                                r"web\s*marketing|powered\s+by|developed\s+by|made\s+by|credits|crediti|siti\s+web|sito\s+web\s+(?:a\s+cura|by|da)", re.I)
+PIATTAFORME_NEI_CREDITI = re.compile(r"wordpress|blogger|blogspot|wix|jimdo|weebly|webnode|site123|strikingly|godaddy|ionos|squarespace|shopify|webflow|joomla|drupal|"
+                                     r"elementor|google|facebook|instagram|booking|airbnb|tripadvisor|iubenda|cookiebot|privacy|w3\.org|schema\.org", re.I)
+
+
+def crediti_di_agenzia(testo, dominio):
+    """Il nome dell'agenzia se nel footer c'è un credito con il link a un altro dominio, altrimenti stringa vuota."""
+    piedi = re.findall(r"<footer\b.*?</footer>", testo, re.I | re.S) or [testo[-6000:]]
+    for piede in piedi:
+        for m in re.finditer(r'<a\b[^>]*href=["\'](https?://[^"\']+)["\'][^>]*>(.*?)</a>', piede, re.I | re.S):
+            altro = urllib.parse.urlparse(m.group(1)).netloc.replace("www.", "").lower()
+            if not altro or altro == dominio or altro.endswith("." + dominio) or PIATTAFORME_NEI_CREDITI.search(altro):
+                continue
+            intorno = html.unescape(re.sub(r"<[^>]+>", " ", piede[max(0, m.start() - 160):m.end()]))
+            if PAROLE_DEI_CREDITI.search(intorno):
+                return altro
+    return ""
+
+
 def controlla_sito(sito):
     base = sito if sito.startswith("http") else "https://" + sito
     dominio = urllib.parse.urlparse(base).netloc.replace("www.", "").lower()
@@ -138,5 +159,5 @@ def controlla_sito(sito):
     for k, r in SOCIAL.items():
         trovati = [s for s in re.findall(r, tutto) if not SOCIAL_DA_SCARTARE.search(s)]
         social[k] = trovati[0] if trovati else ""
-    return {"letto": True, "sito": finale, "email": email, "sezione": sezione, "motivo": motivo, "piattaforma": piattaforma,
+    return {"letto": True, "agenzia": crediti_di_agenzia(home, dominio), "sito": finale, "email": email, "sezione": sezione, "motivo": motivo, "piattaforma": piattaforma,
             "pagine": pagine, "social": social, "presentazione": testo_di_presentazione(home), "dominio": dominio}
