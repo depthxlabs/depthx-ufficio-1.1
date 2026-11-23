@@ -45,9 +45,13 @@ def chiedi(domanda):
     """Una domanda al modello gratuito; restituisce (testo, codice HTTP, note sulla risposta senza contenuti)."""
     note = []
     for indirizzo, modello in INDIRIZZI:
-        r = requests.post(indirizzo, timeout=120, headers={"Authorization": "Bearer " + os.environ["GITHUB_TOKEN"], "Content-Type": "application/json",
-                                                           "Accept": "application/json", "X-GitHub-Api-Version": "2022-11-28"},
-                          json={"model": modello, "messages": [{"role": "system", "content": SISTEMA}, {"role": "user", "content": domanda}], "temperature": 0.2})
+        try:
+            r = requests.post(indirizzo, timeout=120, headers={"Authorization": "Bearer " + os.environ["GITHUB_TOKEN"], "Content-Type": "application/json",
+                                                               "Accept": "application/json", "X-GitHub-Api-Version": "2022-11-28"},
+                              json={"model": modello, "messages": [{"role": "system", "content": SISTEMA}, {"role": "user", "content": domanda}], "temperature": 0.2})
+        except requests.RequestException as e:
+            note.append({"indirizzo": indirizzo.split("/")[2], "errore": type(e).__name__})
+            continue
         note.append({"indirizzo": indirizzo.split("/")[2], "http": r.status_code, "tipo": r.headers.get("content-type", ""), "byte": len(r.content),
                      **{k: v for k, v in r.headers.items() if "ratelimit" in k.lower()}})
         try:
