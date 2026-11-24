@@ -2,9 +2,11 @@
 # Legge il CRM su Google Sheets (accesso rclone dal segreto FABBRICA_RCLONE_SCRITTURA), lo stato del download e gli eventi della
 # fabbrica dall'archivio privato (_08_Fabbrica), sposta le cartelle su Drive nel cestino di Drive, toglie la demo da R2 di Cloudflare
 # (segreto CLOUDFLARE_API_TOKEN), cancella le righe dal CRM e scrive esiti ed eventi nell'archivio privato (_08_Fabbrica/uscite).
-# Nel registro pubblico di GitHub vanno solo i numeri. Con "prova" elenca soltanto, senza modifiche.
+# Gira ogni 15 minuti e si lancia anche a mano. Nel registro pubblico di GitHub vanno solo i numeri. Con "prova" elenca soltanto, senza modifiche.
 name: Uscite automatiche dal CRM
 on:
+  schedule:
+    - cron: "*/15 * * * *"
   workflow_dispatch:
     inputs:
       prova: { description: "Solo l'elenco, nessuna modifica", type: boolean, default: true }
