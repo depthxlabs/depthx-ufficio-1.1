@@ -45,7 +45,9 @@ jobs:
       # la sessione Google dell'account del motore: il Chrome di Maps la riceve prima di aprire Maps e vede Maps come il server
       MAPS_SESSIONE_GOOGLE: ${{ secrets.MAPS_SESSIONE_GOOGLE }}
     steps:
+      # solo il codice del download: i percorsi lunghi della fabbrica non entrano nel disco di Windows
       - uses: actions/checkout@v4
+        with: { sparse-checkout: _02_Download }
       - uses: actions/checkout@v4
         with: { repository: depthxlabs/depthx-dati-1.1, ssh-key: "${{ secrets.CHIAVE_DATI_RICERCA }}", path: dati, sparse-checkout: _04_Download }
       - uses: actions/setup-python@v5
