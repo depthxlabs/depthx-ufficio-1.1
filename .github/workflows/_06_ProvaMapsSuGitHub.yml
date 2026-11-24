@@ -113,23 +113,32 @@ jobs:
           import os
           os.makedirs(comune.CARTELLA_DEL_REGISTRO, exist_ok=True); os.makedirs(comune.CARTELLA_TEMPORANEA, exist_ok=True)
           print("cookie preparati:", len(comune.cookieDellaSessioneGoogle()))
+          def prova(nome, contesto):
+              pagina = contesto.new_page()
+              pagina.set_viewport_size({"width": 1400, "height": 900})
+              try:
+                  maps.apri(pagina, SCHEDA)
+                  print(nome, "VISTA COMPLETA")
+              except maps.FermoDiMaps as fermo:
+                  print(nome, "VISTA LIMITATA")
+              pagina.screenshot(path=f"motore_{nome}.png")
+              pagina.close()
           with sync_playwright() as programma:
               browser = comune.chromeDiMaps(programma)
-              contesto = browser.contexts[0]
-              print("contesti:", len(browser.contexts), "cookie di google nel contesto:", len([c for c in contesto.cookies() if "google" in c["domain"]]))
-              for giro in ("prima apertura", "seconda apertura"):
-                  pagina = contesto.new_page()
-                  pagina.set_viewport_size({"width": 1400, "height": 900})
-                  try:
-                      maps.apri(pagina, SCHEDA)
-                      print(giro, "vista completa, indirizzo:", pagina.url[:60])
-                  except maps.FermoDiMaps as fermo:
-                      print(giro, "fermo:", str(fermo)[:80], "indirizzo:", pagina.url[:60])
-                  print(giro, "titolo:", (pagina.locator("h1").first.inner_text(timeout=5000) if pagina.locator("h1").count() else "nessuno"),
-                        "account:", pagina.locator("a[aria-label*='Account Google'], a[aria-label*='Google Account']").count())
-                  pagina.screenshot(path=f"motore_{giro.split()[0]}.png")
-                  pagina.close()
-                  time.sleep(3)
+              prova("A_ChromeDelMotore", browser.contexts[0])
+              nuovo = browser.new_context(locale="it-IT")
+              comune.sessioneGoogleDelMotore(nuovo)
+              prova("B_ChromeDelMotoreContestoNuovo", nuovo)
+              lanciato = programma.chromium.launch(channel="chrome", headless=False, args=comune.OPZIONI_DEL_CHROME_DI_MAPS)
+              contesto = lanciato.new_context(locale="it-IT")
+              comune.sessioneGoogleDelMotore(contesto)
+              prova("C_ChromeDiPlaywrightFuoriSchermo", contesto)
+              lanciato.close()
+              lanciato = programma.chromium.launch(channel="chrome", headless=False, args=["--lang=it-IT"])
+              contesto = lanciato.new_context(locale="it-IT")
+              comune.sessioneGoogleDelMotore(contesto)
+              prova("D_ChromeDiPlaywrightComeLaProva", contesto)
+              lanciato.close()
           PROVA
       - uses: actions/upload-artifact@v4
         if: always()
