@@ -306,7 +306,8 @@ class Contesto:
             try:
                 for voce in daRiprovare:
                     if not self.scaricaElemento(*voce["argomenti"]):
-                        ultimo = passo.daRecuperare.pop() if passo.daRecuperare else {"motivo": "tempo massimo della fonte raggiunto"}
+                        # con il tempo finito resta scritto anche il motivo del primo giro: senza, non si sa perché l'elemento non è arrivato
+                        ultimo = passo.daRecuperare.pop() if passo.daRecuperare else {"motivo": f"tempo massimo della fonte raggiunto; primo giro: {voce.get('motivo', '')}"[:400]}
                         passo.irraggiungibili.append({"elemento": voce["elemento"], "motivo": ultimo["motivo"]})
             finally:
                 self.filo.inRecupero = False
