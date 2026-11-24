@@ -6,6 +6,7 @@ Poi fa partire il workflow "Download clienti" su GitHub con il codice della coda
 Un cliente in coda è segnato nel registro del motore come "IN CODA SU GITHUB", così il motore del server non lo riprende.
 
 Uso:  python -B _01_CodaEPartenzaSuGitHub.py --lotti 40
+      python -B _01_CodaEPartenzaSuGitHub.py --clienti S2_HOT_LOM_069   (solo i clienti indicati)
 """
 
 import sys
@@ -39,7 +40,9 @@ def git(*a):
 def main():
     a = argparse.ArgumentParser()
     a.add_argument("--lotti", type=int, default=40)
+    a.add_argument("--clienti", default="", help="codici dei clienti separati da virgola: si scaricano solo questi")
     p = a.parse_args()
+    voluti = {x.strip() for x in p.clienti.split(",") if x.strip()}
     comune.aggiornaIBlocchiDelCrm()
     stato = registro.leggiStato().get("clienti", {})
     lotti, fogli = [], {}
@@ -49,7 +52,8 @@ def main():
                 break
             righe = crm.righeDelFoglio(voce["idCrm"])
             clienti = [c for c in crm.leggiClientiDelFoglio(voce)
-                       if stato.get(c["idCliente"], {}).get("esito") not in CHIUSI and int(stato.get(c["idCliente"], {}).get("blocchi", 0) or 0) < 2]
+                       if stato.get(c["idCliente"], {}).get("esito") not in CHIUSI and int(stato.get(c["idCliente"], {}).get("blocchi", 0) or 0) < 2
+                       and (not voluti or c["idCliente"] in voluti)]
             if not clienti:
                 continue
             scelti = {c["idCliente"] for c in clienti[:(p.lotti - len(lotti)) * CLIENTI_PER_LOTTO]}
