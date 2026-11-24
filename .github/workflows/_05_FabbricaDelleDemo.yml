@@ -93,7 +93,7 @@ jobs:
           New-Item -ItemType Directory -Force C:\esito | Out-Null
           $inizio = Get-Date
           Push-Location "$env:FABBRICA\_02_CoordinatoreDiLavoroDellaFabbrica"
-          python -B _01_CoordinatoreDellaFabbrica.py --cliente $env:CLIENTE *> C:\esito\fabbrica.log
+          cmd /c "python -B _01_CoordinatoreDellaFabbrica.py --cliente %CLIENTE% > C:\esito\fabbrica.log 2>&1"
           Pop-Location
           $minuti = [math]::Round(((Get-Date) - $inizio).TotalMinutes, 1)
           [IO.File]::WriteAllText("C:\esito\minuti.txt", "$minuti")
