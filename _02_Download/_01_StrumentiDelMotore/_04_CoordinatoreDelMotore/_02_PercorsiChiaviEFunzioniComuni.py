@@ -562,6 +562,10 @@ OPZIONI_DEL_CHROME_DI_MAPS = ["--window-position=-32000,-32000", "--window-size=
                               "--disable-extensions", "--mute-audio", "--lang=it-IT",
                               # la finestra è fuori dallo schermo: senza queste Chrome rallenta le schede come nascoste e Maps non carica
                               "--disable-background-timer-throttling", "--disable-backgrounding-occluded-windows", "--disable-renderer-backgrounding"]
+# Su GitHub (variabile MAPS_USCITA_FISSA, per esempio http://127.0.0.1:8898) il Chrome di Maps passa dall'uscita fissa
+# del server (_05_UscitaFissaDiMapsSullaMacchinaDiGitHub.py): Google vede sempre l'indirizzo del server. Sul server la variabile non c'è.
+if os.environ.get("MAPS_USCITA_FISSA", "").strip():
+    OPZIONI_DEL_CHROME_DI_MAPS = OPZIONI_DEL_CHROME_DI_MAPS + ["--proxy-server=" + os.environ["MAPS_USCITA_FISSA"].strip()]
 
 
 def _risponde(porta):

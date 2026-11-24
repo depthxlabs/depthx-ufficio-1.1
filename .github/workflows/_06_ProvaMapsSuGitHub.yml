@@ -1,5 +1,6 @@
 # Prova: Google Maps aperto con Chrome da una macchina di GitHub con la sessione Google dell'account del motore (segreto MAPS_SESSIONE_GOOGLE),
 # come lo apre il motore di download sul server. I cookie non si stampano mai.
+# Il Chrome passa dall'uscita fissa del server (tunnel Cloudflare uscita-maps): Google vede sempre l'indirizzo del server.
 # Apre la scheda diretta di un luogo pubblico (il Colosseo), conta le foto e le recensioni che Maps carica: nessun dato dei clienti.
 name: Prova Maps su GitHub
 on:
@@ -11,9 +12,24 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 20
     steps:
+      - uses: actions/checkout@v4
+        with: { sparse-checkout: _02_Download }
       - uses: actions/setup-python@v5
         with: { python-version: "3.14" }
       - run: pip install -q playwright
+      - name: Uscita fissa di Maps attraverso il server
+        shell: pwsh
+        env:
+          MAPS_USCITA_CHIAVE: ${{ secrets.MAPS_USCITA_CHIAVE }}
+          MAPS_INDIRIZZO_DEL_SERVER: ${{ secrets.MAPS_INDIRIZZO_DEL_SERVER }}
+          PYTHONIOENCODING: utf-8
+        run: |
+          $u = "_02_Download/_01_StrumentiDelMotore/_04_CoordinatoreDelMotore/_05_UscitaFissaDiMapsSullaMacchinaDiGitHub.py"
+          Invoke-WebRequest -UseBasicParsing https://github.com/cloudflare/cloudflared/releases/download/2026.10.3/cloudflared-windows-amd64.exe -OutFile cloudflared.exe
+          Start-Process .\cloudflared.exe -ArgumentList "access","tcp","--hostname","uscita-maps.depthxlabs.com","--url","127.0.0.1:8899" -WindowStyle Hidden
+          Start-Process python -ArgumentList "-B",$u,"avvia" -WindowStyle Hidden
+          Start-Sleep 8
+          python -B $u verifica
       - name: Maps con Chrome
         shell: python
         env:
@@ -23,7 +39,7 @@ jobs:
           from playwright.sync_api import sync_playwright
           SCHEDA = "https://www.google.com/maps/search/?api=1&query=Colosseo&query_place_id=ChIJrRMgU7ZhLxMRxAOFkC7I8Sg&hl=it"
           with sync_playwright() as p:
-              browser = p.chromium.launch(channel="chrome", headless=False, args=["--lang=it-IT"])
+              browser = p.chromium.launch(channel="chrome", headless=False, args=["--lang=it-IT", "--proxy-server=http://127.0.0.1:8898"])
               contesto = browser.new_context(locale="it-IT", viewport={"width": 1400, "height": 900})
               cookie = []
               for voce in json.loads(os.environ.get("MAPS_SESSIONE_GOOGLE") or "[]"):
@@ -98,9 +114,23 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.14" }
       - run: pip install -q -r _02_Download/_00_LibrerieDelMotore.txt
+      - name: Uscita fissa di Maps attraverso il server
+        shell: pwsh
+        env:
+          MAPS_USCITA_CHIAVE: ${{ secrets.MAPS_USCITA_CHIAVE }}
+          MAPS_INDIRIZZO_DEL_SERVER: ${{ secrets.MAPS_INDIRIZZO_DEL_SERVER }}
+          PYTHONIOENCODING: utf-8
+        run: |
+          $u = "_02_Download/_01_StrumentiDelMotore/_04_CoordinatoreDelMotore/_05_UscitaFissaDiMapsSullaMacchinaDiGitHub.py"
+          Invoke-WebRequest -UseBasicParsing https://github.com/cloudflare/cloudflared/releases/download/2026.10.3/cloudflared-windows-amd64.exe -OutFile cloudflared.exe
+          Start-Process .\cloudflared.exe -ArgumentList "access","tcp","--hostname","uscita-maps.depthxlabs.com","--url","127.0.0.1:8899" -WindowStyle Hidden
+          Start-Process python -ArgumentList "-B",$u,"avvia" -WindowStyle Hidden
+          Start-Sleep 8
+          python -B $u verifica
       - name: Maps con il Chrome del motore
         env:
           PYTHONIOENCODING: utf-8
+          MAPS_USCITA_FISSA: http://127.0.0.1:8898
           MAPS_SESSIONE_GOOGLE: ${{ secrets.MAPS_SESSIONE_GOOGLE }}
         run: |
           cd _02_Download/_01_StrumentiDelMotore/_04_CoordinatoreDelMotore
@@ -134,7 +164,7 @@ jobs:
               comune.sessioneGoogleDelMotore(contesto)
               prova("C_ChromeDiPlaywrightFuoriSchermo", contesto)
               lanciato.close()
-              lanciato = programma.chromium.launch(channel="chrome", headless=False, args=["--lang=it-IT"])
+              lanciato = programma.chromium.launch(channel="chrome", headless=False, args=["--lang=it-IT", "--proxy-server=http://127.0.0.1:8898"])
               contesto = lanciato.new_context(locale="it-IT")
               comune.sessioneGoogleDelMotore(contesto)
               prova("D_ChromeDiPlaywrightComeLaProva", contesto)

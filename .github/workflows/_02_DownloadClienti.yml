@@ -44,6 +44,8 @@ jobs:
       CHIAVE_GOOGLE_MAPS: ${{ secrets.CHIAVE_GOOGLE_MAPS }}
       # la sessione Google dell'account del motore: il Chrome di Maps la riceve prima di aprire Maps e vede Maps come il server
       MAPS_SESSIONE_GOOGLE: ${{ secrets.MAPS_SESSIONE_GOOGLE }}
+      # il Chrome di Maps passa dall'uscita fissa del server (tunnel Cloudflare uscita-maps): Google vede sempre l'indirizzo del server
+      MAPS_USCITA_FISSA: http://127.0.0.1:8898
     steps:
       # solo il codice del download: i percorsi lunghi della fabbrica non entrano nel disco di Windows
       - uses: actions/checkout@v4
@@ -53,6 +55,18 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.14" }
       - run: pip install -q -r _02_Download/_00_LibrerieDelMotore.txt
+      - name: Uscita fissa di Maps attraverso il server
+        shell: pwsh
+        env:
+          MAPS_USCITA_CHIAVE: ${{ secrets.MAPS_USCITA_CHIAVE }}
+          MAPS_INDIRIZZO_DEL_SERVER: ${{ secrets.MAPS_INDIRIZZO_DEL_SERVER }}
+        run: |
+          $u = "_02_Download/_01_StrumentiDelMotore/_04_CoordinatoreDelMotore/_05_UscitaFissaDiMapsSullaMacchinaDiGitHub.py"
+          Invoke-WebRequest -UseBasicParsing https://github.com/cloudflare/cloudflared/releases/download/2026.10.3/cloudflared-windows-amd64.exe -OutFile cloudflared.exe
+          Start-Process .\cloudflared.exe -ArgumentList "access","tcp","--hostname","uscita-maps.depthxlabs.com","--url","127.0.0.1:8899" -WindowStyle Hidden
+          Start-Process python -ArgumentList "-B",$u,"avvia" -WindowStyle Hidden
+          Start-Sleep 8
+          python -B $u verifica
       - name: ffmpeg e ffprobe per i video
         run: |
           for n in 1 2 3 4 5; do
