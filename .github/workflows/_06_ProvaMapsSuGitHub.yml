@@ -43,8 +43,10 @@ jobs:
                   pagina.get_by_role("tab", name=re.compile(r"^(Recensioni|Reviews)")).first.click(timeout=20000)
                   time.sleep(6)
                   pannello = pagina.locator("div[data-review-id]")
-                  for giro in range(4):
-                      pagina.mouse.move(300, 600); pagina.mouse.wheel(0, 4000); time.sleep(2)
+                  # si scorre il contenitore delle recensioni, non la pagina: l'ultima recensione caricata va in vista e Maps carica le successive
+                  for giro in range(25):
+                      pagina.evaluate("() => { const r = document.querySelectorAll('div[data-review-id]'); if (r.length) r[r.length - 1].scrollIntoView(); }")
+                      time.sleep(1.5)
                   print("recensioni caricate:", len(set(pannello.evaluate_all("e => e.map(x => x.getAttribute('data-review-id'))"))))
                   pagina.screenshot(path="maps_recensioni.png")
               except Exception as errore:
