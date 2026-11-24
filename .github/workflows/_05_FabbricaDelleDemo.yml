@@ -83,6 +83,8 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.14" }
       - run: pip install -q pillow==13.0.0 pillow_heif==1.8.1 numpy==2.5.4 onnxruntime==1.31.1 requests==2.34.2 cryptography==50.0.2
+      # wrangler pubblica la demo su depthxlabs.com/demo (passo 6): la stessa versione del server
+      - run: npm install -g --silent wrangler@4.151.0
       - name: La demo del cliente
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
