@@ -1,4 +1,5 @@
-# Prova: Google Maps aperto con Chrome da una macchina di GitHub, senza account, come lo apre il motore di download sul server.
+# Prova: Google Maps aperto con Chrome da una macchina di GitHub con la sessione Google dell'account del motore (segreto MAPS_SESSIONE_GOOGLE),
+# come lo apre il motore di download sul server. I cookie non si stampano mai.
 # Apre la scheda diretta di un luogo pubblico (il Colosseo), conta le foto e le recensioni che Maps carica: nessun dato dei clienti.
 name: Prova Maps su GitHub
 on:
@@ -15,13 +16,30 @@ jobs:
       - run: pip install -q playwright
       - name: Maps con Chrome
         shell: python
+        env:
+          MAPS_SESSIONE_GOOGLE: ${{ secrets.MAPS_SESSIONE_GOOGLE }}
         run: |
-          import re, time
+          import json, os, re, time
           from playwright.sync_api import sync_playwright
           SCHEDA = "https://www.google.com/maps/search/?api=1&query=Colosseo&query_place_id=ChIJrRMgU7ZhLxMRxAOFkC7I8Sg&hl=it"
           with sync_playwright() as p:
               browser = p.chromium.launch(channel="chrome", headless=False, args=["--lang=it-IT"])
-              pagina = browser.new_page(locale="it-IT", viewport={"width": 1400, "height": 900})
+              contesto = browser.new_context(locale="it-IT", viewport={"width": 1400, "height": 900})
+              cookie = []
+              for voce in json.loads(os.environ.get("MAPS_SESSIONE_GOOGLE") or "[]"):
+                  nuovo = {"name": voce["name"], "value": str(voce.get("value", "")), "domain": voce["domain"], "path": voce.get("path") or "/",
+                           "httpOnly": bool(voce.get("httpOnly")), "secure": bool(voce.get("secure"))}
+                  if isinstance(voce.get("expires"), (int, float)) and voce["expires"] > 0 and not voce.get("session"):
+                      nuovo["expires"] = float(voce["expires"])
+                  if voce.get("sameSite") in ("Strict", "Lax") or (voce.get("sameSite") == "None" and nuovo["secure"]):
+                      nuovo["sameSite"] = voce["sameSite"]
+                  cookie.append(nuovo)
+              try:
+                  contesto.add_cookies(cookie)
+              except Exception as errore:
+                  raise SystemExit(f"sessione Google non caricata: {type(errore).__name__}") from None
+              print("cookie della sessione Google caricati:", len(cookie))
+              pagina = contesto.new_page()
               pagina.goto(SCHEDA, timeout=60000)
               time.sleep(6)
               for testo in ("Rifiuta tutto", "Reject all"):

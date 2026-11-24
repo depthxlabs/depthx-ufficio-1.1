@@ -42,6 +42,8 @@ jobs:
       MOTORE_SENZA_CLAUDE: "1"
       MOTORE_CODA: ${{ github.workspace }}\dati\_04_Download\Coda\${{ inputs.codice }}.json
       CHIAVE_GOOGLE_MAPS: ${{ secrets.CHIAVE_GOOGLE_MAPS }}
+      # la sessione Google dell'account del motore: il Chrome di Maps la riceve prima di aprire Maps e vede Maps come il server
+      MAPS_SESSIONE_GOOGLE: ${{ secrets.MAPS_SESSIONE_GOOGLE }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4
