@@ -7,7 +7,7 @@ Pitstop 8 (Michele, 12/11/2026, task #613): si scaricano SOLO le foto che servon
 per ogni area, nell'ordine del contratto, la foto migliore non ancora presa di una delle sue categorie (nell'ordine in cui
 l'area le chiede), più una foto di riserva per ogni categoria che le aree chiedono (per le foto doppie o con la luce
 bruciata, che il passo 4.1 scarta), più il logo, sempre entro fotoMassimeDaScaricare. La categoria è quella già data da
-Claude alla foto (giudizio salvato del passo 4.1) e, per una foto mai vista, quella del motore. Tutte le foto scelte si
+il modello alla foto (giudizio salvato del passo 4.1) e, per una foto mai vista, quella del motore. Tutte le foto scelte si
 scaricano nello stesso momento (prima 10 alla volta). Copia di prima: .copiaPrimaVelocita.
 """
 
@@ -24,7 +24,7 @@ SCARICAMENTI_INSIEME_PER_AREE = 25  # pitstop 8 (12/11/2026): le foto delle aree
 
 
 def categoriaGiaNota(voce):
-    """La categoria precisa già data da Claude a questa foto (passo 4.1), altrimenti quella del motore."""
+    """La categoria precisa già data dal modello a questa foto (passo 4.1), altrimenti quella del motore."""
     from ..._04_MiglioramentoDelleFotoEsistentiDelCliente._01_ScegliUnaFotoPerOgniAreaDellaStruttura._07_CategoriePreciseDelleFoto import \
         giudizioGiaDato
     giudizio = giudizioGiaDato(voce.get("id")) or {}

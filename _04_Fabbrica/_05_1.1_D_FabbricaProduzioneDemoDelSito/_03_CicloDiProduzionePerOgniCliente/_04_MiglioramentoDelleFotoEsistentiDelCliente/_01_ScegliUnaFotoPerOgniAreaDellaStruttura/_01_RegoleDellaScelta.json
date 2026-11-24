@@ -21,7 +21,7 @@
  "descrizioneDellaDifferenza": "su 256 punti dell'impronta: sotto questa differenza due foto sono la stessa foto e la seconda non si usa (Michele, 7/11/2026)",
  "margineDelSoggetto": 0.03,
  "votoInMenoPerUnaForma": 2,
- "descrizioneDelSoggetto": "Michele, 8/11/2026: il soggetto (riquadro dato da Claude) entra nel taglio di una forma se non è più largo o più alto del taglio più il margine; se non entra, la forma usa un'altra foto della stessa area in cui entra, con un voto di bellezza al massimo votoInMenoPerUnaForma punti più basso.",
+ "descrizioneDelSoggetto": "Michele, 8/11/2026: il soggetto (riquadro dato dal modello) entra nel taglio di una forma se non è più largo o più alto del taglio più il margine; se non entra, la forma usa un'altra foto della stessa area in cui entra, con un voto di bellezza al massimo votoInMenoPerUnaForma punti più basso.",
  "ingrandimentoMassimoDellaHome": 1.25,
  "larghezzaDellaHome": 1920,
  "descrizioneDellaQualitaMinima": "Michele, 9/11/2026: la prima foto della home è sempre la struttura vista da fuori; tra le foto della struttura vince quella che arriva a larghezzaDellaHome senza ingrandimento oltre ingrandimentoMassimoDellaHome. Michele, 11/11/2026: senza foto delle camere il cliente passa; senza foto della struttura vista da fuori il cliente passa e la prima foto della home è un prodotto o un servizio (categorieDellaHomeSenzaEsterno, nell'ordine). Il cliente si ferma solo senza nessuna foto per la home.",

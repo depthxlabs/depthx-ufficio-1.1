@@ -1,16 +1,16 @@
 """Passo 8.4: la correzione del product manager, sulla demo che non è passata al collaudo (passo 7) o al product manager (passo 8).
 
 Nessun cliente resta fermo con un NOTGO (Michele, 8/11/2026). I problemi del collaudo e i punti della checklist che il product
-manager non ha fatto passare vanno a Claude sul server (claude -p), con le regole di _01_RegoleDellaCorrezione.json e le
-istruzioni di _02_IstruzioniPerLaCorrezione.md. Claude lavora in una cartella dal percorso corto, con le pagine, gli
+manager non ha fatto passare vanno ai modelli gratuiti di FreeLLMAPI, con le ripetizioni, con le istruzioni di
+_02_IstruzioniPerLaCorrezione.md. La correzione lavora in una cartella dal percorso corto, con le pagine, gli
 stili e gli script della demo, le sole frasi verificate del cliente (passo 5.8.4) e le parole vietate. I file cambiati tornano nel sito; il coordinatore poi ripubblica e ricontrolla la demo.
-Restituisce i problemi, cosa è stato corretto, cosa no e i file cambiati.
+Restituisce i problemi, cosa è stato corretto, cosa no e i file cambiati. Se nessun modello risponde dopo le ripetizioni,
+NOTGO di sistema: il passo si rifà al giro dopo.
 """
 
 import json
 import re
 import shutil
-import subprocess
 import tempfile
 from pathlib import Path
 
@@ -20,7 +20,6 @@ FILE_DELLE_ISTRUZIONI = CARTELLA / "_02_IstruzioniPerLaCorrezione.md"
 CICLO = CARTELLA.parents[1]
 PAROLE_VIETATE = (CICLO / "_07_CollaudoBasicoDellaDemo" / "_02_ControlloCheNonCiSiaNessunaParolaVietata"
                   / "_01_ParoleVietateNeiTestiDelleDemo.json")
-PROGRAMMA_DI_CLAUDE = Path.home() / ".local" / "bin" / "claude.exe"
 DA_CORREGGERE = ("*.html", "assets/css/*.css", "assets/js/*.js")
 # la correzione non toglie mai niente (Michele, 9/11/2026): sezioni, foto con il loro file, voci del menu e paragrafi si contano prima e dopo
 CONTEGGI = {"sezioni": r"<section\b", "foto": r"\bdata-scena=\"[^\"]+\"","voci del menu": r"<a\b[^>]*href=\"#[^\"]+\"",
@@ -41,17 +40,13 @@ def problemiDaCorreggere(collaudo, approvazione):
     return problemi
 
 
-class _RispostaGratuita(Exception):
-    """La correzione è arrivata dai modelli gratuiti: il resoconto è già pronto."""
-
-
 CARATTERI_MASSIMI_PER_FILE = 40000
 
 
 def correzioneDaiModelliGratuiti(istruzioni, problemi, cartellaSito):
     """La correzione da FreeLLMAPI. Il modello riceve le pagine nominate nei problemi (o la home), il primo foglio di stile,
     le frasi verificate e le parole vietate, e restituisce le modifiche esatte {file, cerca, sostituisci}. Ogni modifica si
-    applica solo se il testo cercato compare una sola volta nel file. Il resoconto {corretti, nonCorretti}, o None."""
+    applica solo se il testo cercato compare una sola volta nel file. Il resoconto {corretti, nonCorretti}."""
     from _03_CicloDiProduzionePerOgniCliente._05_PersonalizzazioneDelTemplateConLidentitàDelCliente._08_TestiPerOgniCliente._04_CompletaLaFraseConIFattiVeriDelCliente._07_FattiProvatiDalMaterialeDelCliente import chiediAFreeLLM
     cartellaSito = Path(cartellaSito)
     pagine = sorted({nome for problema in problemi for nome in re.findall(r"[\w-]+\.html", problema)
@@ -66,9 +61,7 @@ def correzioneDaiModelliGratuiti(istruzioni, problemi, cartellaSito):
              + "\n\nfrasiVerificate.json:\n" + extra + "\n\nparoleVietate.json:\n" + vietate + "\n\nI file della demo:\n" + allegati
              + "\n\nRispondi con un solo oggetto JSON: {\"modifiche\": [{\"file\": \"nome del file\", \"cerca\": \"testo copiato esattamente dal file, "
                "che compare una sola volta\", \"sostituisci\": \"testo nuovo\"}], \"corretti\": [...], \"nonCorretti\": [...]}.")
-    risposta = chiediAFreeLLM(testo, (), 330)
-    if not isinstance(risposta, dict) or not isinstance(risposta.get("modifiche"), list):
-        return None
+    risposta = chiediAFreeLLM(testo, (), 330, valida=lambda r: isinstance(r.get("modifiche"), list))
     applicate, scartate = 0, []
     for modifica in risposta["modifiche"]:
         if not isinstance(modifica, dict):
@@ -93,7 +86,6 @@ def correzioneAutomaticaDellaDemo(sito, collaudo, approvazione, testi, giriPrece
     problemi = problemiDaCorreggere(collaudo, approvazione)
     if not problemi:
         return {"problemi": [], "corretti": [], "nonCorretti": [], "fileCambiati": []}
-    programma = shutil.which("claude") or (str(PROGRAMMA_DI_CLAUDE) if PROGRAMMA_DI_CLAUDE.is_file() else "")
     sito = Path(sito)
     cambiati = []
     with tempfile.TemporaryDirectory(prefix="dxcorr_", ignore_cleanup_errors=True) as corta:
@@ -113,17 +105,8 @@ def correzioneAutomaticaDellaDemo(sito, collaudo, approvazione, testi, giriPrece
             "{giriPrecedenti}", "\n".join(
                 f"- giro {numero}: problemi: {' | '.join(giro.get('problemi') or [])}; corretto: {' | '.join(giro.get('corretti') or [])}"
                 for numero, giro in enumerate(giriPrecedenti, 1)) or "- nessuno")
-        # prima i modelli gratuiti di FreeLLMAPI: restituiscono le modifiche esatte, applicate qui sulle copie con gli stessi controlli
-        resocontoGratuito = correzioneDaiModelliGratuiti(istruzioni, problemi, corta / "sito")
-        esito = None
-        if resocontoGratuito is None:
-            if not programma:
-                return {"problemi": problemi, "corretti": [], "nonCorretti": ["il correttore non ha risposto: né i modelli gratuiti né Claude"], "fileCambiati": []}
-            esito = subprocess.run([programma, "-p", "--model", regole["modello"],
-                                    "--allowedTools", "Read", "Glob", "Grep", "Edit",
-                                    "--max-turns", str(regole["turniMassimi"]), "--output-format", "json"],
-                                   input=istruzioni, capture_output=True, text=True, encoding="utf-8", errors="ignore", cwd=str(corta),
-                                   timeout=int(regole["secondiMassimi"]), creationflags=subprocess.CREATE_NO_WINDOW)
+        # i modelli gratuiti di FreeLLMAPI restituiscono le modifiche esatte, applicate qui sulle copie con gli stessi controlli
+        resoconto = correzioneDaiModelliGratuiti(istruzioni, problemi, corta / "sito")
         prima, dopo = conteggiDellaPagina(sito), conteggiDellaPagina(corta / "sito")
         tolti = [f"{nome} da {prima[nome]} a {dopo[nome]}" for nome in CONTEGGI if dopo[nome] < prima[nome]]
         if not tolti:
@@ -131,21 +114,6 @@ def correzioneAutomaticaDellaDemo(sito, collaudo, approvazione, testi, giriPrece
                 if copia.is_file() and copia.read_bytes() != primaDelFile:
                     shutil.copy2(copia, file)
                     cambiati.append(str(file.relative_to(sito)))
-    try:
-        if resocontoGratuito is not None:
-            raise _RispostaGratuita
-        # la risposta di claude -p può avere righe in più: vale l'ultimo oggetto JSON con il risultato (Michele, 9/11/2026)
-        try:
-            risposta = json.loads(esito.stdout).get("result", "")
-        except ValueError:
-            risposta = next(json.loads(riga)["result"] for riga in reversed(esito.stdout.splitlines())
-                            if riga.strip().startswith("{") and '"result"' in riga)
-        resoconto = json.loads(re.search(r"\{.*\}", risposta, re.S).group(0))
-    except _RispostaGratuita:
-        resoconto = resocontoGratuito
-    except (ValueError, AttributeError):
-        resoconto = {"corretti": [], "nonCorretti": ["la risposta del correttore non è leggibile: "
-                                                     + (esito.stderr or esito.stdout or "").strip()[-200:]]}
     if tolti:
         # la demo resta com'era: la correzione toglieva contenuti, e questo non si fa mai
         resoconto = {"corretti": [], "nonCorretti": ["correzione respinta perché toglieva contenuti dalla pagina (" + ", ".join(tolti) + ")"]

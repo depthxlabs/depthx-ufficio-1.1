@@ -92,6 +92,8 @@ jobs:
           CHIAVE: ${{ secrets.FREELLM_CHIAVE_UNICA }}
         run: |
           # FreeLLMAPI si accende in questo stesso passo: un programma avviato in un passo si chiude quando il passo finisce
+          # le pause dei fornitori nel database vengono dal server, con un altro indirizzo: questa macchina riparte senza pause
+          python -B -c "import sqlite3; c = sqlite3.connect(r'$env:FREELLM\server\data\freeapi.db'); c.execute('delete from rate_limit_cooldowns'); c.commit()"
           Start-Process node -ArgumentList "server/dist/index.js" -WorkingDirectory $env:FREELLM -WindowStyle Hidden -RedirectStandardOutput C:\freellm.log -RedirectStandardError C:\freellm_errori.log
           for ($i = 0; $i -lt 60; $i++) { try { (New-Object Net.Sockets.TcpClient).Connect("127.0.0.1", 3001); break } catch { Start-Sleep 2 } }
           Start-Sleep 10

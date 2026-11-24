@@ -2,7 +2,7 @@
 come frazioni da 0 a 1.
 
 Il centro si avvicina a metà strada verso quello della foto: i tagli seguono il soggetto senza tagliare via i bordi importanti.
-Quando Claude ha dato il riquadro del soggetto (passo 4.1, Michele 8/11/2026) il centro è quello del riquadro: i bordi
+Quando il modello ha dato il riquadro del soggetto (passo 4.1, Michele 8/11/2026) il centro è quello del riquadro: i bordi
 del fogliame o del selciato non spostano più il taglio.
 """
 

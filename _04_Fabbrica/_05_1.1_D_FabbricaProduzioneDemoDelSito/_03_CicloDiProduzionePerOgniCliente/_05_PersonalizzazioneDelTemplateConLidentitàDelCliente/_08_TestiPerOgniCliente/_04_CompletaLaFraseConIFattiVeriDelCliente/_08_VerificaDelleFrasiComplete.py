@@ -2,13 +2,13 @@
 
 Le frasi del copy si usano solo quando sono verificate (Michele, 8/11/2026): una frase con il fatto provato può comunque
 essere smentita dal materiale ("Il caffè lo prepariamo al momento" dove la colazione è a buffet). Ogni candidata che si
-può usare, completata con i fatti veri e senza prezzi, va a Claude sul server con il materiale del cliente e i
+può usare, completata con i fatti veri e senza prezzi, va ai modelli gratuiti di FreeLLMAPI con il materiale del cliente e i
 suoi dati, in una sola chiamata (_05_RegoleDeiFattiProvati.json, istruzioni _09_IstruzioniPerLaVerificaDelleFrasi.md).
-Claude dice quali sono verificate, con la citazione, e per ogni argomento del sito sceglie fino a 5 frasi del sito attuale
+Il modello dice quali sono verificate, con la citazione, e per ogni argomento del sito sceglie fino a 5 frasi del sito attuale
 del cliente, copiate parola per parola: servono quando una sezione non ha 2 o 3 frasi approvate e verificate (passo
 5.8.7). Una frase del sito vale solo se è davvero nel testo del sito, senza parole vietate, senza io e senza tu, senza prezzi.
-Se Claude non risponde il cliente si ferma: senza verifica nessuna frase entra nella pagina.
-Nella stessa chiamata Claude traduce in inglese ogni frase verificata e ogni frase del sito (Michele, 8/11/2026): così una
+Se nessun modello risponde dopo le ripetizioni, NOTGO di sistema: senza verifica nessuna frase entra nella pagina.
+Nella stessa chiamata il modello traduce in inglese ogni frase verificata e ogni frase del sito (Michele, 8/11/2026): così una
 frase cambiata o aggiunta ha il suo inglese e la pagina inglese non resta mista.
 Restituisce {"verificate": frase -> {citazione, fonte}, "dalSito": argomento -> [frasi], "inglese": frase -> inglese}.
 """
@@ -21,7 +21,7 @@ from pathlib import Path
 from ...._07_CollaudoBasicoDellaDemo._08_ControlloCheLaStrutturaParliConIlNoiEChiamiLOspiteConIlVoi._01_FrasiInPrimaPersonaSingolareOConIlTu import \
     PAROLE_DELL_IO_E_DEL_TU
 from ._02_CompletaLaFraseConIFattiVeriDelCliente import paroleDi, regoleDelleCandidate
-from ._07_FattiProvatiDalMaterialeDelCliente import chiediAClaude, materialePerClaude
+from ._07_FattiProvatiDalMaterialeDelCliente import chiediAFreeLLM, materialePerIModelli
 
 CARTELLA = Path(__file__).absolute().parent
 FILE_DELLE_REGOLE = CARTELLA / "_05_RegoleDeiFattiProvati.json"
@@ -67,7 +67,7 @@ def verificaDelleFrasiComplete(frasi, fatti, provati, datiUnici, recensioni):
     for frase in frasi:
         for _, testo in usabili(frase):
             argomentoDi.setdefault(testo, titoloDellArgomento(frase.get("sezione")))
-            # anche le frasi corte (i titoli) vanno a Claude, per avere il loro inglese
+            # anche le frasi corte (i titoli) vanno al modello, per avere il loro inglese
             if testo not in daVerificare and not PREZZO.search(html.unescape(testo)):
                 daVerificare.append(testo)
     argomenti = argomentiDelSito(frasi)
@@ -76,15 +76,13 @@ def verificaDelleFrasiComplete(frasi, fatti, provati, datiUnici, recensioni):
     regole = json.loads(FILE_DELLE_REGOLE.read_text(encoding="utf-8-sig"))
     dati = {chiave: " ".join(str(valore).split())[:200] for chiave, valore in fatti.items() if str(valore).strip()}
     istruzioni = (FILE_DELLE_ISTRUZIONI.read_text(encoding="utf-8-sig")
-                  .replace("{materiale}", json.dumps(materialePerClaude(datiUnici, recensioni, regole), ensure_ascii=False, indent=1))
+                  .replace("{materiale}", json.dumps(materialePerIModelli(datiUnici, recensioni, regole), ensure_ascii=False, indent=1))
                   .replace("{dati}", json.dumps(dati, ensure_ascii=False, indent=1))
                   .replace("{frasi}", "\n".join(f"{numero}. [{argomentoDi.get(testo) or 'testo della pagina'}] {html.unescape(testo)}"
                                                 for numero, testo in enumerate(daVerificare, 1)) or "nessuna")
                   .replace("{paroleVietate}", ", ".join(json.loads(FILE_DELLE_PAROLE_VIETATE.read_text(encoding="utf-8-sig"))["parole"]))
                   .replace("{argomenti}", "\n".join(f"{chiave}: {titolo}" for chiave, titolo in argomenti.items()) or "nessuno"))
-    risposta = chiediAClaude(istruzioni, regole)
-    if risposta is None:
-        raise RuntimeError("la verifica delle frasi non ha risposto: senza verifica nessuna frase entra nella pagina")
+    risposta = chiediAFreeLLM(istruzioni, valida=lambda r: isinstance(r.get("verificate"), dict))
     verificate, inglese = {}, {}
     perAttributo = lambda testo: html.escape(" ".join(str(testo).split()), quote=True)
     for numero, voce in (risposta.get("verificate") or {}).items():

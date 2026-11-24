@@ -8,7 +8,7 @@ altrimenti 16x9 e 9x16.
    primo impatto. Se il cliente non ha la foto della struttura vista da fuori, nella home va un prodotto o un servizio
    (categorieDellaHomeSenzaEsterno, Michele 11/11/2026).
 2. Poi le altre aree, ognuna con la categoria che chiede il contratto, nell'ordine in cui la chiede.
-3. A parità di categoria vince la foto senza luce bruciata, poi quella con il voto di bellezza più alto (dato da Claude,
+3. A parità di categoria vince la foto senza luce bruciata, poi quella con il voto di bellezza più alto (dato dal modello,
    Michele 8/11/2026), poi la foto orizzontale, poi la qualità. Mai la stessa foto due volte, nemmeno se arriva da fonti
    diverse: una foto con l'impronta quasi uguale a una già usata si scarta (Michele, 7/11/2026).
 4. Un'area prende solo una foto della sua categoria: mai una camera con la foto del ristorante (Michele, 7/11/2026).

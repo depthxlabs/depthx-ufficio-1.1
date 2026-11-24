@@ -19,7 +19,7 @@ def scriviIlTestoNellaPagina(sito, completate):
         if not frase["scelta"]:
             continue
         attributi = frase["attributi"]
-        # prima l'inglese di Claude: quello del template completato terrebbe i fatti in italiano
+        # prima l'inglese del modello: quello del template completato terrebbe i fatti in italiano
         inglese = (completate.get("inglese") or {}).get(frase["italiano"]) or frase["ingleseCompleto"]
         if inglese:
             attributi = re.sub(r'(\sdata-en=")[^"]*(")', lambda m: m.group(1) + inglese + m.group(2), attributi)
