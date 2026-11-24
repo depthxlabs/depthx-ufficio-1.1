@@ -1,0 +1,22 @@
+{
+ "descrizione": "Le categorie precise delle foto scaricate, prima della scelta del passo 4.1. Il motore dà categorie larghe (struttura, prodotti, altro) che non sono quelle dei contratti dei template: senza questo passo quasi tutte le aree restavano vuote (8/11/2026). Una sola chiamata a Claude per cliente, al minimo. Dal 9/11/2026 (Michele: foto e sezione coincidono) cucina, soggiorno e terrazze hanno la loro categoria: mai una cucina sotto le camere, mai un vialetto sotto la terrazza. Dall'11/11/2026 (pacchetto Advanced) anche spa e centro benessere: la pagina del centro benessere nasce solo con le sue foto.",
+ "modello": "sonnet",
+ "turniMassimi": 40,
+ "secondiMassimi": 900,
+ "latoMassimoDellaMiniatura": 768,
+ "categorie": [
+  "esterno della struttura",
+  "esterni senza struttura",
+  "terrazze e giardini",
+  "camere",
+  "bagni",
+  "cucina",
+  "soggiorno e spazi comuni",
+  "ristorante",
+  "colazione",
+  "prodotti",
+  "piscina",
+  "spa e centro benessere"
+ ],
+ "categoriaDaScartare": "scartare"
+}

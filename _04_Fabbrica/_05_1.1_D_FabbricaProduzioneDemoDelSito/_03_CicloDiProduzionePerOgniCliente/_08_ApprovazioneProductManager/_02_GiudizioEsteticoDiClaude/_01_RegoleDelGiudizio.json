@@ -1,0 +1,7 @@
+{
+ "descrizione": "Regole del passo 8.2: Claude sul server sempre al minimo (Michele, 7/11/2026): una sola chiamata per demo, il modello, i turni massimi, l'attesa massima in secondi e quante frasi della pagina riceve. Dall'11/11/2026 (pacchetto Advanced) le fotografie sono di tutte le pagine: una lettura per fotografia, quindi più turni.",
+ "modello": "sonnet",
+ "turniMassimi": 20,
+ "secondiMassimi": 900,
+ "frasiMassime": 120
+}

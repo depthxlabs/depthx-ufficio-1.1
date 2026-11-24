@@ -1,0 +1,7 @@
+{
+ "descrizione": "La correzione automatica della demo (Michele, 8/11/2026): nessun cliente resta fermo con un NOTGO del collaudo o del product manager. Claude corregge la demo con le note, la fabbrica la ripubblica e la ricontrolla, fino a giriMassimi volte.",
+ "modello": "sonnet",
+ "turniMassimi": 40,
+ "secondiMassimi": 1200,
+ "giriMassimi": 3
+}

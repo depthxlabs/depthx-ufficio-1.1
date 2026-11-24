@@ -1,0 +1,41 @@
+# L'invito a prenotare (la chiusura della pagina)
+
+Da correggere da Michele. Le parole tra graffe sono fatti veri del cliente: una frase si usa solo se il fatto esiste.
+
+## Titoli
+1. Scriveteci le vostre date. [prova: dati]
+2. Vi aspettiamo a {comune}. [prova: dati]
+3. Diteci quando volete venire. [prova: dati]
+4. Verifica la disponibilità. [prova: dati]
+5. Prenotate il vostro tavolo o la vostra camera. [prova: ristorante]
+6. Prenotate da noi. [prova: dati]
+8. Ci vediamo a {comune}. [prova: dati]
+9. Prenotate il vostro soggiorno. [prova: dati]
+10. Scriveteci. [prova: dati]
+
+## Testi
+1. Chiamateci o scriveteci: vi diciamo subito se la camera è libera. [prova: dati]
+2. Per prenotare, chiamateci al {telefono} o scriveteci. [prova: dati]
+3. Su WhatsApp o al telefono: per prenotare in comodità. [prova: usaWhatsapp]
+4. Per le date del vostro soggiorno chiamateci al {telefono}. [prova: dati]
+5. Scriveteci le date e quante persone siete. [prova: dati]
+6. Chiamateci o scriveteci: vi teniamo il posto. [prova: dati]
+7. Rispondiamo ogni giorno dalle {ora} alle {ora}. [prova: dati]
+8. Scriveteci le date e il numero di ospiti: vi rispondiamo noi. [prova: dati]
+9. Per un gruppo o un evento, scriveteci: prepariamo una proposta su misura. [prova: eventiPrivati]
+10. Prenotate direttamente dal nostro sito, con il calendario delle camere libere. [prova: prenotazioneOnline]
+11. Per un tavolo al ristorante, chiamateci al {telefono}. [prova: ristorante]
+12. Se arrivate con i bambini o con un animale, ditecelo: prepariamo tutto prima. [prova: animaliAmmessi]
+13. Siamo aperti da {mese} a {mese}: scriveteci per le vostre date. [prova: dati]
+14. Per le festività scriveteci con anticipo. [prova: dati]
+15. Scriveteci una email a {email}. [prova: dati]
+16. Lasciateci un messaggio con le date: vi richiamiamo noi. [prova: dati]
+17. Verificate la disponibilità e scriveteci le vostre richieste. [prova: dati]
+18. Per un anniversario o un compleanno, ditecelo quando prenotate. [prova: dati]
+19. Per qualsiasi domanda prima di prenotare, chiamateci al {telefono}. [prova: dati]
+20. Scriveteci su WhatsApp al {telefono}: vi rispondiamo noi. [prova: usaWhatsapp]
+21. Ogni occasione speciale qui è la benvenuta. [prova: dati]
+22. Chiamateci o scriveteci su WhatsApp: vi diciamo se la casa è libera e quanto costa il soggiorno. [prova: usaWhatsapp]
+23. Per le date e le richieste scriveteci: rispondiamo noi, con piacere. [prova: dati]
+24. Siamo a {comune}, in {via}: vi aspettiamo. [prova: dati]
+25. Ci trovate su WhatsApp al {telefono}. [prova: usaWhatsapp]

@@ -1,0 +1,41 @@
+# La casa (quando l'ospite prende tutta la casa)
+
+## Titoli
+1. Ecco la casa. [prova: dati]
+2. Una casa tutta per voi. [prova: casaIntera]
+4. Stanza per stanza. [prova: dati]
+6. I numeri della casa. [prova: dati]
+8. {tipoDiCasa}. [prova: dati]
+9. Le chiavi sono vostre, Sentitevi a casa. [prova: casaIntera]
+
+## Testi
+1. La casa è in {via}, a {comune}: {stanze}. [prova: dati]
+2. C'è {dotazioneSpeciale}, da usare quando volete. [prova: dati]
+3. La cucina ha tutto quello che serve per preparare da mangiare. [prova: cucinaAttrezzata]
+4. {ospiti} ospiti, {camere} camere da letto, {bagni} bagni, {metri} metri quadri. [prova: dati]
+5. La casa è su {piani} piani: al piano terra {stanzePianoTerra}, al primo piano {stanzePrimoPiano}. [prova: dati]
+6. In soggiorno c'è il divano letto per altre {postiLetto} persone. [prova: divanoLetto]
+7. Le camere da letto hanno {letti}. [prova: dati]
+8. La casa è stata ristrutturata nel {anno}. [prova: dati]
+9. Dalla cucina si esce su {spazioEsterno}. [prova: dati]
+10. Il bagno ha {dotazioniBagno}. [prova: dati]
+11. In casa trovate lenzuola, asciugamani e prodotti per la pulizia. [prova: serviziInclusi]
+12. La lavatrice e il ferro da stiro sono a disposizione. [prova: lavatrice]
+13. L'aria condizionata è in tutte le stanze. [prova: ariaCondizionata]
+14. La casa ha l'ingresso indipendente. [prova: caratteristicheDellaCasa]
+15. Le pareti sono in {materiale} e i soffitti hanno le travi a vista. [prova: caratteristicheDellaCasa]
+16. La casa è al {piano} piano, con l'ascensore. [prova: ascensore]
+17. Il posto auto è davanti alla casa. [prova: parcheggio]
+18. La casa è tutta su un piano, comoda anche per chi ha difficoltà a camminare. [prova: accessibilita]
+19. Dalla camera matrimoniale si vede {vista}. [prova: dati]
+20. La casa si prenota per un minimo di {notti} notti. [prova: dati]
+21. La casa è a {comune}, in {via}. [prova: casaIntera]
+22. Volete sapere com'è la casa? Siamo a vostra disposizione. [prova: casaIntera]
+23. Diteci quante persone siete: vi diciamo come sistemarvi. [prova: casaIntera]
+
+## I numeri della casa (solo quelli veri)
+- {ospiti} ospiti [prova: dati]
+- {camere} camere da letto [prova: dati]
+- {bagni} bagni [prova: dati]
+- {metri} metri quadri [prova: dati]
+- {distanza} dal mare [prova: dati]

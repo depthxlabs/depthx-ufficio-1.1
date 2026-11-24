@@ -1,0 +1,28 @@
+{
+ "descrizione": "Dove vanno telefono, WhatsApp ed email del cliente nel file di configurazione di ogni template (assets/js/config.js). null = il template non ha quel campo. SITO_CONFIG: i 4 template Advanced dell'11/11/2026, tutti con gli stessi campi.",
+ "HOTEL_CONFIG": {
+  "telefono": "contatti.telefono",
+  "whatsapp": "contatti.whatsapp",
+  "email": "contatti.email"
+ },
+ "BEB_CONFIG": {
+  "telefono": "telefono",
+  "whatsapp": "whatsapp",
+  "email": "email"
+ },
+ "AGRI_CONFIG": {
+  "telefono": "contatti.telefono",
+  "whatsapp": "contatti.whatsapp",
+  "email": "contatti.email"
+ },
+ "CASA_CONFIG": {
+  "telefono": "telefono",
+  "whatsapp": "whatsapp",
+  "email": "email"
+ },
+ "SITO_CONFIG": {
+  "telefono": "contatti.telefono",
+  "whatsapp": "contatti.whatsapp",
+  "email": "contatti.email"
+ }
+}

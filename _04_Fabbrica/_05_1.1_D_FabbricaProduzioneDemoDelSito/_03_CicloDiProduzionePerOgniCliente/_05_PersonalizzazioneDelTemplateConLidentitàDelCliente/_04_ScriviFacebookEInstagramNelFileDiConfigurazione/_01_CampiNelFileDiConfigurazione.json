@@ -1,0 +1,23 @@
+{
+ "descrizione": "Dove vanno Facebook e Instagram del cliente nel file di configurazione di ogni template (assets/js/config.js). null = il template non ha quel campo. SITO_CONFIG: i 4 template Advanced dell'11/11/2026, tutti con gli stessi campi.",
+ "HOTEL_CONFIG": {
+  "facebook": "contatti.facebook",
+  "instagram": "contatti.instagram"
+ },
+ "BEB_CONFIG": {
+  "facebook": "facebook",
+  "instagram": "instagram"
+ },
+ "AGRI_CONFIG": {
+  "facebook": "contatti.facebook",
+  "instagram": "contatti.instagram"
+ },
+ "CASA_CONFIG": {
+  "facebook": null,
+  "instagram": null
+ },
+ "SITO_CONFIG": {
+  "facebook": "contatti.facebook",
+  "instagram": "contatti.instagram"
+ }
+}

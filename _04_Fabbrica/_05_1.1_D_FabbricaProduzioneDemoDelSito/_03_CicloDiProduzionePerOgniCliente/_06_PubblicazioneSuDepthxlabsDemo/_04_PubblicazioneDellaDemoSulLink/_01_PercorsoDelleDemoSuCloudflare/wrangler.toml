@@ -1,0 +1,18 @@
+name = "depthx-percorso-delle-demo"
+main = "worker.js"
+compatibility_date = "2026-10-01"
+workers_dev = false
+routes = [
+  { pattern = "depthxlabs.com/demo*", zone_name = "depthxlabs.com" },
+  { pattern = "www.depthxlabs.com/demo*", zone_name = "depthxlabs.com" },
+]
+
+# R2 (12/11/2026): i file delle demo stanno nel bucket R2 "depthx-demo", non più nelle risorse statiche del Worker
+# (limite di file del piano gratuito). Il passo 6 carica solo i file della demo nuova; il Worker non si ripubblica.
+[[r2_buckets]]
+binding = "DEMO"
+bucket_name = "depthx-demo"
+
+[[kv_namespaces]]
+binding = "TRACCIAMENTO"
+id = "d020f4c03f0b4b1dbf63fbe5ec6f1433"

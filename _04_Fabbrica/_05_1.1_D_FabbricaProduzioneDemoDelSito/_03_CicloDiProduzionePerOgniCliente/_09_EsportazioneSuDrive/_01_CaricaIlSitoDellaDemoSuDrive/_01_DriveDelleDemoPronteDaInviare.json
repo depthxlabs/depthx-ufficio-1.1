@@ -1,0 +1,9 @@
+{
+ "descrizione": "Dove va su Drive la demo approvata. Michele, 11/11/2026 (task #581): si esporta solo Advanced, nella cartella del cliente su Drive, senza cartelle divise per pacchetto o per tipologia: il sito in _02_ProduzioneDelSitoDemo/_04_DemoDelSito, il resoconto e le fotografie del product manager in _02_ProduzioneDelSitoDemo/_05_CollaudoDelSito. La cartella del cliente si trova con il suo idDrive (passo 1.1). Il passo 9 scrive con l'accesso in scrittura gdrivescrittura, autorizzato da Michele il 7/11/2026 e tenuto in un file suo (rclone_scrittura.conf). rclone copia soltanto, mai sync.",
+ "rclone": "C:\\_02_DepthXSoftware\\_02_RCloneDepthX\\rclone.exe",
+ "configurazione": "C:\\_02_DepthXSoftware\\_02_RCloneDepthX\\rclone_scrittura.conf",
+ "remoto": "gdrivescrittura",
+ "cartellaDelSito": "_02_ProduzioneDelSitoDemo/_04_DemoDelSito",
+ "cartellaDelResoconto": "_02_ProduzioneDelSitoDemo/_05_CollaudoDelSito",
+ "secondiMassimi": 1800
+}

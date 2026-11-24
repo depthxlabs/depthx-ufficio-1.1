@@ -1,0 +1,279 @@
+/* Casa Vacanza: un solo serif per i titoli, un sans pulito per i testi, neutri caldi.
+   La fabbrica ricolora --tinta (la tinta del logo del cliente): tutto il resto ne deriva. */
+@font-face { font-family: "Cormorant"; src: url("../fonts/cormorantGaramond400NormalLatin.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Manrope"; src: url("../fonts/manrope400NormalLatin.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Manrope"; src: url("../fonts/manrope700NormalLatin.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+
+:root {
+  --tinta: 24;
+  --accento: hsl(var(--tinta) 38% 34%);
+  --accento-scuro: hsl(var(--tinta) 40% 24%);
+  --accento-tenue: hsl(var(--tinta) 30% 93%);
+  --carta: #f6f2ec;
+  --bianco: #fffdfa;
+  --inchiostro: #26221e;
+  --tenue: #5f574f;
+  --filo: rgba(38, 34, 30, .14);
+  --serif: "Cormorant", "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --sans: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --margine: clamp(20px, 5vw, 64px);
+  --spazio: clamp(64px, 8vw, 120px);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--carta); color: var(--inchiostro);
+  font: 400 1rem/1.7 var(--sans);
+  hyphens: none; -webkit-hyphens: none; overflow-wrap: normal; word-break: normal;
+  text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased;
+}
+img, video { display: block; max-width: 100%; height: auto; }
+picture { display: block; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--accento); outline-offset: 3px; }
+[hidden] { display: none !important; }
+
+h1, h2 { font-family: var(--serif); font-weight: 400; line-height: 1.08; letter-spacing: -.005em; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2.5rem, 1.6rem + 4.2vw, 5.4rem); }
+h2 { font-size: clamp(2.25rem, 1.6rem + 2.8vw, 4rem); }
+p { margin: 0; text-wrap: pretty; }
+
+.logotipo { font-family: var(--serif); font-size: 1.3rem; letter-spacing: .2em; text-transform: uppercase; white-space: nowrap; }
+.logotipo img { height: 44px; width: auto; }
+
+/* Pulsanti */
+.pulsante {
+  display: inline-flex; align-items: center; justify-content: center; gap: .5em;
+  min-height: 48px; padding: .8em 1.6em; border: 1px solid var(--accento); border-radius: 0;
+  background: var(--accento); color: #fff; font: 700 .78rem/1.2 var(--sans); letter-spacing: .14em; text-transform: uppercase;
+  text-decoration: none; cursor: pointer; transition: background .25s, color .25s, border-color .25s; white-space: nowrap;
+}
+.pulsante:hover { background: var(--accento-scuro); border-color: var(--accento-scuro); }
+.pulsante--chiaro { background: transparent; border-color: rgba(255,255,255,.85); color: #fff; }
+.pulsante--chiaro:hover { background: #fff; color: var(--inchiostro); border-color: #fff; }
+.pulsante--piccolo { min-height: 40px; padding: .6em 1.2em; }
+.collegamento { display: inline-block; padding-bottom: 3px; border-bottom: 1px solid currentColor; font: 700 .78rem/1.4 var(--sans); letter-spacing: .14em; text-transform: uppercase; text-decoration: none; }
+.collegamento:hover { color: var(--accento); }
+
+/* Apertura col logo */
+.apertura {
+  position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; background: var(--carta);
+  animation: aperturaVia .7s ease 1.5s forwards;
+}
+.apertura__logo { opacity: 0; transform: translateY(8px); animation: logoDentro .9s ease .15s forwards; }
+.apertura .logotipo { font-size: clamp(1.8rem, 1.2rem + 3vw, 3.2rem); }
+.apertura .logotipo img { height: clamp(64px, 10vw, 110px); }
+@keyframes logoDentro { to { opacity: 1; transform: none; } }
+@keyframes aperturaVia { to { opacity: 0; visibility: hidden; } }
+.senza-apertura .apertura { display: none; }
+
+/* Testata: Menu, logo al centro, Prenota */
+.testata {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+  padding: 18px var(--margine); color: #fff; transition: background .3s, color .3s, box-shadow .3s;
+}
+.testata.solida, .menu-aperto .testata { background: var(--carta); color: var(--inchiostro); box-shadow: 0 1px 0 var(--filo); }
+.testata__menu { justify-self: start; width: 44px; height: 44px; display: grid; place-content: center; gap: 7px; background: none; border: 0; color: inherit; cursor: pointer; padding: 0; }
+.testata__menu span { display: block; width: 26px; height: 1px; background: currentColor; transition: transform .3s; }
+.menu-aperto .testata__menu span:first-child { transform: translateY(4px) rotate(45deg); }
+.menu-aperto .testata__menu span:last-child { transform: translateY(-4px) rotate(-45deg); }
+.testata__logo { text-decoration: none; color: inherit; }
+.testata__destra { justify-self: end; display: flex; align-items: center; gap: 18px; }
+.testata:not(.solida) .pulsante--piccolo { background: transparent; border-color: rgba(255,255,255,.8); }
+.menu-aperto .testata .pulsante--piccolo { background: var(--accento); border-color: var(--accento); }
+.lingua { background: none; border: 0; color: inherit; font: 700 .75rem/1 var(--sans); letter-spacing: .14em; cursor: pointer; padding: 12px 4px; }
+
+.menu { position: fixed; inset: 0; z-index: 40; background: var(--carta); display: grid; place-items: center; padding: 96px var(--margine) 48px; overflow-y: auto; }
+.menu ul { list-style: none; margin: 0; padding: 0; text-align: center; }
+.menu li + li { margin-top: .35em; }
+.menu a { font-family: var(--serif); font-size: clamp(1.7rem, 1.3rem + 1.6vw, 2.6rem); text-decoration: none; line-height: 1.3; }
+.menu a:hover { color: var(--accento); }
+
+/* 1. Apertura sulla foto */
+.eroe { position: relative; height: 100vh; height: 100svh; min-height: 560px; color: #fff; overflow: hidden; background: #3a332c; }
+.eroe__foto, .eroe__foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.eroe::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.28) 0%, rgba(0,0,0,0) 22%, rgba(0,0,0,0) 48%, rgba(0,0,0,.5) 100%); }
+.eroe__testo { position: absolute; left: 0; right: 0; bottom: clamp(48px, 9vh, 110px); z-index: 1; text-align: center; padding: 0 var(--margine); display: grid; justify-items: center; gap: 28px; }
+.eroe h1 { text-shadow: 0 1px 24px rgba(0,0,0,.25); }
+
+/* 3. I numeri */
+.numeri { background: var(--bianco); border-bottom: 1px solid var(--filo); }
+.numeri ul { list-style: none; margin: 0 auto; padding: clamp(28px, 4vw, 44px) var(--margine); max-width: 1100px; display: flex; justify-content: center; flex-wrap: wrap; }
+.numeri li { flex: 1 1 0; min-width: 0; text-align: center; padding: 6px 16px; display: grid; gap: 2px; }
+.numeri li + li { border-left: 1px solid var(--filo); }
+.numeri strong { font: 400 clamp(1.7rem, 1.3rem + 1.4vw, 2.5rem)/1.1 var(--serif); }
+.numeri span { font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; color: var(--tenue); }
+
+/* Blocchi */
+.casa, .servizi, .foto, .dove, .recensioni, .invito { padding: var(--spazio) var(--margine); }
+.intro { max-width: 44rem; margin: 0 auto; text-align: center; display: grid; gap: 24px; }
+.intro__testo { font-size: clamp(1.05rem, 1rem + .3vw, 1.2rem); color: var(--tenue); max-width: 38rem; margin: 0 auto; }
+
+.coppia { max-width: 1240px; margin: clamp(56px, 7vw, 96px) auto 0; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: clamp(20px, 3vw, 40px); align-items: stretch; }
+.coppia__grande { grid-column: 1 / 8; margin: 0; }
+.coppia__grande img { width: 100%; aspect-ratio: 7 / 5; object-fit: cover; }
+.coppia__grande:only-child { grid-column: 1 / -1; }
+
+.larga { max-width: 1240px; margin: clamp(56px, 7vw, 110px) auto 0; }
+.larga img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+.larga figcaption, .affianco__testo { font: 400 clamp(1.55rem, 1.2rem + 1.3vw, 2.3rem)/1.3 var(--serif); text-align: center; max-width: 34rem; margin: 32px auto 0; }
+
+.affianco { max-width: 1240px; margin: clamp(56px, 7vw, 110px) auto 0; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: clamp(24px, 4vw, 64px); align-items: center; }
+.affianco__foto { grid-column: 2 / 7; margin: 0; }
+.affianco__foto img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; }
+.affianco__testo { grid-column: 7 / 12; text-align: left; margin: 0; }
+
+/* 5. I servizi, icone che si disegnano */
+.servizi { background: var(--bianco); text-align: center; }
+.servizi__elenco { list-style: none; margin: clamp(40px, 5vw, 64px) auto 0; padding: 0; max-width: 1000px; display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(28px, 4vw, 56px) clamp(16px, 3vw, 40px); }
+.servizi__elenco li { width: 10.5rem; display: grid; justify-items: center; gap: 14px; font-size: .82rem; letter-spacing: .1em; text-transform: uppercase; color: var(--tenue); }
+.servizi svg { width: 56px; height: 56px; fill: none; stroke: var(--accento); stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+.js .servizi svg * { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 1.6s cubic-bezier(.6, .1, .3, 1); }
+.js .servizi li:nth-child(2) svg * { transition-delay: .15s; }
+.js .servizi li:nth-child(3) svg * { transition-delay: .3s; }
+.js .servizi li:nth-child(4) svg * { transition-delay: .45s; }
+.js .servizi li:nth-child(n+5) svg * { transition-delay: .6s; }
+.js .servizi.visibile svg * { stroke-dashoffset: 0; }
+
+/* 6. Mosaico */
+.foto { text-align: center; }
+.mosaico { max-width: 1320px; margin: clamp(40px, 5vw, 64px) auto 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: clamp(150px, 15vw, 210px); gap: clamp(10px, 1.4vw, 18px); }
+.mosaico figure { margin: 0; overflow: hidden; }
+.mosaico picture { height: 100%; }
+.mosaico__alta { grid-row: span 2; }
+.mosaico img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s ease; }
+.mosaico figure:hover img { transform: scale(1.03); }
+
+/* 7. Fuori */
+.fuori { padding-bottom: var(--spazio); }
+.fuori__foto img { width: 100%; aspect-ratio: 21 / 9; object-fit: cover; }
+.fuori .intro { margin-top: clamp(48px, 6vw, 80px); padding: 0 var(--margine); }
+
+/* 8-9. Dove siamo, arrivo */
+.dove { background: var(--bianco); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: none; }
+.dove__colonna { text-align: center; display: grid; gap: 16px; align-content: start; justify-items: center; padding: 0 clamp(16px, 4vw, 64px); max-width: 560px; justify-self: center; width: 100%; }
+.dove__colonna h2 { margin-bottom: 12px; font-size: clamp(2.1rem, 1.6rem + 1.8vw, 3.2rem); }
+.dove__colonna p { color: var(--tenue); font-size: 1.08rem; }
+.dove__colonna .collegamento { margin-top: 16px; }
+.dove__colonna + .dove__colonna { border-left: 1px solid var(--filo); }
+.dove__colonna:only-child { grid-column: 1 / -1; border: 0; }
+
+/* 10. Recensioni */
+.recensioni { text-align: center; }
+.evidenza { max-width: 1240px; margin: clamp(48px, 6vw, 80px) auto 0; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: clamp(24px, 4vw, 72px); align-items: center; text-align: left; }
+.evidenza__foto { grid-column: 1 / 7; margin: 0; }
+.evidenza__foto img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; }
+.evidenza__testo { grid-column: 7 / 13; margin: 0; }
+.evidenza.solo-testo .evidenza__testo { grid-column: 2 / 12; text-align: center; }
+.evidenza__testo p { font: 400 clamp(1.6rem, 1.2rem + 1.5vw, 2.5rem)/1.28 var(--serif); }
+.evidenza__testo p::before { content: "“"; display: block; font-size: 2.4em; line-height: .6; color: var(--accento); margin-bottom: 8px; }
+blockquote footer { margin-top: 20px; font-size: .78rem; letter-spacing: .14em; text-transform: uppercase; color: var(--tenue); }
+.altre { max-width: 1100px; margin: clamp(56px, 7vw, 96px) auto 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(24px, 4vw, 64px); }
+.altre blockquote { text-align: left; margin: 0; padding-top: 28px; border-top: 1px solid var(--filo); }
+.altre p { font: 400 clamp(1.2rem, 1.05rem + .5vw, 1.45rem)/1.45 var(--serif); }
+.centro { margin-top: clamp(40px, 5vw, 64px); text-align: center; }
+.collegamento--frase { font: 400 clamp(1.2rem, 1.05rem + .5vw, 1.45rem)/1.4 var(--serif); letter-spacing: 0; text-transform: none; }
+
+/* 11. Invito finale */
+.invito { background: var(--accento-scuro); color: #fff; text-align: center; display: grid; justify-items: center; gap: 20px; }
+.invito .intro__testo { color: rgba(255,255,255,.86); }
+.barra { width: 100%; max-width: 980px; margin-top: 20px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; background: var(--bianco); color: var(--inchiostro); text-align: left; }
+.barra label { display: grid; gap: 2px; padding: 12px 18px; border-right: 1px solid var(--filo); min-width: 0; font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; color: var(--tenue); }
+.barra input { width: 100%; min-width: 0; border: 0; background: transparent; font: 400 1rem/1.5 var(--sans); color: var(--inchiostro); padding: 2px 0; }
+.barra input:focus { outline: none; }
+.barra label:focus-within { box-shadow: inset 0 -2px 0 var(--accento); }
+.barra .pulsante { min-height: 64px; padding: 0 28px; }
+.nota { font-size: .95rem; color: rgba(255,255,255,.86); }
+.nota a { color: #fff; }
+a[data-tel] { white-space: nowrap; }
+
+/* Piede */
+.piede { padding: clamp(56px, 7vw, 88px) var(--margine) 40px; text-align: center; display: grid; gap: 18px; justify-items: center; border-top: 1px solid var(--filo); }
+.piede address { font-style: normal; color: var(--tenue); }
+.piede__copy { font-size: .8rem; color: var(--tenue); margin-top: 16px; }
+
+/* Barra in basso sul telefono */
+.barra-telefono { display: none; }
+
+/* Comparsa leggera */
+.js .rivela { opacity: 0; transform: translateY(22px); transition: opacity .9s ease, transform .9s ease; }
+.js .rivela.visibile { opacity: 1; transform: none; }
+
+@media (max-width: 900px) {
+  .coppia, .affianco, .evidenza { grid-template-columns: minmax(0, 1fr); }
+  .coppia__grande, .affianco__foto, .affianco__testo, .evidenza__foto, .evidenza__testo { grid-column: 1 / -1; }
+  .affianco__testo { text-align: center; }
+  .evidenza__testo { text-align: center; }
+  .evidenza__foto img { aspect-ratio: 4 / 3; }
+  .dove { grid-template-columns: minmax(0, 1fr); gap: 72px; }
+  .dove__colonna + .dove__colonna { border-left: 0; border-top: 1px solid var(--filo); padding-top: 72px; }
+  .altre { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 760px) {
+  body { padding-bottom: 76px; }
+  .testata { padding: 12px 16px; }
+  .testata .pulsante--piccolo { display: none; }
+  .logotipo { font-size: 1.05rem; letter-spacing: .16em; }
+  .eroe__testo .pulsante { display: none; }
+  .numeri li { padding: 4px 8px; }
+  .numeri span { font-size: .68rem; letter-spacing: .08em; }
+  .mosaico { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 42vw; }
+  .servizi__elenco { gap: 32px 8px; }
+  .servizi__elenco li { width: calc((100% - 16px) / 3); font-size: .7rem; letter-spacing: .06em; }
+  .fuori__foto img { aspect-ratio: 4 / 3; }
+  .larga img { aspect-ratio: 4 / 3; }
+  .barra { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .barra label:nth-child(2) { border-right: 0; }
+  .barra label:nth-child(3) { grid-column: 1 / -1; border-right: 0; border-top: 1px solid var(--filo); }
+  .barra .pulsante { grid-column: 1 / -1; min-height: 56px; white-space: normal; }
+  .barra-telefono {
+    display: grid; grid-template-columns: auto auto minmax(0, 1fr); gap: 10px; align-items: center;
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 45; padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+    background: var(--bianco); box-shadow: 0 -1px 0 var(--filo);
+  }
+  .barra-telefono .pulsante { min-height: 48px; }
+  .tondo { width: 48px; height: 48px; display: grid; place-items: center; border: 1px solid var(--filo); border-radius: 50%; color: var(--accento); }
+  .tondo svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .apertura { display: none; }
+  .js .rivela { opacity: 1; transform: none; transition: none; }
+  .js .servizi svg * { stroke-dashoffset: 0; transition: none; }
+  .mosaico img { transition: none; }
+}
+
+/* DepthX: leggibilità del titolo sulla foto di apertura e del nome della struttura nella barra in alto sul telefono. */
+#titoloEroe{text-shadow:0 2px 28px rgba(0,0,0,.55),0 1px 3px rgba(0,0,0,.35)}
+@media (max-width:760px){.testata__logo .logotipo{white-space:normal;overflow:visible;text-overflow:clip;max-width:60vw;font-size:clamp(.72rem,3.4vw,.95rem);letter-spacing:.06em;line-height:1.25}}
+
+/* DepthX: la testata trasparente sulla foto di apertura si legge come quella piena. */
+.eroe::after{background:linear-gradient(180deg,rgba(0,0,0,.55) 0%,rgba(0,0,0,.22) 16%,rgba(0,0,0,0) 32%,rgba(0,0,0,0) 46%,rgba(0,0,0,.55) 100%)}
+.testata:not(.solida){text-shadow:0 1px 14px rgba(0,0,0,.6),0 1px 2px rgba(0,0,0,.4)}
+.testata:not(.solida) .testata__menu span{box-shadow:0 1px 6px rgba(0,0,0,.5)}
+
+/* DepthX: la lingua come in tutti i template (Michele, 8/11/2026): IT e EN accanto al Menu, la lingua attiva sottolineata. */
+.testata__sinistra{justify-self:start;display:flex;align-items:center;gap:14px}
+.lingue{display:flex;gap:2px}
+.lingue button{background:none;border:0;color:inherit;opacity:.72;font:700 .75rem/1 var(--sans);letter-spacing:.14em;cursor:pointer;padding:12px 6px}
+.lingue button[aria-pressed="true"]{opacity:1;text-decoration:underline;text-underline-offset:5px}
+.menu__lingue{display:none;justify-content:center;margin-top:28px;font-size:1rem}
+@media (max-width:760px){.testata .lingue{display:none}.menu__lingue{display:flex}}
+
+/* DepthX (Michele, 8/11/2026): sul telefono il titolo dell'apertura è più piccolo, su una riga quando il nome del luogo lo permette. */
+@media (max-width:760px){.eroe h1{font-size:clamp(1.85rem,8.4vw,2.6rem)}}
+
+/* Il nome e l'indirizzo lunghi nel piede vanno a capo sul telefono (Michele, 8/11/2026) */
+.piede{grid-template-columns:minmax(0,1fr)}.piede .logotipo{white-space:normal;overflow-wrap:anywhere;max-width:100%}.piede address{overflow-wrap:anywhere;max-width:100%}
+
+/* Titoli su 2 righe al massimo e bilanciati; sul telefono il nome nell'apertura va a capo e non esce mai dallo schermo (Michele, 9/11/2026) */
+h1,h2,h3{text-wrap:balance}
+@media (max-width:760px){.apertura{padding:0 16px;box-sizing:border-box}.apertura *{white-space:normal!important;overflow-wrap:anywhere;max-width:100%;text-align:center}}
+@media (max-width:760px){.apertura .logotipo{font-size:clamp(1.4rem,7vw,2.2rem)!important;letter-spacing:.12em}}
+/* Nessuna parola sola a capo nei paragrafi (Michele, 9/11/2026) */
+p{text-wrap:pretty}
+/* Il finale sul telefono: la frase per chiamare va a capo e nessun elemento esce dallo schermo */
+.nota a[data-tel]{white-space:normal}.invito>*{max-width:100%;min-width:0;box-sizing:border-box}.invito h2{overflow-wrap:anywhere}

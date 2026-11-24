@@ -1,0 +1,7 @@
+{
+ "descrizione": "Regole del passo 5.8.4, i fatti provati e la verifica delle frasi complete: Claude sul server al minimo (due chiamate per cliente, una per i fatti e una per la verifica delle frasi), il modello, l'attesa massima in secondi di ogni chiamata e quante recensioni del cliente riceve oltre al sito, al rapporto di unicità e alla scheda Google. Pitstop 7 (Michele, 12/11/2026): i fatti e la verifica delle frasi con le graffe da trovare vanno in una chiamata sola; le altre frasi si verificano in chiamateDiVerificaInsieme chiamate che partono nello stesso momento (_11_FattiEVerificaInUnaSolaChiamata.py).",
+ "modello": "sonnet",
+ "secondiMassimi": 600,
+ "recensioniMassime": 8,
+ "chiamateDiVerificaInsieme": 3
+}

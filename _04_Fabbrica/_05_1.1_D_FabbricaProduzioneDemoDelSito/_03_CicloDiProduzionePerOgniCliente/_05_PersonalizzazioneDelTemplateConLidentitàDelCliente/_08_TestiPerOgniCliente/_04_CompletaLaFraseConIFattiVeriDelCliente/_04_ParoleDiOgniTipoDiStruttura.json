@@ -1,0 +1,7 @@
+{
+ "descrizione": "Le parole che dicono il tipo di struttura. Una frase di riserva che ha le parole di un altro tipo non si usa: mai 'Un agriturismo di famiglia' nel sito di un B&B.",
+ "Hotel": ["albergo", "hotel"],
+ "B&B": ["b&b", "bed and breakfast"],
+ "Agriturismo": ["agriturismo"],
+ "Casa vacanza": ["casa vacanza", "casa vacanze", "una casa tutta per voi"]
+}

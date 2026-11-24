@@ -1,0 +1,7 @@
+{
+ "descrizione": "Regole del passo 5.5, i testi scritti da sonnet: modello, attesa massima in secondi, ripetizioni se non risponde bene, lunghezza massima di una recensione nel materiale.",
+ "modelloDeiTesti": "sonnet",
+ "secondiMassimiDeiTesti": 300,
+ "ripetizioniDeiTesti": 3,
+ "caratteriDiUnaRecensionePerITesti": 300
+}

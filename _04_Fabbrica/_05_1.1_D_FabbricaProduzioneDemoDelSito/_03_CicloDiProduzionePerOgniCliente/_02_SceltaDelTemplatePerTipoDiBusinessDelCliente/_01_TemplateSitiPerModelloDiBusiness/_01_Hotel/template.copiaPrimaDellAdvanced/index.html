@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="it" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title data-t="titolo.pagina">{nomestruttura}</title>
+<meta name="description" content="{camere} camere, un ristorante e {luogo} a {distanza}." data-en-content="{camere} rooms, a restaurant and {luogo} {distanza} away.">
+<meta name="theme-color" content="#fbf9f5">
+<link rel="icon" href="assets/img/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="assets/img/favicon-64.png" sizes="64x64" type="image/png">
+<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+<link rel="preload" href="assets/fonts/cormorantGaramond400NormalLatin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/manrope400NormalLatin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" as="image" type="image/webp" media="(min-width: 761px)" imagesrcset="media/foto/esterno_16-640.webp 640w, media/foto/esterno_16-1280.webp 1280w, media/foto/esterno_16-2200.webp 2200w" imagesizes="100vw">
+<link rel="preload" as="image" type="image/webp" media="(max-width: 760px)" imagesrcset="media/foto/esterno_9-640.webp 640w, media/foto/esterno_9-1280.webp 1280w, media/foto/esterno_9-2200.webp 2200w" imagesizes="100vw">
+<link rel="stylesheet" href="assets/css/style.css">
+<script>document.documentElement.className='js';</script>
+</head>
+<body>
+<div class="apertura" aria-hidden="true"><span class="apertura__marchio" data-marchio>{nomestruttura}</span></div>
+<a class="salta" href="#contenuto" data-en="Skip to content">Vai al contenuto</a>
+
+<header class="testata" id="testata">
+  <button class="testata__menu" type="button" aria-controls="menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 8h18M3 16h18"/></svg><span data-en="Menu">Menu</span></button>
+  <a class="testata__marchio" href="#contenuto" data-marchio>{nomestruttura}</a>
+  <button class="testata__prenota" type="button" data-apri-prenota><span data-en="Book">Prenota</span></button>
+</header>
+
+<nav class="menu" id="menu" aria-label="Menu" hidden>
+  <ul class="menu__voci"><li><a href="#chi-siamo" data-en="About us">Chi siamo</a></li><li><a href="#camere" data-en="Rooms">Le camere</a></li><li><a href="#ristorante" data-en="Restaurant">Il ristorante</a></li><li><a href="#colazione" data-en="Breakfast">La colazione</a></li><li><a href="#servizi" data-en="At the hotel">In albergo</a></li><li><a href="#dove" data-en="Where we are">Dove siamo</a></li><li><a href="#recensioni" data-en="Reviews">Le recensioni</a></li></ul>
+  <div class="menu__piede">
+    <a data-link="tel" href="#"><span data-t="telefono">{telefono}</span></a>
+    <div class="lingue" role="group" aria-label="Lingua" data-en-aria-label="Language"><button type="button" data-lingua="it" aria-pressed="true">IT</button><button type="button" data-lingua="en" aria-pressed="false">EN</button></div>
+  </div>
+</nav>
+
+<main id="contenuto">
+  <section class="hero" aria-labelledby="titolo-hero">
+    <picture data-scena="esterno" data-forma="16x9" data-telefono="9x16" data-media-telefono="(max-width: 760px)" data-sizes="100vw"><img alt="La struttura vista da fuori" data-en-alt="The property seen from outside" width="1600" height="900" fetchpriority="high" decoding="async"></picture>
+    <div class="hero__velo"></div>
+    <h1 class="hero__titolo" data-t="hero.titolo" data-en="Above {luogo}, since {anno}." id="titolo-hero">Sopra {luogo}, dal {anno}.</h1>
+  </section>
+
+  <section class="apertura-testo" aria-label="Prenota" data-en-aria-label="Book">
+    <p class="lead" data-t="hero.sotto" data-en="{camere} rooms, a restaurant and {luogo} {distanza} away.">{camere} camere, un ristorante e {luogo} a {distanza}.</p>
+    <div class="barra-prenota"><form class="prenota" data-prenota aria-label="Verifica la disponibilità" data-en-aria-label="Check availability">
+      <div class="campo"><label for="arrivo-barra" data-en="Arrival">Arrivo</label><input id="arrivo-barra" name="arrivo" type="date" required></div>
+      <div class="campo"><label for="partenza-barra" data-en="Departure">Partenza</label><input id="partenza-barra" name="partenza" type="date" required></div>
+      <div class="campo campo--ospiti"><label for="ospiti-barra" data-en="Guests">Ospiti</label><select id="ospiti-barra" name="ospiti"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></div>
+      <button class="btn btn--pieno" type="submit"><span data-en="Book">Prenota</span></button>
+    </form></div>
+  </section>
+
+  <section class="blocco chi" id="chi-siamo" aria-labelledby="titolo-chi">
+    <div class="chi__foto" data-rivela><picture data-scena="storia" data-forma="16x9" data-sizes="(max-width: 760px) 100vw, 58vw"><img alt="La casa della famiglia, com&#x27;era" data-en-alt="The family house as it was" width="1600" height="900" loading="lazy" decoding="async"></picture></div>
+    <div class="chi__testo" data-rivela>
+      <h2 class="titolo" data-t="chi.titolo" data-en="Our family, since {anno}." id="titolo-chi">La nostra famiglia, dal {anno}.</h2>
+      <p data-t="chi.testo" data-en="We know {comune} and the area around it: just ask us, and we will give you our advice.">Conosciamo {comune} e i suoi dintorni: chiedeteci pure, vi diamo i nostri consigli.</p>
+    </div>
+  </section>
+
+  <section class="blocco camere" id="camere" aria-labelledby="titolo-camere">
+    <div class="testa" data-rivela><h2 class="titolo" data-t="camere.titolo" data-en="Rooms" id="titolo-camere">Le camere</h2><p data-t="camere.testo" data-en="In every room you will find {dotazioni}.">In ogni camera trovate {dotazioni}.</p></div>
+    <div class="camere__griglia">
+        <article class="camera" data-rivela>
+          <div class="camera__foto"><picture data-scena="cameraComfort" data-forma="16x9" data-sizes="(max-width: 760px) 100vw, 33vw"><img alt="Una camera doppia con il balcone" data-en-alt="A double room with a balcony" width="1600" height="900" loading="lazy" decoding="async"></picture></div>
+          <h3 data-t="c1.nome">{nomeCamera1}</h3>
+          <p class="camera__dot" data-t="c1.dot">{dotazioniCamera1}</p>
+        </article>
+        <article class="camera" data-rivela>
+          <div class="camera__foto"><picture data-scena="cameraStandard" data-forma="16x9" data-sizes="(max-width: 760px) 100vw, 33vw"><img alt="Una camera doppia" data-en-alt="A double room" width="1600" height="900" loading="lazy" decoding="async"></picture></div>
+          <h3 data-t="c2.nome">{nomeCamera2}</h3>
+          <p class="camera__dot" data-t="c2.dot">{dotazioniCamera2}</p>
+        </article>
+        <article class="camera" data-rivela>
+          <div class="camera__foto"><picture data-scena="dependance" data-forma="16x9" data-sizes="(max-width: 760px) 100vw, 33vw"><img alt="Il soggiorno della dependance" data-en-alt="The dependance living room" width="1600" height="900" loading="lazy" decoding="async"></picture></div>
+          <h3 data-t="c3.nome">{nomeCamera3}</h3>
+          <p class="camera__dot" data-t="c3.dot">{dotazioniCamera3}</p>
+        </article>
+    </div>
+    <div class="camere__altre" data-rivela>
+      <div class="camere__elenco">
+        <dl>
+          <div><dt data-t="c4.nome">{nomeCamera4}</dt><dd data-t="c4.dot">{dotazioniCamera4}</dd></div>
+          <div><dt data-t="c5.nome">{nomeCamera5}</dt><dd data-t="c5.dot">{dotazioniCamera5}</dd></div>
+          <div><dt data-t="c6.nome">{nomeCamera6}</dt><dd data-t="c6.dot">{dotazioniCamera6}</dd></div>
+        </dl>
+        <button class="link" type="button" data-apri-prenota><span data-en="Book">Prenota</span></button>
+      </div>
+    </div>
+  </section>
+
+  <section class="blocco ristorante" id="ristorante" aria-labelledby="titolo-rist">
+    <div class="ristorante__foto" data-rivela><picture data-scena="ristorante" data-forma="9x16" data-sizes="(max-width: 760px) 100vw, 50vw"><img alt="La terrazza del ristorante" data-en-alt="The restaurant terrace" width="900" height="1600" loading="lazy" decoding="async"></picture></div>
+    <div class="ristorante__testo" data-rivela>
+      <h2 class="titolo" data-t="rist.titolo" data-en="The restaurant, open to non-residents too." id="titolo-rist">Il ristorante, aperto anche a chi non dorme da noi.</h2>
+      <p data-t="rist.testo" data-en="At lunch and dinner you will find the traditional dishes of {zona}.">A pranzo e a cena trovate i piatti della tradizione di {zona}.</p>
+      <a class="link" data-link="tel" href="#"><span data-en="Call us">Chiamateci</span></a>
+      <div class="ristorante__piatto"><picture data-scena="piatto" data-forma="9x16" data-sizes="(max-width: 760px) 70vw, 24vw"><img alt="Un piatto del ristorante" data-en-alt="A dish from the restaurant" width="900" height="1600" loading="lazy" decoding="async"></picture></div>
+    </div>
+  </section>
+
+  <section class="blocco colazione" id="colazione" aria-labelledby="titolo-col">
+    <div class="colazione__foto" data-rivela><picture data-scena="colazione" data-forma="16x9" data-sizes="(max-width: 760px) 100vw, 84vw"><img alt="La colazione" data-en-alt="Breakfast" width="1600" height="900" loading="lazy" decoding="async"></picture></div>
+    <div class="testa" data-rivela>
+      <h2 class="titolo" data-t="col.titolo" data-en="Breakfast." id="titolo-col">La colazione.</h2>
+      <p data-t="col.testo" data-en="Every morning we prepare {colazione}.">Ogni mattina prepariamo {colazione}.</p>
+    </div>
+  </section>
+
+  <section class="blocco servizi" id="servizi" aria-labelledby="titolo-serv">
+    <div class="testa" data-rivela><h2 class="titolo" data-t="serv.titolo" data-en="At the hotel." id="titolo-serv">In albergo.</h2></div>
+    <ul class="servizi__voci"><li class="servizio" data-servizio="parcheggio" data-rivela><svg class="disegna" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M10 17V7h3.2a3 3 0 0 1 0 6H10"/></svg><span data-en="Parking">Parcheggio</span></li><li class="servizio" data-servizio="wifi" data-rivela><svg class="disegna" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2.5 9a14 14 0 0 1 19 0M5.5 12.5a9.5 9.5 0 0 1 13 0M8.7 16a5 5 0 0 1 6.6 0"/><path d="M12 19.5h.01"/></svg><span data-en="Wi-Fi">Wi-Fi</span></li><li class="servizio" data-servizio="ascensore" data-rivela><svg class="disegna" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="5" y="2.5" width="14" height="19" rx="1.5"/><path d="M12 2.5v19M8.5 9.5l-1.5-2-1.5 2M15.5 7.5l1.5 2 1.5-2"/></svg><span data-en="Lift">Ascensore</span></li><li class="servizio" data-servizio="giardino" data-rivela><svg class="disegna" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 21v-7"/><path d="M12 14c-4 0-6-3-6-6 3 0 6 2 6 6zM12 12c0-4 2.5-7 6-7 0 3.5-2.5 7-6 7z"/><path d="M5 21h14"/></svg><span data-en="Garden">Giardino</span></li><li class="servizio" data-servizio="terrazza" data-rivela><svg class="disegna" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 10h18L12 4z"/><path d="M12 10v11M7 21h10M6 15h12"/></svg><span data-en="Terrace">Terrazza</span></li><li class="servizio" data-servizio="piscina" data-rivela><svg class="disegna" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 17c2 0 2-1.5 4.5-1.5S10 17 12 17s2-1.5 4.5-1.5S19 17 21 17M3 21c2 0 2-1.5 4.5-1.5S10 21 12 21s2-1.5 4.5-1.5S19 21 21 21M8 14V5a2 2 0 0 1 4 0M16 14V5a2 2 0 0 0-4 0M8 9h8"/></svg><span data-en="Swimming pool">Piscina</span></li><li class="servizio" data-servizio="bar" data-rivela><svg class="disegna" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 4h14l-7 8z"/><path d="M12 12v8M8 20h8"/></svg><span data-en="Bar">Bar</span></li><li class="servizio" data-servizio="riunioni" data-rivela><svg class="disegna" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="11" rx="1"/><path d="M8 20l4-5 4 5"/></svg><span data-en="Meeting room">Sala riunioni</span></li><li class="servizio" data-servizio="animali" data-rivela><svg class="disegna" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="6" cy="10" r="1.8"/><circle cx="10" cy="6" r="1.8"/><circle cx="14" cy="6" r="1.8"/><circle cx="18" cy="10" r="1.8"/><path d="M12 12c-3 0-5.5 3.5-5.5 6 0 1.5 1.5 2.5 3 2 1-.3 1.7-.5 2.5-.5s1.5.2 2.5.5c1.5.5 3-.5 3-2 0-2.5-2.5-6-5.5-6z"/></svg><span data-en="Pets allowed">Animali ammessi</span></li><li class="servizio" data-servizio="bagagli" data-rivela><svg class="disegna" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="5" y="7" width="14" height="13" rx="1.5"/><path d="M9 7V4h6v3M9 11v5M15 11v5"/></svg><span data-en="Luggage storage">Deposito bagagli</span></li></ul>
+    <div class="mosaico">
+      <div class="mosaico__a" data-rivela><picture data-scena="giardino" data-forma="9x16" data-sizes="(max-width: 760px) 100vw, 38vw"><img alt="Il giardino" data-en-alt="The garden" width="900" height="1600" loading="lazy" decoding="async"></picture></div>
+      <div class="mosaico__b" data-rivela><picture data-scena="riunioni" data-forma="16x9" data-sizes="(max-width: 760px) 100vw, 56vw"><img alt="La sala riunioni" data-en-alt="The meeting room" width="1600" height="900" loading="lazy" decoding="async"></picture></div>
+    </div>
+  </section>
+
+  <section class="blocco dove" id="dove" aria-labelledby="titolo-dove">
+    <div class="dove__testo" data-rivela>
+      <h2 class="titolo" data-t="dove.titolo" data-en="Where we are." id="titolo-dove">Dove siamo.</h2>
+      <p data-t="dove.t1" data-en="We are in {via}, in {comune}.">Siamo in {via}, a {comune}.</p>
+      <p data-t="dove.t2" data-en="{luogo} is {distanza} away, {luogo2} {distanza2}.">{luogo} è a {distanza}, {luogo2} a {distanza2}.</p>
+      <p data-t="dove.t3" data-en="Coming by car? Parking is {parcheggio}.">Arrivate in auto? Il parcheggio è {parcheggio}.</p>
+      <a class="link" data-link="mappa" href="#" target="_blank" rel="noopener"><span data-en="How to get here">Come arrivare</span></a>
+    </div>
+    <div class="dove__foto" data-rivela><picture data-scena="lago" data-forma="16x9" data-sizes="(max-width: 760px) 100vw, 56vw"><img alt="Il lago visto dalla struttura" data-en-alt="The lake seen from the property" width="1600" height="900" loading="lazy" decoding="async"></picture></div>
+  </section>
+
+  <section class="blocco recensioni" id="recensioni" aria-labelledby="titolo-rec">
+    <div class="testa" data-rivela>
+      <h2 class="titolo" id="titolo-rec" data-t="rec.titolo" data-en="What our guests say." data-modello-it="{voto} su Google." data-modello-en="{voto} on Google.">Cosa dicono i nostri ospiti.</h2>
+    </div>
+    <div class="recensioni__elenco">
+        <figure class="recensione" data-recensione data-rivela>
+          <div class="recensione__foto recensione__foto--larga"><picture data-scena="dependance" data-forma="16x9" data-sizes="(max-width: 760px) 100vw, 40vw"><img alt="Una foto della struttura" data-en-alt="A photo of the property" width="1600" height="900" loading="lazy" decoding="async"></picture></div>
+          <div class="recensione__testo">
+            <blockquote><p data-t="rec.1.testo">«{testoRecensione1}»</p></blockquote>
+            <figcaption><span data-t="rec.firma" data-en="a guest of {nomestruttura}">un ospite di {nomestruttura}</span></figcaption>
+          </div>
+        </figure>
+        <figure class="recensione recensione--inversa" data-recensione data-rivela>
+          <div class="recensione__foto recensione__foto--alta"><picture data-scena="sala" data-forma="9x16" data-sizes="(max-width: 760px) 100vw, 40vw"><img alt="Una foto della struttura" data-en-alt="A photo of the property" width="900" height="1600" loading="lazy" decoding="async"></picture></div>
+          <div class="recensione__testo">
+            <blockquote><p data-t="rec.2.testo">«{testoRecensione2}»</p></blockquote>
+            <figcaption><span data-t="rec.firma" data-en="a guest of {nomestruttura}">un ospite di {nomestruttura}</span></figcaption>
+          </div>
+        </figure>
+    </div>
+    <p class="recensioni__link" data-rivela><a class="link" data-link="recensioni" href="#" target="_blank" rel="noopener"><span data-t="rec.link" data-en="Read all the reviews on Google.">Leggete tutte le recensioni su Google.</span></a></p>
+  </section>
+
+  <section class="blocco fine" aria-labelledby="titolo-fine">
+    <div class="testa" data-rivela>
+      <h2 class="titolo" data-t="fine.titolo" data-en="We look forward to seeing you in {comune}." id="titolo-fine">Vi aspettiamo a {comune}.</h2>
+      <p data-t="fine.testo" data-en="Call us or write to us: we will tell you straight away if the room is free.">Chiamateci o scriveteci: vi diciamo subito se la camera è libera.</p>
+      <div class="azioni">
+        <button class="btn btn--pieno" type="button" data-apri-prenota><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="1.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span data-en="Book">Prenota</span></button>
+        <a class="btn btn--linea" data-link="tel" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 3h4l2 5-2.5 1.5a11 11 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2 2A17 17 0 0 1 3 5a2 2 0 0 1 2-2"/></svg><span data-en="Call us">Chiamateci</span></a>
+        <a class="btn btn--linea" data-link="whatsapp" href="#" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3.5 20.5l1.3-4.2A8.5 8.5 0 1 1 8 19.4z"/><path d="M9 8.5c0 3 3.5 6.5 6.5 6.5l1-1.5-2-1-1 .8a5 5 0 0 1-2.8-2.8l.8-1-1-2z"/></svg><span data-en="Message us on WhatsApp">Scriveteci su WhatsApp</span></a>
+        <a class="btn btn--linea" data-link="email" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M3.5 6l8.5 7 8.5-7"/></svg><span data-en="Email us">Scriveteci una email</span></a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<dialog class="finestra" id="finestra-prenota" aria-labelledby="titolo-finestra">
+  <div class="finestra__in">
+    <button class="finestra__chiudi" type="button" data-chiudi aria-label="Chiudi" data-en-aria-label="Close">&times;</button>
+    <h2 class="titolo" id="titolo-finestra"><span data-en="Book">Prenota</span></h2>
+    <form class="prenota" data-prenota aria-label="Verifica la disponibilità" data-en-aria-label="Check availability">
+      <div class="campo"><label for="arrivo-finestra" data-en="Arrival">Arrivo</label><input id="arrivo-finestra" name="arrivo" type="date" required></div>
+      <div class="campo"><label for="partenza-finestra" data-en="Departure">Partenza</label><input id="partenza-finestra" name="partenza" type="date" required></div>
+      <div class="campo campo--ospiti"><label for="ospiti-finestra" data-en="Guests">Ospiti</label><select id="ospiti-finestra" name="ospiti"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></div>
+      <button class="btn btn--pieno" type="submit"><span data-en="Book">Prenota</span></button>
+    </form>
+    <p class="finestra__nota"><a data-t="mod.voce" data-en="Would you rather talk it over? Call us on {telefono}." data-link="tel" href="#">Preferite parlarne a voce? Chiamateci al {telefono}.</a></p>
+  </div>
+</dialog>
+
+<footer class="piede">
+  <div class="piede__marchio" data-marchio>{nomestruttura}</div>
+  <div class="piede__colonne">
+    <ul>
+      <li><a data-link="mappa" href="#" target="_blank" rel="noopener"><span data-t="posizione">{via}, {cap} {comune} ({provincia})</span></a></li>
+      <li><a data-link="tel" href="#"><span data-t="telefono">{telefono}</span></a></li>
+      <li><a data-link="email" href="#"><span data-t="email">{email}</span></a></li>
+    </ul>
+    <ul>
+      <li><a data-link="instagram" href="#" target="_blank" rel="noopener">Instagram</a></li>
+      <li><a data-link="facebook" href="#" target="_blank" rel="noopener">Facebook</a></li>
+      <li><a data-link="recensioni" href="#" target="_blank" rel="noopener"><span data-en="Here are the reviews on Google">Ecco le recensioni su Google</span></a></li>
+    </ul>
+  </div>
+  <div class="piede__fondo"><span data-t="legale" data-en="VAT {partitaIva} · CIN {cin}">P. IVA {partitaIva} · CIN {cin}</span><span data-t="copy">© {annoCorrente} {nomestruttura}</span>
+    <div class="lingue" role="group" aria-label="Lingua" data-en-aria-label="Language"><button type="button" data-lingua="it" aria-pressed="true">IT</button><button type="button" data-lingua="en" aria-pressed="false">EN</button></div>
+  </div>
+</footer>
+
+<nav class="barra-mobile" aria-label="Contatti" data-en-aria-label="Contacts">
+  <button type="button" class="barra-mobile__prenota" data-apri-prenota><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="1.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span data-en="Book">Prenota</span></button>
+  <a data-link="tel" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 3h4l2 5-2.5 1.5a11 11 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2 2A17 17 0 0 1 3 5a2 2 0 0 1 2-2"/></svg><span data-en="Call us">Chiamateci</span></a>
+  <a data-link="whatsapp" href="#" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3.5 20.5l1.3-4.2A8.5 8.5 0 1 1 8 19.4z"/><path d="M9 8.5c0 3 3.5 6.5 6.5 6.5l1-1.5-2-1-1 .8a5 5 0 0 1-2.8-2.8l.8-1-1-2z"/></svg><span data-en="Message us on WhatsApp">Scriveteci su WhatsApp</span></a>
+  <a data-link="email" data-se-manca="whatsapp" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M3.5 6l8.5 7 8.5-7"/></svg><span data-en="Email us">Scriveteci una email</span></a>
+</nav>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/foto.js" data-configurazione="HOTEL_CONFIG"></script>
+<script src="assets/js/main.js" defer></script>
+</body>
+</html>
