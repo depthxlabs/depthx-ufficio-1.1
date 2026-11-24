@@ -45,7 +45,7 @@ jobs:
           New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name LongPathsEnabled -Value 1 -PropertyType DWORD -Force | Out-Null
           New-Item -ItemType Directory -Force "$env:LINEA" | Out-Null
           New-Item -ItemType Junction -Path "$env:FABBRICA" -Target "$env:GITHUB_WORKSPACE\codice\_04_Fabbrica\_05_1.1_D_FabbricaProduzioneDemoDelSito" | Out-Null
-          $motore = "$env:LINEA\_04_1.1_C_DownloadMaterialeClienti"
+          $motore = "$env:LINEA\_03_1.1_C_DownloadMaterialeClienti"
           New-Item -ItemType Directory -Force "$motore\_01_StrumentiDelMotore\_05_RegistroEStatoDelMotore", "$motore\_06_CaricamentoSuDrive" | Out-Null
           Copy-Item dati\_08_Fabbrica\stato.json "$motore\_01_StrumentiDelMotore\_05_RegistroEStatoDelMotore\stato.json"
           Copy-Item dati\_08_Fabbrica\_02_CartelleDeiClientiSuDrive.json "$motore\_06_CaricamentoSuDrive\_02_CartelleDeiClientiSuDrive.json"
@@ -126,6 +126,12 @@ jobs:
           $scheda = "$env:FABBRICA\_01_StrumentiDellaFabbrica\_09_DemoInApprovazione\$env:CLIENTE"
           if (Test-Path $scheda) { Copy-Item $scheda "$uscita\approvazione" -Recurse }
           Set-Location dati
+          git config user.name "DepthX Fabbrica 1.1"
+          git config user.email outbound@depthxlabs.com
           git add --sparse "_08_Fabbrica/esiti/$env:CLIENTE"
-          git -c user.name="DepthX Fabbrica 1.1" -c user.email=outbound@depthxlabs.com commit -q -m "Fabbrica: esito di una demo"
-          for ($n = 1; $n -le 6; $n++) { git pull -q --rebase origin main; git push -q origin HEAD:main; if ($LASTEXITCODE -eq 0) { Write-Host "esito salvato"; break }; Start-Sleep ($n * 4) }
+          git commit -q -m "Fabbrica: esito di una demo"
+          if ($LASTEXITCODE -ne 0) { Write-Host "NOTGO: esito non registrato"; exit 1 }
+          $salvato = $false
+          for ($n = 1; $n -le 6; $n++) { git pull -q --rebase origin main; if ($LASTEXITCODE -eq 0) { git push -q origin HEAD:main; if ($LASTEXITCODE -eq 0) { $salvato = $true; break } }; Start-Sleep ($n * 4) }
+          if (-not $salvato) { Write-Host "NOTGO: esito non salvato"; exit 1 }
+          Write-Host "esito salvato"
