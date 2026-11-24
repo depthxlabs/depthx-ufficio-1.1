@@ -79,9 +79,12 @@ jobs:
                   time.sleep(6)
                   pannello = pagina.locator("div[data-review-id]")
                   # si scorre il contenitore delle recensioni, non la pagina: l'ultima recensione caricata va in vista e Maps carica le successive
-                  for giro in range(25):
+                  # attraverso l'uscita fissa Maps carica le recensioni più lentamente: si scorre fino a 120 recensioni o 60 giri
+                  for giro in range(60):
                       pagina.evaluate("() => { const r = document.querySelectorAll('div[data-review-id]'); if (r.length) r[r.length - 1].scrollIntoView(); }")
-                      time.sleep(1.5)
+                      time.sleep(2)
+                      if len(set(pannello.evaluate_all("e => e.map(x => x.getAttribute('data-review-id'))"))) >= 120:
+                          break
                   print("recensioni caricate:", len(set(pannello.evaluate_all("e => e.map(x => x.getAttribute('data-review-id'))"))))
                   pagina.screenshot(path="maps_recensioni.png")
               except Exception as errore:
