@@ -115,6 +115,8 @@ jobs:
           CLIENTE: ${{ matrix.cliente }}
         run: |
           $uscita = "dati\_08_Fabbrica\esiti\$env:CLIENTE"
+          # l'esito di un giro di prima ancora da ritirare si sostituisce: la copia del registro dentro una cartella già piena si ferma
+          if (Test-Path $uscita) { Remove-Item $uscita -Recurse -Force }
           New-Item -ItemType Directory -Force $uscita | Out-Null
           Copy-Item C:\esito\* $uscita -ErrorAction SilentlyContinue
           Copy-Item C:\freellm_errori.log "$uscita\freellm_errori.log" -ErrorAction SilentlyContinue
