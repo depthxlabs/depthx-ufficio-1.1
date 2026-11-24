@@ -72,7 +72,8 @@ jobs:
               pagina.screenshot(path="maps_scheda.png")
               print("indirizzo della pagina:", pagina.url[:120])
               print("titolo della scheda:", (pagina.locator("h1").first.inner_text(timeout=5000) if pagina.locator("h1").count() else "nessuno"))
-              print("vista limitata:", pagina.get_by_text(re.compile("vista limitata|limited view", re.I)).count() > 0)
+              print("vista limitata:", pagina.get_by_text(re.compile("vista limitata|insieme limitato|limited view|limited set", re.I)).count() > 0)
+              print("account collegato:", pagina.get_by_role("link", name=re.compile(r"^(Accedi|Sign in)$")).count() == 0 and pagina.get_by_role("button", name=re.compile(r"^(Accedi|Sign in)$")).count() == 0)
               print("immagini di Google nella scheda:", pagina.locator("img[src*='googleusercontent']").count())
               try:
                   pagina.get_by_role("tab", name=re.compile(r"^(Recensioni|Reviews)")).first.click(timeout=20000)
