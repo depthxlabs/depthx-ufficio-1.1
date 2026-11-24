@@ -13,6 +13,7 @@ sys.dont_write_bytecode = True
 
 import collections
 import re
+import time
 import urllib.parse
 
 from bs4 import BeautifulSoup
@@ -553,11 +554,19 @@ def esegui(contesto):
         passoPagine.limite = f"il sito del CRM ({sitoDelCliente}) porta a un dominio diverso ({altroDominio}): nulla raccolto, va controllato il CRM"
         return [passoPagine, passoImmagini, passoFile]
 
+    # Immagini e file hanno il loro tempo, dopo le pagine (24/11/2026: le pagine prendevano tutti i 5 minuti, 0 immagini su 252 scaricate);
+    # le immagini si scaricano più alla volta
+    from concurrent.futures import ThreadPoolExecutor
+
+    minutiDeiFile = float((comune.regola("minutiMassimiPerFonte") or {}).get("sitoImmaginiEFile") or 5)
+    passoImmagini.scadenza = time.time() + minutiDeiFile * 60
+
     # Immagini, loghi e icone: tutte quelle trovate nelle pagine.
     tutte = list(immagini.items()) + [(url, {"alt": "", "logo": "icon" in tipo, "pagina": inizio, "icona": tipo}) for url, tipo in icone.items() if url not in immagini]
     passoImmagini.attesi = len(tutte)
     elencoDelleImmagini = []
-    for numero, (url, dettagli) in enumerate(tutte, start=1):
+
+    def unaImmagine(numero, url, dettagli):
         nomeOriginale = comune.nomeDiFilePulito(urllib.parse.unquote(urllib.parse.urlsplit(url).path.rsplit("/", 1)[-1]).rsplit(".", 1)[0], 40)
         radice = "logo" if dettagli.get("logo") else ("icona" if dettagli.get("icona") else "sito")
 
@@ -570,8 +579,13 @@ def esegui(contesto):
         contesto.scaricaElemento(passoImmagini, "sito", f"immagine:{url}", f"{radice}_{numero:04d}_{nomeOriginale}", "immagine",
                                  [("richiesta con pagina di origine", diretto), ("richiesta semplice", senzaRiferimento)],
                                  foto=not dettagli.get("logo") and not dettagli.get("icona"), descrizione={"url": url, **dettagli})
-        elencoDelleImmagini.append({"url": url, **dettagli})
+
+    with ThreadPoolExecutor(max_workers=int(comune.regola("fotoMapsInParallelo") or 6), thread_name_prefix="immaginiSito") as fili:
+        for futuro in [fili.submit(unaImmagine, numero, url, dettagli) for numero, (url, dettagli) in enumerate(tutte, start=1)]:
+            futuro.result()
+    elencoDelleImmagini = [{"url": url, **dettagli} for url, dettagli in tutte]
     contesto.giroDiRecupero(passoImmagini)
+    passoFile.scadenza = time.time() + minutiDeiFile * 60
 
     # File: PDF e video del sito.
     esterni = [url for url in incorporati if DOMINI_DEI_VIDEO.search(url)]

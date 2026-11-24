@@ -146,6 +146,11 @@ def esegui(contesto):
         passoPost.attesi += 1
         contesto.scaricaElemento(passoPost, "instagram", f"instagram:profilo:{profilo}", "immagine_del_profilo", "immagine",
                                  [("Graph API", lambda percorso: comune.scaricaInFile(datiDelProfilo["profile_picture_url"], percorso))])
+    # foto e video dei post si scaricano più alla volta, entro il tempo massimo di Instagram (24/11/2026: 8 reel su 30 in 5 minuti, uno alla volta)
+    from concurrent.futures import ThreadPoolExecutor
+
+    fili = ThreadPoolExecutor(max_workers=int(comune.regola("fotoMapsInParallelo") or 6), thread_name_prefix="instagram")
+    lavori = []
     for numero, voce in enumerate(post, start=1):
         reel = voce.get("media_product_type") == "REELS"
         passo = passoReel if reel else passoPost
@@ -167,8 +172,13 @@ def esegui(contesto):
                 continue
             descrizione = {"permalink": voce.get("permalink", ""), "data": voce.get("timestamp", ""), "didascalia": (voce.get("caption") or "")[:1000],
                            "miPiace": voce.get("like_count"), "commenti": voce.get("comments_count")}
-            contesto.scaricaElemento(passo, "instagram", f"instagram:{voce.get('id')}:{parte}", nomeBase, "video" if video else "immagine", metodi,
-                                     foto=not video, descrizione=descrizione)
+            lavori.append(fili.submit(contesto.scaricaElemento, passo, "instagram", f"instagram:{voce.get('id')}:{parte}", nomeBase,
+                                      "video" if video else "immagine", metodi, foto=not video, descrizione=descrizione))
+    try:
+        for lavoro in lavori:
+            lavoro.result()
+    finally:
+        fili.shutdown(wait=True)
     contesto.giroDiRecupero(passoPost)
     contesto.giroDiRecupero(passoReel)
     dichiarati = datiDelProfilo.get("media_count")

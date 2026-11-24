@@ -278,7 +278,12 @@ def recensioniDellaPagina(pagina, obiettivo, scadenza=None, inInglese=False):
             # nessuna scheda Recensioni e nessun "N recensioni" sulla scheda caricata: su Google non ce ne sono (11/11/2026)
             corpo = pagina.inner_text("body")
             LETTURA["senzaRecensioni"] = bool(pagina.locator("h1").count()) and not re.search(r"\d\s+(recensioni|recensione|reviews?)\b", corpo, re.I)
-            return [], 0
+            if LETTURA["senzaRecensioni"] or inInglese:
+                return [], 0
+            # la scheda ha recensioni ma la scheda Recensioni non si è aperta (Chrome appena acceso, 24/11/2026: 1165 recensioni, 0 lette):
+            # si legge la stessa scheda in inglese, con il testo originale
+            apri(pagina, pagina.url.split("?")[0] + "?hl=en")
+            return recensioniDellaPagina(pagina, obiettivo, max(scadenza or 0, time.time() + 120), inInglese=True)
     pausa(pagina, 3.5, 5)
     # le recensioni arrivano qualche secondo dopo il clic: si aspetta la prima, fino a 30 secondi
     try:
@@ -348,16 +353,34 @@ def letturaDalWorker(cliente, obiettivo, secondiDelleRecensioni, veloci):
     richiesta = urllib.request.Request(WORKER_DI_MAPS + "/Scheda", data=json.dumps(corpo).encode("utf-8"), method="POST",
                                        headers={"content-type": "application/json", "user-agent": "DepthX-Download/1.1",
                                                 "x-chiave": os.environ.get("MAPS_CHIAVE_DEL_WORKER", "").strip()})
-    try:
-        # la richiesta aspetta in fila gli altri clienti: il servizio manda uno spazio ogni 20 secondi, il collegamento resta vivo
-        with urllib.request.urlopen(richiesta, timeout=120) as risposta:
-            dati = json.loads(risposta.read().decode("utf-8"))
-    except Exception as errore:
-        raise FermoDiMaps(f"servizio Maps del server non raggiungibile: {type(errore).__name__}") from None
+    dati, motivo = None, ""
+    for volta in range(3):
+        try:
+            # la richiesta aspetta in fila gli altri clienti: il servizio manda uno spazio ogni 20 secondi, il collegamento resta vivo
+            with urllib.request.urlopen(richiesta, timeout=120) as risposta:
+                dati = json.loads(risposta.read().decode("utf-8"))
+            break
+        except Exception as errore:
+            motivo = f"servizio Maps del server non raggiungibile: {type(errore).__name__}"
+            time.sleep(20 * (volta + 1))
+    if dati is None:
+        raise FermoDiMaps(motivo)
     if dati.get("errore"):
         raise FermoDiMaps(str(dati["errore"]))
     if dati.get("fermo"):
         raise FermoDiMaps(str(dati["fermo"]))
+    totali = int(dati.get("totali") or 0) or int(dati.get("numeroDellaTestata") or 0)
+    if dati.get("scheda") and not dati.get("recensioni") and totali and not (dati.get("lettura") or {}).get("senzaRecensioni"):
+        # la scheda ha recensioni e il servizio ne ha lette 0: si chiedono di nuovo soltanto le recensioni, le foto restano quelle lette
+        corpo["senzaFoto"] = True
+        richiesta.data = json.dumps(corpo).encode("utf-8")
+        try:
+            with urllib.request.urlopen(richiesta, timeout=120) as risposta:
+                seconda = json.loads(risposta.read().decode("utf-8"))
+            if seconda.get("recensioni"):
+                dati["recensioni"], dati["totali"] = seconda["recensioni"], seconda.get("totali") or dati.get("totali")
+        except Exception:
+            pass
     LETTURA["senzaRecensioni"] = bool((dati.get("lettura") or {}).get("senzaRecensioni"))
     return (dati.get("scheda"), dati.get("come") or "", dati.get("esame") or [], dati.get("voto"), int(dati.get("numeroDellaTestata") or 0),
             dati.get("foto") or [], dati.get("recensioni") or [], int(dati.get("totali") or 0))
@@ -384,6 +407,9 @@ def esegui(contesto):
             scheda, come, esame, voto, numeroDellaTestata, foto, recensioni, totali = letturaDalWorker(
                 cliente, obiettivo, scadenzaRecensioni - time.time(), veloci)
             totali = totali or numeroDellaTestata
+            if scadenza:
+                # il tempo passato in fila al servizio Maps non toglie tempo alle foto: dopo la risposta le foto hanno i loro minuti
+                scadenza = max(scadenza, time.time() + 60 * float(comune.regola("minutiDelleFotoMapsDopoLaScheda") or 4))
             if scheda is None:
                 contesto.scriviJson("scheda", "_01_VerificaDellaScheda.json", {"ricerca": regole.testoDellaRicerca(cliente), "collegamentoDelCrm": cliente.get("googleMaps", ""),
                                                                               "esito": regole.MOTIVO_NON_VERIFICATA, "risultati": esame, "metodo": "servizio Maps del server"})

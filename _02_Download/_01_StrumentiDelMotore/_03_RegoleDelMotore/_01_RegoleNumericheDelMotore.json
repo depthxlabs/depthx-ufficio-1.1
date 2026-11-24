@@ -26,11 +26,12 @@
  "descrizioneRapportoDiUnicita": "dal 4/11/2026 (Michele): abbonamento Claude Max, sonnet con sforzo basso, nessuno strumento, circa 10.000 caratteri di materiale; il modello sceglie da 3 a 8 settori, ognuno con una frase e una citazione vera",
  "postInstagramMassimi": 30,
  "minutiMassimiPerFonte": {
-  "descrizione": "Google Maps con il Chrome dell'account: 40 foto della galleria e 30 recensioni; sito e Instagram 5 minuti",
+  "descrizione": "Google Maps con il Chrome dell'account: 40 foto della galleria e 30 recensioni; sito e Instagram 5 minuti; immagini e file del sito altri 5 minuti dopo le pagine",
   "Google Maps": 8,
   "sito": 5,
   "instagram": 5,
-  "youtube": 3
+  "youtube": 3,
+  "sitoImmaginiEFile": 5
  },
  "fotoMapsInParallelo": 6,
  "minutiDiPausaDiInstagramDopoIlLimiteMeta": 15,
@@ -42,6 +43,7 @@
  ],
  "fotoMapsMassime": 40,
  "minutiMassimiDelleRecensioni": 2,
+ "minutiDelleFotoMapsDopoLaScheda": 4,
  "descrizioneMaps": "Maps: al massimo 40 foto della galleria (il riconoscimento ne sceglie 15 che coprono le categorie) e 30 recensioni in 2 minuti; sotto 6 recensioni con il testo il cliente è escluso",
  "sezioniDaNonScaricare": [
   "S4"
