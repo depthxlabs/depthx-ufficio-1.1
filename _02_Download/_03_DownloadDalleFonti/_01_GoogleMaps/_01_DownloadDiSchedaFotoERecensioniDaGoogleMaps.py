@@ -404,12 +404,13 @@ def esegui(contesto):
     scadenzaRecensioni = min(scadenza or float("inf"), time.time() + 60 * (3 if veloci else MINUTI_MASSIMI_DELLE_RECENSIONI))
     try:
         if WORKER_DI_MAPS:
+            rimasto = (scadenza - time.time()) if scadenza else None
             scheda, come, esame, voto, numeroDellaTestata, foto, recensioni, totali = letturaDalWorker(
                 cliente, obiettivo, scadenzaRecensioni - time.time(), veloci)
             totali = totali or numeroDellaTestata
             if scadenza:
-                # il tempo passato in fila al servizio Maps non toglie tempo alle foto: dopo la risposta le foto hanno i loro minuti
-                scadenza = max(scadenza, time.time() + 60 * float(comune.regola("minutiDelleFotoMapsDopoLaScheda") or 4))
+                # il tempo passato in fila al servizio Maps non toglie tempo alle foto: dopo la risposta le foto hanno il tempo che la fonte aveva
+                scadenza = max(scadenza, time.time() + rimasto)
             if scheda is None:
                 contesto.scriviJson("scheda", "_01_VerificaDellaScheda.json", {"ricerca": regole.testoDellaRicerca(cliente), "collegamentoDelCrm": cliente.get("googleMaps", ""),
                                                                               "esito": regole.MOTIVO_NON_VERIFICATA, "risultati": esame, "metodo": "servizio Maps del server"})

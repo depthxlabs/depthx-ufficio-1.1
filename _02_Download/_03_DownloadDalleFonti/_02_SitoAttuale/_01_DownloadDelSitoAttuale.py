@@ -554,11 +554,11 @@ def esegui(contesto):
         passoPagine.limite = f"il sito del CRM ({sitoDelCliente}) porta a un dominio diverso ({altroDominio}): nulla raccolto, va controllato il CRM"
         return [passoPagine, passoImmagini, passoFile]
 
-    # Immagini e file hanno il loro tempo, dopo le pagine (24/11/2026: le pagine prendevano tutti i 5 minuti, 0 immagini su 252 scaricate);
+    # Immagini e file hanno ognuno il tempo della fonte sito, dopo le pagine (24/11/2026: le pagine prendevano tutti i 5 minuti, 0 immagini su 252 scaricate);
     # le immagini si scaricano più alla volta
     from concurrent.futures import ThreadPoolExecutor
 
-    minutiDeiFile = float((comune.regola("minutiMassimiPerFonte") or {}).get("sitoImmaginiEFile") or 5)
+    minutiDeiFile = float((comune.regola("minutiMassimiPerFonte") or {}).get("sito") or 5)  # lo stesso tempo della fonte sito
     passoImmagini.scadenza = time.time() + minutiDeiFile * 60
 
     # Immagini, loghi e icone: tutte quelle trovate nelle pagine.
