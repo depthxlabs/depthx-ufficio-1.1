@@ -67,7 +67,7 @@ def giudizioDaiModelliGratuiti(fotografie, frasi):
                       .replace("{computer}", nomi.get("computer", "non disponibile")).replace("{telefono}", nomi.get("telefono", "non disponibile"))
                       .replace("{altrePagine}", "\n".join(f"- {chiave.replace('|', ' sul ')}: {nome}" for chiave, nome in nomi.items() if "|" in chiave) or "- nessuna")
                       .replace("{frasi}", "\n".join(frasi)))
-        giudizio = chiediAFreeLLM(istruzioni, allegati, 180)
+        giudizio = chiediAFreeLLM(istruzioni, allegati, 330)
     if not isinstance(giudizio, dict) or not isinstance(giudizio.get("punti"), dict):
         return None
     return esitoDelGiudizio(giudizio)

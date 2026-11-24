@@ -44,7 +44,7 @@ CHIAVE_FREE_LLM = Path(r"C:\_02_DepthXSoftware\_01_CentroGestioneDepthX\V1.0(161
 MODELLI_GRATUITI = ("nemotron-3.5-super-vl", "auto")
 
 
-def chiediAFreeLLM(istruzioni, immagini=(), secondi=90):
+def chiediAFreeLLM(istruzioni, immagini=(), secondi=330):
     """I modelli gratuiti di FreeLLMAPI sul server, in ordine. immagini: percorsi JPG da mandare insieme alle istruzioni,
     nell'ordine in cui le istruzioni le nominano. Restituisce l'oggetto JSON della risposta, o None.
     Lo usano anche le categorie delle foto (4.1), il product manager (8.2) e la correzione (8.4)."""

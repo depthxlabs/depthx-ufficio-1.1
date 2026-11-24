@@ -66,7 +66,7 @@ def correzioneDaiModelliGratuiti(istruzioni, problemi, cartellaSito):
              + "\n\nfrasiVerificate.json:\n" + extra + "\n\nparoleVietate.json:\n" + vietate + "\n\nI file della demo:\n" + allegati
              + "\n\nRispondi con un solo oggetto JSON: {\"modifiche\": [{\"file\": \"nome del file\", \"cerca\": \"testo copiato esattamente dal file, "
                "che compare una sola volta\", \"sostituisci\": \"testo nuovo\"}], \"corretti\": [...], \"nonCorretti\": [...]}.")
-    risposta = chiediAFreeLLM(testo, (), 240)
+    risposta = chiediAFreeLLM(testo, (), 330)
     if not isinstance(risposta, dict) or not isinstance(risposta.get("modifiche"), list):
         return None
     applicate, scartate = 0, []

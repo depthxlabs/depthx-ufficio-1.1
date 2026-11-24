@@ -76,7 +76,7 @@ jobs:
           }
           New-Item -ItemType Directory -Force "$env:FREELLM\server\data" | Out-Null
           Copy-Item dati\_07_FreeLLMAPI\freeapi.db "$env:FREELLM\server\data\freeapi.db" -Force
-          [IO.File]::WriteAllText("$env:FREELLM\.env", "ENCRYPTION_KEY=$($env:CIFRATURA.Trim())`nPORT=3001`nHOST=127.0.0.1`nNODE_ENV=production`n")
+          [IO.File]::WriteAllText("$env:FREELLM\.env", "ENCRYPTION_KEY=$($env:CIFRATURA.Trim())`nPORT=3001`nHOST=127.0.0.1`nNODE_ENV=production`nPROVIDER_TIMEOUT_KILO=300000`n")
           $chiave = "C:\_02_DepthXSoftware\_01_CentroGestioneDepthX\V1.0(161126_1124)\_01_StrumentiDiLavoroPerIlServer\_01_ChiaviAccessiServiziTerzeParti\_11_FreeLLMAPI"
           New-Item -ItemType Directory -Force $chiave | Out-Null
           [IO.File]::WriteAllText("$chiave\_01_ChiaveUnica.txt", $env:CHIAVE.Trim())
