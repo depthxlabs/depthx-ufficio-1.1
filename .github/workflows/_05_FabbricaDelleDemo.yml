@@ -86,13 +86,14 @@ jobs:
         env:
           CHIAVE: ${{ secrets.FREELLM_CHIAVE_UNICA }}
         run: |
+          Start-Sleep 15
           $intestazioni = @{ Authorization = "Bearer $($env:CHIAVE.Trim())" }
           foreach ($modello in "nemotron-3.5-super-vl", "auto") {
             $corpo = @{ model = $modello; messages = @(@{ role = "user"; content = "Rispondi solo con la parola OK." }) } | ConvertTo-Json -Depth 5
             try {
               $risposta = Invoke-WebRequest -Uri http://127.0.0.1:3001/v1/chat/completions -Method Post -Headers $intestazioni -ContentType "application/json" -Body $corpo -TimeoutSec 90
               Write-Host "modello $modello`: risposta $($risposta.StatusCode), $($risposta.Content.Length) caratteri"
-            } catch { Write-Host "modello $modello`: NOTGO $($_.Exception.Response.StatusCode.value__)" }
+            } catch { Write-Host "modello $modello`: NOTGO $($_.Exception.Response.StatusCode.value__) $($_.Exception.Message -replace 'Bearer \S+','')" }
           }
       - uses: actions/setup-python@v5
         with: { python-version: "3.14" }
