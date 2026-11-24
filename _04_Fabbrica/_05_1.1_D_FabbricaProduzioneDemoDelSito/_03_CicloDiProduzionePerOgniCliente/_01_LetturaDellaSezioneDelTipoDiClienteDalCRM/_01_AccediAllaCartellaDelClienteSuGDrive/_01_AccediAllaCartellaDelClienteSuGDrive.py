@@ -7,7 +7,7 @@ il nome della cartella, la sezione del CRM e il tipo di struttura. È un dato de
 import json
 from pathlib import Path
 
-MOTORE_DI_DOWNLOAD = Path(__file__).absolute().parents[4] / "_04_1.1_C_DownloadMaterialeClienti"
+MOTORE_DI_DOWNLOAD = Path(__file__).absolute().parents[4] / "_03_1.1_C_DownloadMaterialeClienti"
 FILE_DELLE_CARTELLE_DEI_CLIENTI = MOTORE_DI_DOWNLOAD / "_06_CaricamentoSuDrive" / "_02_CartelleDeiClientiSuDrive.json"
 
 

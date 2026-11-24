@@ -6,7 +6,7 @@ L'ordine è quello dei fogli del CRM (sezione, tipo, categoria, regione) e poi d
 import json
 from pathlib import Path
 
-MOTORE_DI_DOWNLOAD = Path(__file__).absolute().parents[4] / "_04_1.1_C_DownloadMaterialeClienti"
+MOTORE_DI_DOWNLOAD = Path(__file__).absolute().parents[4] / "_03_1.1_C_DownloadMaterialeClienti"
 FILE_DELLO_STATO_DEL_MOTORE = MOTORE_DI_DOWNLOAD / "_01_StrumentiDelMotore" / "_05_RegistroEStatoDelMotore" / "stato.json"
 ESITI_SCARICATI = ("GO", "PARZIALE")
 

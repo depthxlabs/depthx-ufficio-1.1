@@ -16,7 +16,7 @@ import json
 import re
 from pathlib import Path
 
-STATO_DEL_MOTORE = (Path(__file__).absolute().parents[2] / "_04_1.1_C_DownloadMaterialeClienti"
+STATO_DEL_MOTORE = (Path(__file__).absolute().parents[2] / "_03_1.1_C_DownloadMaterialeClienti"
                     / "_01_StrumentiDelMotore" / "_05_RegistroEStatoDelMotore" / "stato.json")
 CRM_LOCALE = Path(r"C:\_02_DepthXSoftware\_01_CentroGestioneDepthX\_08_MemoriaDatiDelCentroDiGestione\_09_CrmLinea11\fogli.json")
 ESITI_SCARICATI = ("GO", "PARZIALE")
