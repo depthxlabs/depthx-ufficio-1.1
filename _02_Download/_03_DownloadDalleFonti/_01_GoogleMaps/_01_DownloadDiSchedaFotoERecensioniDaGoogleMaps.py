@@ -120,7 +120,11 @@ def apri(pagina, url):
 
 def schedaDallaPagina(pagina):
     """Dati della scheda aperta, nella forma della Places API, per usare le stesse regole di verifica."""
-    nome = (pagina.eval_on_selector_all("h1", "e => e.map(x => x.innerText.trim()).filter(Boolean)") or [""])[-1]
+    # il nome è il titolo del pannello principale della scheda; i titoli degli annunci ("Sponsorizzato") non contano
+    principale = pagina.eval_on_selector_all("div[role='main'][aria-label]", "e => e.map(x => x.getAttribute('aria-label').trim()).filter(Boolean)")
+    titoli = [t for t in pagina.eval_on_selector_all("h1", "e => e.map(x => x.innerText.trim()).filter(Boolean)")
+              if not re.search(r"sponsorizzat|sponsored|annuncio", t, re.I)]
+    nome = next((t for t in titoli if t in principale), (titoli or [""])[0])
     voci = pagina.eval_on_selector_all("[data-item-id]", "e => e.map(x => [x.getAttribute('data-item-id'), x.getAttribute('aria-label') || '', x.href || ''])")
     indirizzo = telefono = sito = ""
     for chiave, etichetta, collegamento in voci:
