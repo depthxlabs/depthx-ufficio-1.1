@@ -67,8 +67,18 @@ def nome_file(testo):
     return "".join(p[:1].upper() + p[1:] for p in re.split(r"[^A-Za-z0-9]+", t) if p) or "Comune"
 
 
+def accesso():
+    """Sul server: il token di GitHub del Centro Gestione (file indicato da TOKEN_GITHUB), mai stampato; su GitHub non serve."""
+    try:
+        token = open(os.environ["TOKEN_GITHUB"], encoding="utf-8").read().strip()
+    except (KeyError, OSError):
+        return []
+    import base64
+    return ["-c", "http.extraHeader=Authorization: Basic " + base64.b64encode(f"x-access-token:{token}".encode()).decode()]
+
+
 def git(*a):
-    return subprocess.run(["git", "-C", RADICE, *a], capture_output=True, text=True)
+    return subprocess.run(["git", "-C", RADICE, *accesso(), *a], capture_output=True, text=True)
 
 
 def salva(scrivi, messaggio):

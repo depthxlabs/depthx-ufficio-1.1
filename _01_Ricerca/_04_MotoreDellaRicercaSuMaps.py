@@ -91,13 +91,14 @@ def cifre_telefono(t):
     return re.sub(r"\D", "", t or "")[-9:]
 
 
-def main():
+def main(argomenti=None, cerca=None):
+    """cerca(parole, comune, provincia): sul server la ricerca con Chrome; senza, Google Places API."""
     a = argparse.ArgumentParser()
     a.add_argument("--codice", required=True)
     a.add_argument("--tipo", required=True, choices=list(T.TIPI))
     a.add_argument("--comune", required=True)
     a.add_argument("--provincia", required=True)
-    p = a.parse_args()
+    p = a.parse_args(argomenti)
     inizio = datetime.datetime.now().isoformat(timespec="seconds")
     file = f"{p.tipo}_{D.nome_file(p.comune)}"
     tipo = T.TIPI[p.tipo]
@@ -108,7 +109,7 @@ def main():
     scarti, candidati = {}, []
     scarta = lambda motivo: scarti.__setitem__(motivo, scarti.get(motivo, 0) + 1)
 
-    trovati = cerca_su_maps(tipo["parole"], p.comune, p.provincia, chiave_maps())
+    trovati = cerca(tipo["parole"], p.comune, p.provincia) if cerca else cerca_su_maps(tipo["parole"], p.comune, p.provincia, chiave_maps())
     for pl in trovati:
         sito = pl.get("websiteUri", "")
         dominio = urllib.parse.urlparse(sito).netloc.replace("www.", "").lower()
@@ -160,7 +161,7 @@ def main():
                     "Ha TikTok?": s["social"]["tiktok"] or "no", "Pagina LinkedIn aziendale": s["social"]["linkedin"] or "no",
                     "Piattaforma del sito": s["piattaforma"], "Numero di pagine del sito attuale": s["pagine"], "Google Maps": pl.get("googleMapsUri", ""),
                     "Voto Google": pl.get("rating", ""), "Recensioni Google": pl.get("userRatingCount", ""), "Foto Google": len(pl.get("photos", [])),
-                    "Verifica sito": "sì, " + s["motivo"], "Stato Commerciale": "Appena inserito"})
+                    "Verifica sito": "sì, " + s["motivo"], "Stato Commerciale": "In attesa di download"})
         righe.append({"Codice ricerca": p.codice, "Data": oggi, "Sezione": s["sezione"], "Tipo": p.tipo,
                       "Regione": T.REGIONE_DELLA_PROVINCIA.get(prov, ""), "Dominio": s["dominio"], **crm})
 
@@ -173,6 +174,7 @@ def main():
         D.scrivi_json(f"_02_Giri/{p.codice}/{file}.json", esito)
     D.salva(scrivi, f"{p.codice}: {p.tipo} {p.comune}, {len(righe)} contatti")
     print(json.dumps(esito, ensure_ascii=False))
+    return esito
 
 
 if __name__ == "__main__":
