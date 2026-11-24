@@ -7,6 +7,9 @@ per questo il Chrome è vero ma con la finestra fuori dallo schermo.
 Un solo Chrome alla volta usa il profilo (i lavoratori si mettono in fila) e tra un cliente e l'altro c'è una pausa,
 così l'account non lavora a ritmo da robot. I controlli anti robot non si aggirano mai: il passo si ferma con il motivo.
 La scheda si verifica con le stesse regole della fonte con la Places API (_02_VerificaDellaSchedaConIDatiDelCrm).
+Su GitHub (variabile MAPS_WORKER) il Chrome non si apre: la lettura la fa il servizio Maps del server (maps-download.depthxlabs.com),
+nell'unico Chrome con l'account del motore, un cliente alla volta; la sessione Google non esce dal server.
+La chiave è nella variabile MAPS_CHIAVE_DEL_WORKER. Sul server la variabile non c'è.
 """
 
 import sys
@@ -19,6 +22,9 @@ import random
 import re
 import time
 import urllib.parse
+
+import json
+import urllib.request
 
 import _02_PercorsiChiaviEFunzioniComuni as comune
 import _02_VerificaDellaSchedaConIDatiDelCrm as regole
@@ -36,6 +42,7 @@ RECENSIONI_MINIME = 6  # il pacchetto Advanced ne mostra 6: sotto, il cliente è
 RISULTATI_DELLA_RICERCA = 10  # schede della ricerca esaminate una per una
 FOTO_DELLA_SCHEDA = re.compile(r"https://lh\d\.googleusercontent\.com/(?:p|gps-cs-s|gps-proxy)/[A-Za-z0-9_\-]+")  # foto della scheda, non avatar né Street View
 MOTIVO_ANTI_ROBOT = "Google ha chiesto la verifica anti robot: non si aggira, il cliente si riprende nel giro successivo"
+WORKER_DI_MAPS = os.environ.get("MAPS_WORKER", "").strip().rstrip("/")  # su GitHub: il servizio Maps del server
 MOTIVO_SENZA_ACCESSO = "il Chrome del motore non ha l'accesso all'account Google dedicato: Maps mostra la vista limitata (va rifatto l'accesso, task 485)"
 
 
@@ -325,6 +332,33 @@ def recensioniDellaPagina(pagina, obiettivo, scadenza=None, inInglese=False):
     return recensioni, totali
 
 
+# Lettura dal servizio Maps del server (solo con la variabile MAPS_WORKER).
+
+
+def letturaDalWorker(cliente, obiettivo, secondiDelleRecensioni, veloci):
+    """Chiede la scheda al servizio Maps del server. Restituisce (scheda, come, esame, voto, numero della testata, foto, recensioni, totali)."""
+    campi = ("nome", "via", "cap", "comune", "provincia", "telefono", "cellulare", "sito", "googleMaps", "googleMapsDelCrm")
+    corpo = {"cliente": {campo: cliente.get(campo) for campo in campi if cliente.get(campo)}, "obiettivo": obiettivo,
+             "fotoMassime": FOTO_MASSIME_DELLA_GALLERIA, "secondiDelleRecensioni": max(30, int(secondiDelleRecensioni)),
+             "senzaFoto": veloci, "senzaImmagini": bool(comune.regola("mapsSenzaImmagini"))}
+    richiesta = urllib.request.Request(WORKER_DI_MAPS + "/Scheda", data=json.dumps(corpo).encode("utf-8"), method="POST",
+                                       headers={"content-type": "application/json", "user-agent": "DepthX-Download/1.1",
+                                                "x-chiave": os.environ.get("MAPS_CHIAVE_DEL_WORKER", "").strip()})
+    try:
+        # la richiesta aspetta in fila gli altri clienti: il servizio manda uno spazio ogni 20 secondi, il collegamento resta vivo
+        with urllib.request.urlopen(richiesta, timeout=120) as risposta:
+            dati = json.loads(risposta.read().decode("utf-8"))
+    except Exception as errore:
+        raise FermoDiMaps(f"servizio Maps del server non raggiungibile: {type(errore).__name__}") from None
+    if dati.get("errore"):
+        raise FermoDiMaps(str(dati["errore"]))
+    if dati.get("fermo"):
+        raise FermoDiMaps(str(dati["fermo"]))
+    LETTURA["senzaRecensioni"] = bool((dati.get("lettura") or {}).get("senzaRecensioni"))
+    return (dati.get("scheda"), dati.get("come") or "", dati.get("esame") or [], dati.get("voto"), int(dati.get("numeroDellaTestata") or 0),
+            dati.get("foto") or [], dati.get("recensioni") or [], int(dati.get("totali") or 0))
+
+
 # Passo della fonte.
 
 
@@ -342,28 +376,38 @@ def esegui(contesto):
         obiettivo = min(obiettivo, 100)
     scadenzaRecensioni = min(scadenza or float("inf"), time.time() + 60 * (3 if veloci else MINUTI_MASSIMI_DELLE_RECENSIONI))
     try:
-        with FilaDelChrome(), sync_playwright() as programma:
-            browser = comune.chromeDiMaps(programma)  # il Chrome condiviso con l'account: qui si apre solo una scheda
-            sessione = browser.contexts[0].new_page()
-            try:
-                pagina = sessione
-                pagina.set_viewport_size({"width": 1400, "height": 900})
-                # la scheda non disegna immagini, mappa e caratteri: le foto si leggono come indirizzi e si scaricano a parte (regola mapsSenzaImmagini)
-                if comune.regola("mapsSenzaImmagini"):
-                    pagina.route("**/*", lambda percorso, richiesta: percorso.abort() if richiesta.resource_type in ("image", "media", "font")
-                                 else percorso.continue_())
-                scheda, come, esame = trovaLaScheda(pagina, cliente)
-                if scheda is None:
-                    contesto.scriviJson("scheda", "_01_VerificaDellaScheda.json", {"ricerca": regole.testoDellaRicerca(cliente), "collegamentoDelCrm": cliente.get("googleMaps", ""),
-                                                                                  "esito": regole.MOTIVO_NON_VERIFICATA, "risultati": esame, "metodo": "Chrome del motore"})
-                    passoFoto.limite = passoRecensioni.limite = f"{regole.MOTIVO_NON_VERIFICATA}: {len(esame)} risultati esaminati, nessuno ha almeno due dati uguali al CRM"
-                    return [passoFoto, passoRecensioni], None
-                voto, numeroDellaTestata = votoDellaScheda(pagina)
-                foto = [] if veloci else fotoDellaGalleria(pagina, scheda["displayName"]["text"])
-                recensioni, totali = recensioniDellaPagina(pagina, obiettivo, scadenzaRecensioni)
-                totali = totali or numeroDellaTestata
-            finally:
-                sessione.close()
+        if WORKER_DI_MAPS:
+            scheda, come, esame, voto, numeroDellaTestata, foto, recensioni, totali = letturaDalWorker(
+                cliente, obiettivo, scadenzaRecensioni - time.time(), veloci)
+            totali = totali or numeroDellaTestata
+            if scheda is None:
+                contesto.scriviJson("scheda", "_01_VerificaDellaScheda.json", {"ricerca": regole.testoDellaRicerca(cliente), "collegamentoDelCrm": cliente.get("googleMaps", ""),
+                                                                              "esito": regole.MOTIVO_NON_VERIFICATA, "risultati": esame, "metodo": "servizio Maps del server"})
+                passoFoto.limite = passoRecensioni.limite = f"{regole.MOTIVO_NON_VERIFICATA}: {len(esame)} risultati esaminati, nessuno ha almeno due dati uguali al CRM"
+                return [passoFoto, passoRecensioni], None
+        else:
+            with FilaDelChrome(), sync_playwright() as programma:
+                browser = comune.chromeDiMaps(programma)  # il Chrome condiviso con l'account: qui si apre solo una scheda
+                sessione = browser.contexts[0].new_page()
+                try:
+                    pagina = sessione
+                    pagina.set_viewport_size({"width": 1400, "height": 900})
+                    # la scheda non disegna immagini, mappa e caratteri: le foto si leggono come indirizzi e si scaricano a parte (regola mapsSenzaImmagini)
+                    if comune.regola("mapsSenzaImmagini"):
+                        pagina.route("**/*", lambda percorso, richiesta: percorso.abort() if richiesta.resource_type in ("image", "media", "font")
+                                     else percorso.continue_())
+                    scheda, come, esame = trovaLaScheda(pagina, cliente)
+                    if scheda is None:
+                        contesto.scriviJson("scheda", "_01_VerificaDellaScheda.json", {"ricerca": regole.testoDellaRicerca(cliente), "collegamentoDelCrm": cliente.get("googleMaps", ""),
+                                                                                      "esito": regole.MOTIVO_NON_VERIFICATA, "risultati": esame, "metodo": "Chrome del motore"})
+                        passoFoto.limite = passoRecensioni.limite = f"{regole.MOTIVO_NON_VERIFICATA}: {len(esame)} risultati esaminati, nessuno ha almeno due dati uguali al CRM"
+                        return [passoFoto, passoRecensioni], None
+                    voto, numeroDellaTestata = votoDellaScheda(pagina)
+                    foto = [] if veloci else fotoDellaGalleria(pagina, scheda["displayName"]["text"])
+                    recensioni, totali = recensioniDellaPagina(pagina, obiettivo, scadenzaRecensioni)
+                    totali = totali or numeroDellaTestata
+                finally:
+                    sessione.close()
     except FermoDiMaps as fermo:
         passoFoto.limite = passoRecensioni.limite = str(fermo)
         return [passoFoto, passoRecensioni], None
@@ -371,7 +415,7 @@ def esegui(contesto):
     scheda["userRatingCount"] = totali
     scheda["rating"] = voto
     contesto.scriviJson("scheda", "_01_VerificaDellaScheda.json", {"ricerca": regole.testoDellaRicerca(cliente), "collegamentoDelCrm": cliente.get("googleMaps", ""),
-                                                                  "esito": come, "risultati": esame, "metodo": "Chrome del motore"})
+                                                                  "esito": come, "risultati": esame, "metodo": "servizio Maps del server" if WORKER_DI_MAPS else "Chrome del motore"})
     contesto.scriviJson("scheda", "_02_SchedaGoogle.json", scheda)
     contesto.stato["schedaGoogle"] = {"id": scheda["id"], "link": scheda["googleMapsUri"], "recensioniTotali": totali, "voto": voto}
 
@@ -393,14 +437,14 @@ def esegui(contesto):
         for futuro in [fili.submit(unaFoto, numero, collegamento) for numero, collegamento in enumerate(foto, start=1)]:
             futuro.result()
     contesto.giroDiRecupero(passoFoto)
-    passoFoto.dettagli = {"fotoDellaGalleria": len(foto), "metodo": "Chrome del motore"}
+    passoFoto.dettagli = {"fotoDellaGalleria": len(foto), "metodo": "servizio Maps del server" if WORKER_DI_MAPS else "Chrome del motore"}
 
     # Recensioni: le migliori, fino all'obiettivo delle regole.
     obiettivo = min(obiettivo, totali or len(recensioni))
     contesto.scriviJson("recensioni", "_01_RecensioniGoogle.json", {"voto": voto, "numeroDiRecensioni": totali, "ordine": "voto più alto, poi testo più lungo", "recensioni": recensioni})
     passoRecensioni.attesi = obiettivo
     passoRecensioni.scaricati = min(len(recensioni), obiettivo)
-    passoRecensioni.dettagli = {"recensioniTotaliDellaScheda": totali, "recensioniLette": len(recensioni), "metodo": "Chrome del motore"}
+    passoRecensioni.dettagli = {"recensioniTotaliDellaScheda": totali, "recensioniLette": len(recensioni), "metodo": "servizio Maps del server" if WORKER_DI_MAPS else "Chrome del motore"}
     if obiettivo > len(recensioni):
         passoRecensioni.scaricati = passoRecensioni.attesi = len(recensioni)  # tutte quelle che Maps ha mostrato: GO (Michele, 9/11/2026)
         passoRecensioni.piattaforma = f"la scheda ha {totali} recensioni e Maps ne ha caricate {len(recensioni)} scorrendo l'elenco"

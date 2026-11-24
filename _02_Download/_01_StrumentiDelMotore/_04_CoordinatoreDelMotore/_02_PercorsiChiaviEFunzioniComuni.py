@@ -562,10 +562,6 @@ OPZIONI_DEL_CHROME_DI_MAPS = ["--window-position=-32000,-32000", "--window-size=
                               "--disable-extensions", "--mute-audio", "--lang=it-IT",
                               # la finestra è fuori dallo schermo: senza queste Chrome rallenta le schede come nascoste e Maps non carica
                               "--disable-background-timer-throttling", "--disable-backgrounding-occluded-windows", "--disable-renderer-backgrounding"]
-# Su GitHub (variabile MAPS_USCITA_FISSA, per esempio http://127.0.0.1:8898) il Chrome di Maps passa dall'uscita fissa
-# del server (_05_UscitaFissaDiMapsSullaMacchinaDiGitHub.py): Google vede sempre l'indirizzo del server. Sul server la variabile non c'è.
-if os.environ.get("MAPS_USCITA_FISSA", "").strip():
-    OPZIONI_DEL_CHROME_DI_MAPS = OPZIONI_DEL_CHROME_DI_MAPS + ["--proxy-server=" + os.environ["MAPS_USCITA_FISSA"].strip()]
 
 
 def _risponde(porta):
@@ -587,51 +583,7 @@ def chromeDeiSiti(programma):
 
 def chromeDiMaps(programma):
     """Il Chrome condiviso di Google Maps con l'account del motore. Restituisce il browser collegato."""
-    browser = chromeCondiviso(programma, PORTA_DEL_CHROME_DI_MAPS, FILE_DEL_CHROME_DI_MAPS, CARTELLA_DEL_PROFILO_CHROME, OPZIONI_DEL_CHROME_DI_MAPS)
-    sessioneGoogleDelMotore(browser.contexts[0])
-    return browser
-
-
-def cookieDellaSessioneGoogle():
-    """I cookie dell'account del motore dalla variabile MAPS_SESSIONE_GOOGLE (su GitHub, dal segreto), nel formato di Playwright.
-    Sul server la variabile non c'è: elenco vuoto, vale il profilo Chrome dell'account."""
-    testo = os.environ.get("MAPS_SESSIONE_GOOGLE", "").strip()
-    if not testo:
-        return []
-    try:
-        elenco = json.loads(testo)
-    except ValueError:
-        raise RuntimeError("MAPS_SESSIONE_GOOGLE non è un JSON valido") from None
-    if isinstance(elenco, dict):
-        elenco = elenco.get("cookies", [])
-    cookie = []
-    for voce in elenco:
-        if not isinstance(voce, dict) or not voce.get("name") or not voce.get("domain"):
-            continue
-        nuovo = {"name": voce["name"], "value": str(voce.get("value", "")), "domain": voce["domain"], "path": voce.get("path") or "/",
-                 "httpOnly": bool(voce.get("httpOnly")), "secure": bool(voce.get("secure"))}
-        scade = voce.get("expires")
-        if isinstance(scade, (int, float)) and scade > 0 and not voce.get("session"):
-            nuovo["expires"] = float(scade)
-        if voce.get("sameSite") in ("Strict", "Lax", "None"):
-            nuovo["sameSite"] = voce["sameSite"]
-        if nuovo.get("sameSite") == "None" and not nuovo["secure"]:
-            del nuovo["sameSite"]
-        cookie.append(nuovo)
-    return cookie
-
-
-def sessioneGoogleDelMotore(contesto):
-    """Su GitHub il Chrome di Maps riceve la sessione Google dell'account del motore prima di aprire Maps. I cookie non si stampano mai:
-    in caso di errore si riporta solo il tipo dell'errore."""
-    cookie = cookieDellaSessioneGoogle()
-    if not cookie:
-        return 0
-    try:
-        contesto.add_cookies(cookie)
-    except Exception as errore:
-        raise RuntimeError(f"sessione Google del motore non caricata: {type(errore).__name__}") from None
-    return len(cookie)
+    return chromeCondiviso(programma, PORTA_DEL_CHROME_DI_MAPS, FILE_DEL_CHROME_DI_MAPS, CARTELLA_DEL_PROFILO_CHROME, OPZIONI_DEL_CHROME_DI_MAPS)
 
 
 def chromeCondiviso(programma, porta, fileDelChrome, profilo, opzioni):

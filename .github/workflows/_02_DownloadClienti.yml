@@ -1,6 +1,6 @@
 # Download del materiale clienti della Linea 1.1 su GitHub (dal 23/11/2026).
 # Il server prepara la coda nel repository privato dei dati (_04_Download/Coda/<codice>.json): fino a 20 gruppi di clienti.
-# Ogni motore, su una macchina Windows, fa girare il lavoratore del motore di download per il suo gruppo: Google Maps con Places,
+# Ogni motore, su una macchina Windows, fa girare il lavoratore del motore di download per il suo gruppo: Google Maps dal servizio Maps del server,
 # sito, Instagram e YouTube, caricamento su Drive nella cartella del cliente. Il riconoscimento delle foto e il rapporto di unicità
 # con Claude si fanno sul server: qui il cliente resta "DA RICONOSCERE". Le righe del registro tornano nel repository dei dati.
 name: Download clienti
@@ -42,10 +42,10 @@ jobs:
       MOTORE_SENZA_CLAUDE: "1"
       MOTORE_CODA: ${{ github.workspace }}\dati\_04_Download\Coda\${{ inputs.codice }}.json
       CHIAVE_GOOGLE_MAPS: ${{ secrets.CHIAVE_GOOGLE_MAPS }}
-      # la sessione Google dell'account del motore: il Chrome di Maps la riceve prima di aprire Maps e vede Maps come il server
-      MAPS_SESSIONE_GOOGLE: ${{ secrets.MAPS_SESSIONE_GOOGLE }}
-      # il Chrome di Maps passa dall'uscita fissa del server (tunnel Cloudflare uscita-maps): Google vede sempre l'indirizzo del server
-      MAPS_USCITA_FISSA: http://127.0.0.1:8898
+      # Google Maps si legge solo sul server, nell'unico Chrome con l'account del motore: qui si chiede la scheda al servizio Maps del server
+      # e la sessione Google non esce mai dal server
+      MAPS_WORKER: https://maps-download.depthxlabs.com
+      MAPS_CHIAVE_DEL_WORKER: ${{ secrets.MAPS_CHIAVE_DEL_WORKER }}
     steps:
       # solo il codice del download: i percorsi lunghi della fabbrica non entrano nel disco di Windows
       - uses: actions/checkout@v4
@@ -55,19 +55,6 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.14" }
       - run: pip install -q -r _02_Download/_00_LibrerieDelMotore.txt
-      - name: Uscita fissa di Maps attraverso il server
-        shell: pwsh
-        env:
-          MAPS_USCITA_CHIAVE: ${{ secrets.MAPS_USCITA_CHIAVE }}
-          MAPS_INDIRIZZO_DEL_SERVER: ${{ secrets.MAPS_INDIRIZZO_DEL_SERVER }}
-        run: |
-          $u = "_02_Download/_01_StrumentiDelMotore/_04_CoordinatoreDelMotore/_05_UscitaFissaDiMapsSullaMacchinaDiGitHub.py"
-          Invoke-WebRequest -UseBasicParsing https://github.com/cloudflare/cloudflared/releases/download/2026.10.3/cloudflared-windows-amd64.exe -OutFile cloudflared.exe
-          Start-Process .\cloudflared.exe -ArgumentList "access","tcp","--hostname","uscita-maps.depthxlabs.com","--url","127.0.0.1:8899","--logfile","cloudflared_uscita.log" -WindowStyle Hidden
-          Start-Process python -ArgumentList "-B",$u,"avvia" -WindowStyle Hidden
-          Start-Sleep 8
-          python -B $u verifica
-          if ($LASTEXITCODE) { if (Test-Path cloudflared_uscita.log) { Get-Content cloudflared_uscita.log -Tail 15 }; exit 1 }
       - name: ffmpeg e ffprobe per i video
         run: |
           for n in 1 2 3 4 5; do
