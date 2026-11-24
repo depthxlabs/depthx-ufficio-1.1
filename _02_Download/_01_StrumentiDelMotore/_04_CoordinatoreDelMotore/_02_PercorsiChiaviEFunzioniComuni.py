@@ -37,6 +37,7 @@ import re
 import shutil
 import socket
 import subprocess
+import threading
 import time
 import unicodedata
 import urllib.parse
@@ -44,9 +45,10 @@ import urllib.parse
 # Percorsi del motore, ricavati dalla posizione di questo file (struttura dei 6 passi decisa da Michele il 4/11/2026).
 CARTELLA_DEL_COORDINATORE = os.path.dirname(os.path.abspath(__file__))
 STRUMENTI_DEL_MOTORE = os.path.dirname(CARTELLA_DEL_COORDINATORE)  # _01_StrumentiDelMotore
-RADICE_DEL_MOTORE = os.path.dirname(STRUMENTI_DEL_MOTORE)  # _04_1.1_C_DownloadMaterialeClienti
-# il CRM su disco: sezioni, tipi e un file xlsx per blocco (S2_HOT_LOM), dove scrive anche la ricerca clienti su GitHub
-CRM_SU_DISCO = os.path.join(os.path.dirname(RADICE_DEL_MOTORE), "_03_1.1_C_CRM_Clienti")
+RADICE_DEL_MOTORE = os.path.dirname(STRUMENTI_DEL_MOTORE)  # _03_1.1_C_DownloadMaterialeClienti
+# il CRM sta soltanto su Drive: un Foglio Google per blocco (S2_HOT_LOM), letto con il modulo comune del Centro Gestione
+CARTELLA_DEL_CRM_SU_DRIVE = (r"C:\_02_DepthXSoftware\_01_CentroGestioneDepthX\V1.0(161126_1124)\_01_StrumentiDiLavoroPerIlServer"
+                             r"\_02_ServerAutonomiDelCentroGestione\_01_UfficiLinea1Produzione\_10_ServerRicercaClienti")
 # sezioni che il motore scarica: S1, S2 e S3; S4 si lavora più avanti
 SEZIONI_DA_SCARICARE = ("[01]", "[02]", "[03]")
 # il nome della cartella di sezione su Drive, nell'Area 1B: una cartella per sezione, con il nome completo
@@ -131,10 +133,10 @@ def leggiJson(percorso, predefinito=None):
 def scriviJsonSulDisco(percorso, oggetto):
     """Scrive un JSON in modo sicuro: prima un .tmp, poi la sostituzione."""
     os.makedirs(os.path.dirname(percorso), exist_ok=True)
-    provvisorio = percorso + ".tmp"
+    provvisorio = f"{percorso}.{os.getpid()}_{threading.get_ident()}.tmp"  # uno per processo: più processi scrivono lo stesso file
     with open(provvisorio, "w", encoding="utf-8") as file:
         json.dump(oggetto, file, ensure_ascii=False, indent=1)
-    for giro in range(20):
+    for giro in range(150):
         try:
             os.replace(provvisorio, percorso)
             return
@@ -184,19 +186,13 @@ def _fogliDeiCrmNuovi():
 
 
 def aggiornaIBlocchiDelCrm():
-    """All'avvio del coordinatore: i blocchi del CRM su disco (un file xlsx per blocco) nel file dell'elenco, solo le sezioni da scaricare.
+    """All'avvio del coordinatore: i blocchi del CRM, un Foglio Google per blocco su Drive, nel file dell'elenco, solo le sezioni da scaricare.
     Restituisce il numero dei blocchi."""
     global TUTTI_I_FOGLI, INDUSTRIE
-    nuovi = []
-    for sezione in sorted(os.listdir(CRM_SU_DISCO)) if os.path.isdir(CRM_SU_DISCO) else []:
-        if not sezione.startswith(SEZIONI_DA_SCARICARE):
-            continue
-        for tipo in sorted(os.listdir(os.path.join(CRM_SU_DISCO, sezione))):
-            cartella = os.path.join(CRM_SU_DISCO, sezione, tipo)
-            for file in sorted(os.listdir(cartella)) if os.path.isdir(cartella) else []:
-                if file.endswith(".xlsx") and not file.startswith("~$"):
-                    nome = file[:-5]
-                    nuovi.append({"id": "disco:" + "/".join([sezione, tipo, file]), "nome": nome, "percorso": "/" + "/".join([sezione, tipo, nome])})
+    sys.path.insert(0, CARTELLA_DEL_CRM_SU_DRIVE)
+    import _00_CrmSuGoogleSheets as crmSuDrive
+    nuovi = [{"id": "sheets:" + f["id"], "nome": f["nome"], "percorso": "/" + f["percorso"]}
+             for f in crmSuDrive.fogli() if f["percorso"].startswith(SEZIONI_DA_SCARICARE)]
     if nuovi:
         scriviJsonSulDisco(FILE_DEI_FOGLI_DEL_CRM, nuovi)
     TUTTI_I_FOGLI = _fogliDeiCrmNuovi()
@@ -558,19 +554,43 @@ OPZIONI_DEL_CHROME_DEI_SITI = ["--headless=new", "--disable-gpu", "--renderer-pr
                                "--disable-background-networking", "--disable-component-update", "--disable-sync"]
 
 
-def _chromeDeiSitiRisponde():
+# Il Chrome condiviso di Google Maps: il profilo con l'account Google del motore, una finestra vera fuori dallo schermo
+# (senza finestra Google mostra la vista limitata); ogni lavoratore apre la sua scheda.
+PORTA_DEL_CHROME_DI_MAPS = 9334
+FILE_DEL_CHROME_DI_MAPS = os.path.join(CARTELLA_DEL_REGISTRO, "chromeDiMaps.json")
+OPZIONI_DEL_CHROME_DI_MAPS = ["--window-position=-32000,-32000", "--window-size=1400,900", "--no-first-run", "--no-default-browser-check",
+                              "--disable-extensions", "--mute-audio", "--lang=it-IT",
+                              # la finestra è fuori dallo schermo: senza queste Chrome rallenta le schede come nascoste e Maps non carica
+                              "--disable-background-timer-throttling", "--disable-backgrounding-occluded-windows", "--disable-renderer-backgrounding"]
+
+
+def _risponde(porta):
     try:
-        with socket.create_connection(("127.0.0.1", PORTA_DEL_CHROME_DEI_SITI), timeout=1):
+        with socket.create_connection(("127.0.0.1", porta), timeout=1):
             return True
     except OSError:
         return False
 
 
+def _chromeDeiSitiRisponde():
+    return _risponde(PORTA_DEL_CHROME_DEI_SITI)
+
+
 def chromeDeiSiti(programma):
     """Il Chrome condiviso dei siti (lo accende il primo lavoratore che ne ha bisogno). Restituisce il browser collegato."""
-    bloccoFile = FILE_DEL_CHROME_DEI_SITI + ".lock"
+    return chromeCondiviso(programma, PORTA_DEL_CHROME_DEI_SITI, FILE_DEL_CHROME_DEI_SITI, PROFILO_DEL_CHROME_DEI_SITI, OPZIONI_DEL_CHROME_DEI_SITI)
+
+
+def chromeDiMaps(programma):
+    """Il Chrome condiviso di Google Maps con l'account del motore. Restituisce il browser collegato."""
+    return chromeCondiviso(programma, PORTA_DEL_CHROME_DI_MAPS, FILE_DEL_CHROME_DI_MAPS, CARTELLA_DEL_PROFILO_CHROME, OPZIONI_DEL_CHROME_DI_MAPS)
+
+
+def chromeCondiviso(programma, porta, fileDelChrome, profilo, opzioni):
+    """Un Chrome acceso una volta sola per tutti i lavoratori (lo accende il primo che ne ha bisogno), collegato con CDP."""
+    bloccoFile = fileDelChrome + ".lock"
     for _ in range(60):
-        if _chromeDeiSitiRisponde():
+        if _risponde(porta):
             break
         try:
             descrittore = os.open(bloccoFile, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
@@ -584,14 +604,13 @@ def chromeDeiSiti(programma):
             continue
         try:
             os.close(descrittore)
-            if not _chromeDeiSitiRisponde():
-                os.makedirs(PROFILO_DEL_CHROME_DEI_SITI, exist_ok=True)
-                processo = subprocess.Popen([ESEGUIBILE_DI_CHROME, f"--remote-debugging-port={PORTA_DEL_CHROME_DEI_SITI}",
-                                             f"--user-data-dir={PROFILO_DEL_CHROME_DEI_SITI}", *OPZIONI_DEL_CHROME_DEI_SITI, "about:blank"],
-                                            creationflags=SENZA_FINESTRA, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                scriviJsonSulDisco(FILE_DEL_CHROME_DEI_SITI, {"pid": processo.pid, "acceso": adesso()})
+            if not _risponde(porta):
+                os.makedirs(profilo, exist_ok=True)
+                processo = subprocess.Popen([ESEGUIBILE_DI_CHROME, f"--remote-debugging-port={porta}", f"--user-data-dir={profilo}", *opzioni, "about:blank"],
+                                            creationflags=SENZA_FINESTRA | PRIORITA_BASSA, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                scriviJsonSulDisco(fileDelChrome, {"pid": processo.pid, "acceso": adesso()})
                 for _ in range(30):
-                    if _chromeDeiSitiRisponde():
+                    if _risponde(porta):
                         break
                     time.sleep(0.5)
         finally:
@@ -599,16 +618,78 @@ def chromeDeiSiti(programma):
                 os.remove(bloccoFile)
             except OSError:
                 pass
-    return programma.chromium.connect_over_cdp(f"http://127.0.0.1:{PORTA_DEL_CHROME_DEI_SITI}")
+    try:
+        return programma.chromium.connect_over_cdp(f"http://127.0.0.1:{porta}")
+    except Exception as errore:
+        # il Chrome condiviso a volte resta in uno stato in cui il collegamento si chiude subito ("Connection closed while
+        # reading from the driver"): si chiude quel Chrome, il prossimo collegamento lo riaccende pulito, e la fonte si ripete
+        riavviaChromeCondiviso(fileDelChrome)
+        raise ChromeRiavviato(f"Chrome della porta {porta} riavviato dopo un collegamento interrotto: {errore}") from errore
 
 
-def chiudiChromeDeiSiti():
-    """Chiude il Chrome condiviso dei siti (all'accensione e allo spegnimento del motore)."""
-    voce = leggiJson(FILE_DEL_CHROME_DEI_SITI, {}) or {}
+class ChromeRiavviato(Exception):
+    """Il collegamento con il Chrome condiviso si è interrotto e il Chrome è stato chiuso: la fonte si ripete una volta."""
+
+
+def riavviaChromeCondiviso(fileDelChrome):
+    """Chiude il Chrome condiviso: uno solo dei lavoratori lo chiude, gli altri trovano il Chrome acceso da meno di 90 secondi."""
+    voce = leggiJson(fileDelChrome, {}) or {}
+    try:
+        if voce.get("acceso") and time.time() - datetime.datetime.fromisoformat(voce["acceso"]).timestamp() < 90:
+            return
+    except (TypeError, ValueError):
+        pass
     if voce.get("pid"):
         subprocess.run(["taskkill", "/PID", str(voce["pid"]), "/T", "/F"], creationflags=SENZA_FINESTRA,
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     try:
-        os.remove(FILE_DEL_CHROME_DEI_SITI)
+        os.remove(fileDelChrome)
     except OSError:
         pass
+
+
+def chiudiChromeDeiSiti():
+    """Chiude i Chrome condivisi dei siti e di Maps (all'accensione e allo spegnimento del motore)."""
+    for fileDelChrome in (FILE_DEL_CHROME_DEI_SITI, FILE_DEL_CHROME_DI_MAPS):
+        voce = leggiJson(fileDelChrome, {}) or {}
+        if voce.get("pid"):
+            subprocess.run(["taskkill", "/PID", str(voce["pid"]), "/T", "/F"], creationflags=SENZA_FINESTRA,
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        try:
+            os.remove(fileDelChrome)
+        except OSError:
+            pass
+
+
+# FreeLLMAPI sul server: i modelli gratuiti di più fornitori dietro una sola chiave, al posto di Claude dove basta.
+CHIAVE_FREE_LLM = r"C:\_02_DepthXSoftware\_01_CentroGestioneDepthX\V1.0(161126_1124)\_01_StrumentiDiLavoroPerIlServer\_01_ChiaviAccessiServiziTerzeParti\_11_FreeLLMAPI\_01_ChiaveUnica.txt"
+INDIRIZZO_FREE_LLM = "http://127.0.0.1:3001/v1/chat/completions"
+
+
+def chiediAFreeLLM(domanda, sistema, immagini=(), secondi=60):
+    """La risposta di testo del primo modello gratuito che risponde (regola modelliGratuiti, in ordine), oppure None.
+    immagini: percorsi di file JPG/PNG da mandare insieme alla domanda (solo per i modelli che leggono le immagini)."""
+    import base64
+    import urllib.request
+    try:
+        chiave = open(CHIAVE_FREE_LLM, encoding="utf-8").read().strip()
+    except OSError:
+        return None
+    contenuto = [{"type": "text", "text": domanda}]
+    for percorso in immagini:
+        with open(percorso, "rb") as file:
+            dati = base64.b64encode(file.read()).decode()
+        contenuto.append({"type": "image_url", "image_url": {"url": "data:image/jpeg;base64," + dati}})
+    for modello in regola("modelliGratuiti") or ["auto"]:
+        corpo = json.dumps({"model": modello, "temperature": 0.2,
+                            "messages": [{"role": "system", "content": sistema}, {"role": "user", "content": contenuto if immagini else domanda}]}).encode("utf-8")
+        richiesta = urllib.request.Request(INDIRIZZO_FREE_LLM, data=corpo, method="POST",
+                                           headers={"Authorization": "Bearer " + chiave, "Content-Type": "application/json"})
+        try:
+            with urllib.request.urlopen(richiesta, timeout=secondi) as risposta:
+                testo = json.loads(risposta.read().decode("utf-8"))["choices"][0]["message"]["content"]
+            if testo:
+                return testo
+        except Exception:
+            continue
+    return None

@@ -38,7 +38,7 @@ FILE_DEL_PID = os.path.join(comune.CARTELLA_DEL_REGISTRO, "motore.pid")
 CARTELLA_DELLE_USCITE = os.path.join(comune.CARTELLA_DEL_REGISTRO, "uscite")
 CODICE_CONSENSO = 3
 CODICE_CHIAVE = 2
-FONTI_INSIEME = [("_01_DownloadDelSitoAttuale", "sito"), ("_01_DownloadDaInstagram", "instagram"), ("_01_DownloadDaYoutube", "youtube")]
+FONTI_INSIEME = [("_01_DownloadDelSitoAttuale", "sito"), ("_01_DownloadDaInstagram", "instagram")]  # YouTube no: la fabbrica non usa i video
 FONTI_DOPO = ["_01_RiconoscimentoESmistamentoDelleFotoPerCategoria", "_01_RapportoDiUnicitaDalleRecensioniEDalMateriale"]
 # dal 4/11/2026 (Michele) Facebook e TikTok non si scaricano più: non contano neanche per il cliente senza materiale
 CAMPI_DEI_SOCIAL = ("sito", "instagram", "youtube")
@@ -84,8 +84,8 @@ def lavoraCliente(cliente, voceIndustria, destinazione, rifai):
         # dal 9/11/2026 (Michele): Google Maps, sito, Instagram e YouTube insieme, ognuno con il suo tempo massimo; poi il
         # riconoscimento delle foto e il rapporto di unicità, che leggono quello che è arrivato. Nessun cliente si salta più:
         # con poco materiale prende quello che ha e, se lo scarica, è GO.
-        # dal 22/11/2026 Google Maps si legge con Places API (pochi secondi); il Chrome resta solo per le recensioni delle schede piccole
-        import _03_DownloadDiSchedaFotoERecensioniConPlaces as maps
+        # Google Maps si legge con il Chrome condiviso dell'account del motore: scheda, foto della galleria e recensioni
+        import _01_DownloadDiSchedaFotoERecensioniDaGoogleMaps as maps
         from concurrent.futures import ThreadPoolExecutor
 
         def fonte(modulo, nome, chiaveDelTempo):
@@ -128,7 +128,7 @@ def lavoraCliente(cliente, voceIndustria, destinazione, rifai):
             chiudi(passi)
         nonGo = [f"{nome}: {motivo}" for nome, (esito, motivo) in esiti.items() if esito != "GO"]
         esito = "NOTGO" if any(e == "NOTGO" for e, _ in esiti.values()) else "GO"  # dal 9/11/2026 solo GO o NOTGO
-        # dal 22/11/2026 (Michele): il cliente senza il materiale che serve al pacchetto è ESCLUSO, non NOTGO
+        # il cliente senza il materiale che serve al pacchetto è ESCLUSO, non NOTGO
         if esito == "GO" and contesto.stato.get("materialeInsufficiente"):
             esito = "ESCLUSO"
             nonGo.insert(0, contesto.stato["materialeInsufficiente"])
@@ -148,7 +148,18 @@ def eseguiFonte(contesto, modulo, nome):
     from _04_ContestoDelClienteEConteggioDeiPassi import Passo
 
     try:
-        risultato = modulo.esegui(contesto)
+        try:
+            risultato = modulo.esegui(contesto)
+        except comune.ChromeRiavviato:
+            # il Chrome condiviso era bloccato ed è stato chiuso: la stessa fonte si ripete una volta con il Chrome riacceso
+            registro.evento("errore", idCliente=contesto.idCliente, passo=nome, dettaglio="Chrome condiviso riavviato, la fonte si ripete")
+            risultato = modulo.esegui(contesto)
+        except Exception as errore:
+            # un timeout della pagina (Google Maps lenta, un pulsante che non risponde) è un intoppo del momento: la fonte si ripete una volta
+            if type(errore).__name__ != "TimeoutError":
+                raise
+            registro.evento("errore", idCliente=contesto.idCliente, passo=nome, dettaglio="timeout della pagina, la fonte si ripete")
+            risultato = modulo.esegui(contesto)
     except (comune.ChiaveMancante, comune.ConsensoDriveMancante):
         raise
     except Exception as errore:
@@ -321,6 +332,8 @@ def chiaveDelBattito(numero, parte):
 FILE_DEL_BLOCCO = comune.FILE_DEL_BLOCCO_DI_DOWNLOAD
 CLIENTI_PER_PARTE = 3
 PASSATE = 3  # passate sui blocchi: la prima scarica, le altre recuperano i NOTGO (9/11/2026)
+# le date di inserimento nel CRM dei clienti trovati dalla ricerca, scritte dal server della ricerca: l'ordine cronologico del download
+FILE_DEI_CONTATTI_SCRITTI = r"C:\_02_DepthXSoftware\_01_CentroGestioneDepthX\V1.0(161126_1124)\_01_StrumentiDiLavoroPerIlServer\_03_MemoriaDatiDelCentroGestione\_25_RicercaClientiLinea11\_01_ContattiScrittiNelCrm.json"
 ESITI_CHIUSI = ("GO", "ESCLUSO", "DA RICONOSCERE", "IN CODA SU GITHUB")  # escluso per materiale insufficiente; scaricato su GitHub in attesa del riconoscimento sul server
 # su GitHub (dal 23/11/2026) il riconoscimento delle foto e il rapporto di unicità con Claude si fanno sul server, dopo il download
 SENZA_CLAUDE = os.environ.get("MOTORE_SENZA_CLAUDE") == "1"  # dal 9/11/2026: i SALTATO si rifanno e diventano GO; i vecchi PARZIALE hanno già più dei tetti nuovi
@@ -464,7 +477,13 @@ def coordinatore(argomenti):
                     registro.evento("attesa", motivo=f"passata {passata}: aspetto la fine della pausa di Instagram ({int(attesa // 60)} minuti)")
                     time.sleep(attesa)
                 registro.evento("ripresa", motivo=f"passata di recupero {passata} sui clienti NOTGO")
+            # tutti i fogli con clienti da fare insieme, nell'ordine del CRM: i lavoratori restano sempre pieni anche quando un foglio ne ha pochi
+            parti, primo = {}, None
+            # le sezioni tenute da parte (regola sezioniDaNonScaricare): i loro fogli non si scaricano
+            daParte = [sezione for sezione in (comune.regola("sezioniDaNonScaricare") or []) if sezione]
             for voce in comune.INDUSTRIE:
+                if any(re.search(rf"(^|[^A-Z0-9]){sezione}_", str(voce.get("cartellaDrive", ""))) for sezione in daParte):
+                    continue
                 try:
                     tutti, daFare = clientiDelFoglio(voce, soloIniziati=passata == 0)
                 except Exception as errore:
@@ -472,10 +491,12 @@ def coordinatore(argomenti):
                     continue
                 if not daFare:
                     continue
+                primo = primo or (voce, tutti)
+                parti[voce["numero"]] = [daFare[inizio:inizio + CLIENTI_PER_PARTE] for inizio in range(0, len(daFare), CLIENTI_PER_PARTE)]
+            if parti:
                 lavorato = True
-                scriviIlBlocco(voce, tutti)
-                parti = {voce["numero"]: [daFare[inizio:inizio + CLIENTI_PER_PARTE] for inizio in range(0, len(daFare), CLIENTI_PER_PARTE)]}
-                if not eseguiIFogli(argomenti, [voce["numero"]], parti, insieme):
+                scriviIlBlocco(*primo)
+                if not eseguiIFogli(argomenti, list(parti), parti, insieme):
                     return 0
             if not lavorato and passata > 0:
                 break
@@ -506,6 +527,12 @@ def eseguiIFogli(argomenti, numeri, parti, insieme):
     giri = ["2"]  # dal 9/11/2026 (Michele) un solo giro, con i tetti fissi delle regole
     daAvviare = [f"{numero}:{giro}:{i}" for giro in giri for numero in numeri for i in range(1, len(parti[numero]) + 1)] if parti \
         else [f"{numero}:{giro}:0" for giro in giri for numero in numeri]
+    # ordine cronologico su tutti i fogli insieme (Michele): prima i clienti inseriti da più tempo nel CRM.
+    # La data è quella scritta dal server della ricerca; i clienti senza data sono di prima della ricerca automatica e vanno per primi.
+    if parti:
+        inseriti = {voce.get("id"): voce.get("quando", "") for voce in (comune.leggiJson(FILE_DEI_CONTATTI_SCRITTI, {}) or {}).values() if isinstance(voce, dict) and voce.get("id")}
+        posizione = {voce: k for k, voce in enumerate(daAvviare)}
+        daAvviare.sort(key=lambda voce: (inseriti.get((CLIENTI_DELLE_PARTI.get(voce.split(":")[0] + ":" + voce.split(":")[2]) or [""])[0], ""), posizione[voce]))
     accesi, riavvii, esiti = {}, {}, {}
     attesaConsenso = False
     ultimoControlloDelTempo = 0

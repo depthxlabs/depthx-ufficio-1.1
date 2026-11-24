@@ -123,8 +123,49 @@ def miniaturaDellaFoto(contesto, chiave, voce):
     return percorso
 
 
+# Il riconoscimento sulla macchina, senza Claude: il modello di immagini OpenCLIP ViT-B-32 con lo strato di decisione addestrato
+# sulle risposte già date da Claude (_02_StratoDiDecisioneAddestrato.json). Il voto di qualità viene da nitidezza e grandezza.
+FILE_DELLO_STRATO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "_02_StratoDiDecisioneAddestrato.json")
+_MODELLO = {}
+
+
+def modelloSullaMacchina():
+    if not _MODELLO:
+        import open_clip
+        import torch
+        torch.set_num_threads(2)   # il processore resta libero per gli altri lavoratori
+        modello, _, prepara = open_clip.create_model_and_transforms("ViT-B-32", pretrained="laion2b_s34b_b79k")
+        modello.eval()
+        with open(FILE_DELLO_STRATO, encoding="utf-8") as file:
+            strato = json.load(file)
+        _MODELLO.update(modello=modello, prepara=prepara, torch=torch, categorie=strato["categorie"],
+                        pesi=torch.tensor(strato["pesi"]), scarti=torch.tensor(strato["scarti"]))
+    return _MODELLO
+
+
+def categorieSullaMacchina(miniature):
+    from PIL import Image
+    m, categorie = modelloSullaMacchina(), []
+    for inizio in range(0, len(miniature), 16):
+        immagini = m["torch"].stack([m["prepara"](Image.open(p).convert("RGB")) for p in miniature[inizio:inizio + 16]])
+        with m["torch"].no_grad():
+            v = m["modello"].encode_image(immagini)
+            v = v / v.norm(dim=-1, keepdim=True)
+            punteggi = v @ m["pesi"].T + m["scarti"]
+        categorie += [m["categorie"][i] for i in punteggi.argmax(dim=-1).tolist()]
+    return categorie
+
+
+def votoDiQualita(riga, massimo):
+    """Da 1 a 10: nitidezza e lato corto rispetto alla foto migliore del cliente."""
+    valore = (riga.get("nitidezza") or 0) * min(riga.get("larghezza") or 0, riga.get("altezza") or 0)
+    return max(1, min(10, round(10 * valore / massimo))) if massimo else 5
+
+
 def esegui(contesto):
     passo = Passo("Riconoscimento delle foto")
+    if comune.regola("riconoscimentoSullaMacchina") and os.path.isfile(FILE_DELLO_STRATO):
+        return eseguiSullaMacchina(contesto, passo)
     if not programmaClaude():
         raise comune.ChiaveMancante("Il programma claude non è installato: il riconoscimento delle foto non si fa.")
     valide, scartate, firmeViste = [], [], {}
@@ -210,4 +251,50 @@ def esegui(contesto):
     contesto.scriviJson("resto", NOME_FILE_FOTO_VALIDE, ordinate)
     contesto.stato["fotoValide"], contesto.stato["fotoScartate"], contesto.stato["categorie"] = len(valide), len(scartate), conteggio
     passo.dettagli = {"fotoRaccolte": len(valide) + len(scartate), "valide": len(valide), "scartate": len(scartate), "categorie": conteggio}
+    return [passo]
+
+
+def eseguiSullaMacchina(contesto, passo):
+    """Lo stesso passo, senza Claude: stesso scarto delle foto piccole, sfocate o doppie, stessi file di risultato."""
+    valide, scartate, firmeViste = [], [], {}
+    for chiave, voce in contesto.stato["elementi"].items():
+        if not voce.get("foto"):
+            continue
+        try:
+            miniatura = miniaturaDellaFoto(contesto, chiave, voce)
+        except Exception as errore:
+            scartate.append({"chiave": chiave, "nome": voce["nome"], "motivo": "non leggibile: " + comune.messaggioSicuro(type(errore).__name__)})
+            continue
+        misure = voce["misure"]
+        riga = {"chiave": chiave, "id": voce["id"], "nome": voce["nome"], "fonte": voce["passo"], "larghezza": misure.get("larghezza"),
+                "altezza": misure.get("altezza"), "nitidezza": misure.get("nitidezza"), "miniatura": miniatura}
+        if min(misure.get("larghezza") or 0, misure.get("altezza") or 0) < LATO_CORTO_MINIMO:
+            scartate.append({**riga, "motivo": "piccola"})
+        elif (misure.get("nitidezza") or 0) < NITIDEZZA_MINIMA:
+            scartate.append({**riga, "motivo": "sfocata"})
+        elif misure.get("firma") in firmeViste:
+            scartate.append({**riga, "motivo": "doppione di " + firmeViste[misure["firma"]]})
+        else:
+            firmeViste[misure.get("firma")] = voce["nome"]
+            valide.append(riga)
+    passo.attesi = len(valide)
+    leggibili = [riga for riga in valide if os.path.isfile(riga["miniatura"])]
+    for riga, categoria in zip(leggibili, categorieSullaMacchina([riga["miniatura"] for riga in leggibili]) if leggibili else []):
+        riga["categoria"] = categoria if categoria in CATEGORIE else "altro"
+    massimo = max([(r.get("nitidezza") or 0) * min(r.get("larghezza") or 0, r.get("altezza") or 0) for r in valide] or [0])
+    for riga in valide:
+        riga["qualita"] = votoDiQualita(riga, massimo)
+        if not riga.get("categoria"):
+            passo.irraggiungibili.append({"elemento": riga["nome"], "motivo": "miniatura non leggibile per il riconoscimento sulla macchina"})
+    passo.scaricati = len([riga for riga in valide if riga.get("categoria")])
+    for riga in valide + scartate:
+        riga.pop("miniatura", None)
+    conteggio = {categoria: len([riga for riga in valide if riga.get("categoria") == categoria]) for categoria in CATEGORIE}
+    ordinate = sorted(valide, key=lambda riga: (-(riga.get("qualita") or 0), -(riga.get("nitidezza") or 0)))
+    contesto.scriviJson("foto", "_01_RiconoscimentoDelleFoto.json", {"idCliente": contesto.idCliente, "categorie": conteggio, "valide": ordinate,
+                                                                    "scartate": scartate, "metodo": "sulla macchina, senza Claude"})
+    contesto.scriviJson("resto", NOME_FILE_FOTO_VALIDE, ordinate)
+    contesto.stato["fotoValide"], contesto.stato["fotoScartate"], contesto.stato["categorie"] = len(valide), len(scartate), conteggio
+    passo.dettagli = {"fotoRaccolte": len(valide) + len(scartate), "valide": len(valide), "scartate": len(scartate), "categorie": conteggio,
+                      "metodo": "sulla macchina, senza Claude"}
     return [passo]

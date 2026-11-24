@@ -1,5 +1,5 @@
 {
- "industrieInsieme": 12,
+ "industrieInsieme": 6,
  "ripetizioniPerMetodo": 4,
  "secondiDiAttesaTraLeRipetizioni": [
   10,
@@ -10,7 +10,7 @@
  "oreSenzaBattitoPrimaDelRiavvio": 3,
  "oreMassimePerClienteNelPrimoGiro": 2,
  "oreMassimePerClienteNelSecondoGiro": 3,
- "recensioniGoogleDaScaricare": 100000,
+ "recensioniGoogleDaScaricare": 30,
  "pagineMassimeDelSito": 60,
  "altezzaMassimaDeiVideo": 1080,
  "byteMinimiDiUnFile": 1,
@@ -18,21 +18,42 @@
  "modelloDelRiconoscimento": "sonnet",
  "secondiMassimiDelRiconoscimento": 300,
  "secondiTraUnControlloEAltroDelConsensoDrive": 300,
- "descrizioneIndustrieInsieme": "dal 22/11/2026: 12 lavoratori insieme, Google Maps con Places API; con il blocco ogni lavoratore ha una parte di 3 clienti",
+ "descrizioneIndustrieInsieme": "6 lavoratori insieme, per non saturare il processore del server (8 core) insieme alla fabbrica e alla ricerca; Google Maps nel Chrome condiviso dell'account, al massimo 2 schede insieme: il Chrome di Maps disegna le mappe senza scheda grafica e con 4 schede occupava 3 processori su 8",
  "caricamentiInParalleloSuDrive": 8,
  "descrizioneCaricamentiInParallelo": "dal 4/11/2026: mentre le fonti scaricano, 8 file alla volta salgono su Drive insieme; il giro di recupero carica uno alla volta",
  "modelloDelRapportoDiUnicita": "sonnet",
  "secondiMassimiDelRapportoDiUnicita": 180,
  "descrizioneRapportoDiUnicita": "dal 4/11/2026 (Michele): abbonamento Claude Max, sonnet con sforzo basso, nessuno strumento, circa 10.000 caratteri di materiale; il modello sceglie da 3 a 8 settori, ognuno con una frase e una citazione vera",
- "postInstagramMassimi": 100,
+ "postInstagramMassimi": 30,
  "minutiMassimiPerFonte": {
-  "descrizione": "dal 22/11/2026 (Michele): servono al massimo 15 foto per cliente e Maps con Places ne dà 10 in pochi secondi; sito e Instagram 5 minuti, YouTube 3",
-  "Google Maps": 20,
+  "descrizione": "Google Maps con il Chrome dell'account: 40 foto della galleria e 30 recensioni; sito e Instagram 5 minuti",
+  "Google Maps": 8,
   "sito": 5,
   "instagram": 5,
   "youtube": 3
  },
  "fotoMapsInParallelo": 6,
  "minutiDiPausaDiInstagramDopoIlLimiteMeta": 15,
- "descrizioneGiroUnico": "dal 9/11/2026 (Michele): un solo giro, esiti solo GO o NOTGO. Sito: le 60 pagine meno profonde, senza pagine inutili. Instagram: i 100 post più recenti. Maps: tutte le foto e tutte le recensioni. Fonti dello stesso cliente in parallelo."
+ "descrizioneGiroUnico": "dal 9/11/2026 (Michele): un solo giro, esiti solo GO o NOTGO. Sito: le 60 pagine meno profonde, senza pagine inutili. Instagram: i 100 post più recenti. Maps: tutte le foto e tutte le recensioni. Fonti dello stesso cliente in parallelo.",
+ "schedeDiMapsInsieme": 3,
+ "secondiTraUnClienteEAltroDiMaps": [
+  3,
+  6
+ ],
+ "fotoMapsMassime": 40,
+ "minutiMassimiDelleRecensioni": 2,
+ "descrizioneMaps": "Maps: al massimo 40 foto della galleria (il riconoscimento ne sceglie 15 che coprono le categorie) e 30 recensioni in 2 minuti; sotto 6 recensioni con il testo il cliente è escluso",
+ "sezioniDaNonScaricare": [
+  "S4"
+ ],
+ "descrizioneSezioniDaNonScaricare": "S4 (siti di qualità) tenuta da parte: progetti successivi, non si scarica ora",
+ "mapsSenzaImmagini": true,
+ "descrizioneMapsSenzaImmagini": "la scheda di Maps non disegna immagini, mappa e caratteri: il Chrome di Maps usava 2 processori su 8; le foto originali si scaricano a parte dal loro indirizzo",
+ "modelliGratuiti": [
+  "nemotron-3.5-super-vl",
+  "auto"
+ ],
+ "descrizioneModelliGratuiti": "FreeLLMAPI sul server, in ordine: nemotron-3.5-super-vl (circa 10 secondi, legge anche le immagini), poi auto; Claude solo come riserva",
+ "riconoscimentoSullaMacchina": true,
+ "descrizioneRiconoscimentoSullaMacchina": "riconoscimento delle foto senza Claude: modello di immagini con lo strato addestrato sulle risposte di Claude (79% di categorie giuste); si accende quando c è il file _02_StratoDiDecisioneAddestrato.json"
 }

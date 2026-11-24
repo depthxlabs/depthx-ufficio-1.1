@@ -109,25 +109,24 @@ class _Blocco:
             self.file.close()
 
 
-def righeDelFoglioSuDisco(idFoglio):
-    """Righe del foglio xlsx del CRM su disco ("disco:<sezione>/<tipo>/<file>.xlsx"), in sola lettura, come testo."""
-    import openpyxl
-    percorso = os.path.join(comune.CRM_SU_DISCO, *idFoglio[6:].split("/"))
+def righeDelFoglioSuDrive(idFoglio):
+    """Righe del Foglio Google del CRM su Drive ("sheets:<id del foglio>"), in sola lettura, come testo."""
+    sys.path.insert(0, comune.CARTELLA_DEL_CRM_SU_DRIVE)
+    import _00_CrmSuGoogleSheets as crmSuDrive
     try:
-        foglio = openpyxl.load_workbook(percorso, read_only=True, data_only=True).worksheets[0]
+        return crmSuDrive.leggi(idFoglio[7:])
     except Exception as errore:
-        raise ErroreDelCrm(f"foglio del CRM su disco non leggibile: {os.path.basename(percorso)}: {errore}")
-    return [["" if valore is None else str(valore) for valore in riga] for riga in foglio.iter_rows(values_only=True)]
+        raise ErroreDelCrm(f"foglio del CRM su Drive non leggibile: {idFoglio}: {str(errore)[:200]}")
 
 
 def righeDelFoglio(idFoglio):
-    """Righe della scheda Lista del foglio (una lettura, in sola lettura). I fogli "disco:" si leggono dal CRM su disco.
+    """Righe della scheda Lista del foglio (una lettura, in sola lettura). I fogli "sheets:" si leggono dal CRM su Drive.
     Su GitHub (variabile MOTORE_CODA) le righe arrivano dal file della coda preparato dal server."""
     if os.environ.get("MOTORE_CODA"):
         with open(os.environ["MOTORE_CODA"], encoding="utf-8") as file:
             return json.load(file)["fogli"][idFoglio]
-    if str(idFoglio).startswith("disco:"):
-        return righeDelFoglioSuDisco(idFoglio)
+    if str(idFoglio).startswith("sheets:"):
+        return righeDelFoglioSuDrive(idFoglio)
     with _Blocco():
         risultato = subprocess.run(["node", SCRIPT_DI_LETTURA, idFoglio], capture_output=True, text=True, encoding="utf-8", errors="ignore",
                                    timeout=900, creationflags=comune.SENZA_FINESTRA, stdin=subprocess.DEVNULL)

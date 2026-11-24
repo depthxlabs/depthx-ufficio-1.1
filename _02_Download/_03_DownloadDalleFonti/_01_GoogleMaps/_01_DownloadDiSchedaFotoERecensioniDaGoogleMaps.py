@@ -25,11 +25,14 @@ import _02_VerificaDellaSchedaConIDatiDelCrm as regole
 from _04_ContestoDelClienteEConteggioDeiPassi import Passo
 
 PROFILO = comune.CARTELLA_DEL_PROFILO_CHROME  # profilo Chrome con l'account del motore
-FILE_DELLA_FILA = os.path.join(comune.CARTELLA_TEMPORANEA, "_FilaDelChromeDiMaps.lock")  # un solo Chrome alla volta
-SECONDI_TRA_UN_CLIENTE_E_ALTRO = (25, 45)  # pausa casuale prima di aprire Maps per il cliente successivo
-GIRI_MASSIMI_DELLA_GALLERIA = 80  # scorrimenti della galleria; si ferma prima se non compaiono foto nuove
-GIRI_MASSIMI_DELLE_RECENSIONI = 3000  # dal 9/11/2026 tutte le recensioni: si ferma quando non ne compaiono di nuove o al tempo massimo
-MINUTI_MASSIMI_DELLE_RECENSIONI = 8  # dentro i minuti di Google Maps, così restano minuti per scaricare le foto
+FILE_DELLA_FILA = os.path.join(comune.CARTELLA_TEMPORANEA, "_FilaDelChromeDiMaps")  # un file per scheda del Chrome condiviso
+SCHEDE_INSIEME = int(comune.regola("schedeDiMapsInsieme") or 4)  # schede aperte insieme nel Chrome di Maps
+SECONDI_TRA_UN_CLIENTE_E_ALTRO = tuple(comune.regola("secondiTraUnClienteEAltroDiMaps") or (6, 12))  # pausa di ogni scheda tra due clienti
+GIRI_MASSIMI_DELLA_GALLERIA = 80  # scorrimenti della galleria; si ferma prima se non compaiono foto nuove o alle foto massime
+FOTO_MASSIME_DELLA_GALLERIA = int(comune.regola("fotoMapsMassime") or 40)  # il riconoscimento ne sceglie 15 che coprano le categorie
+GIRI_MASSIMI_DELLE_RECENSIONI = 3000  # si ferma all'obiettivo, quando non ne compaiono di nuove o al tempo massimo
+MINUTI_MASSIMI_DELLE_RECENSIONI = float(comune.regola("minutiMassimiDelleRecensioni") or 2)
+RECENSIONI_MINIME = 6  # il pacchetto Advanced ne mostra 6: sotto, il cliente è escluso per materiale insufficiente
 RISULTATI_DELLA_RICERCA = 10  # schede della ricerca esaminate una per una
 FOTO_DELLA_SCHEDA = re.compile(r"https://lh\d\.googleusercontent\.com/(?:p|gps-cs-s|gps-proxy)/[A-Za-z0-9_\-]+")  # foto della scheda, non avatar né Street View
 MOTIVO_ANTI_ROBOT = "Google ha chiesto la verifica anti robot: non si aggira, il cliente si riprende nel giro successivo"
@@ -40,27 +43,33 @@ class FermoDiMaps(Exception):
     """Maps non si può leggere ora (anti robot o accesso mancante): il motivo va nei passi."""
 
 
-# Fila del Chrome: il profilo può essere aperto da un solo Chrome.
+# Fila delle schede: il Chrome di Maps è uno solo, con al massimo SCHEDE_INSIEME schede aperte dai lavoratori.
 
 
 class FilaDelChrome:
     def __enter__(self):
         os.makedirs(os.path.dirname(FILE_DELLA_FILA), exist_ok=True)
-        self.file = open(FILE_DELLA_FILA, "a+")
         while True:
-            try:
-                self.file.seek(0)
-                msvcrt.locking(self.file.fileno(), msvcrt.LK_NBLCK, 1)
+            for numero in range(1, SCHEDE_INSIEME + 1):
+                self.percorso = f"{FILE_DELLA_FILA}_{numero:02d}.lock"
+                self.file = open(self.percorso, "a+")
+                try:
+                    self.file.seek(0)
+                    msvcrt.locking(self.file.fileno(), msvcrt.LK_NBLCK, 1)
+                    break
+                except OSError:
+                    self.file.close()
+                    self.file = None
+            if self.file:
                 break
-            except OSError:
-                time.sleep(5)
+            time.sleep(3)
         attesa = random.uniform(*SECONDI_TRA_UN_CLIENTE_E_ALTRO) - (time.time() - self.ultimoUso())
         if attesa > 0:
             time.sleep(attesa)
         return self
 
     def ultimoUso(self):
-        percorso = FILE_DELLA_FILA + ".ultimo"
+        percorso = self.percorso + ".ultimo"
         try:
             with open(percorso, encoding="utf-8") as file:
                 return float(file.read().strip() or 0)
@@ -68,7 +77,7 @@ class FilaDelChrome:
             return 0.0
 
     def __exit__(self, *errore):
-        with open(FILE_DELLA_FILA + ".ultimo", "w", encoding="utf-8") as file:
+        with open(self.percorso + ".ultimo", "w", encoding="utf-8") as file:
             file.write(str(time.time()))
         self.file.seek(0)
         msvcrt.locking(self.file.fileno(), msvcrt.LK_UNLCK, 1)
@@ -188,14 +197,14 @@ def fotoDellaGalleria(pagina, nome):
             if collegamento not in trovate:
                 trovate.append(collegamento)
         fermo = fermo + 1 if len(trovate) == prima else 0
-        if fermo >= 4:
+        if fermo >= 4 or len(trovate) >= FOTO_MASSIME_DELLA_GALLERIA:
             break
         pagina.mouse.move(300, 500)
         pagina.mouse.wheel(0, 3000)
         pausa(pagina)
     pagina.go_back()
     pausa(pagina, 3, 4.5)
-    return trovate
+    return trovate[:FOTO_MASSIME_DELLA_GALLERIA]
 
 
 def votoDellaScheda(pagina):
@@ -260,6 +269,11 @@ def recensioniDellaPagina(pagina, obiettivo, scadenza=None, inInglese=False):
             LETTURA["senzaRecensioni"] = bool(pagina.locator("h1").count()) and not re.search(r"\d\s+(recensioni|recensione|reviews?)\b", corpo, re.I)
             return [], 0
     pausa(pagina, 3.5, 5)
+    # le recensioni arrivano qualche secondo dopo il clic: si aspetta la prima, fino a 30 secondi
+    try:
+        pagina.locator("div[data-review-id][aria-label]").first.wait_for(timeout=30000)
+    except Exception:
+        pass
     testo = pagina.inner_text("body")
     numero = re.search(r"([\d.,]+)\s+(?:recensioni|reviews)", testo, re.I)
     totali = int(re.sub(r"[.,]", "", numero.group(1))) if numero else 0
@@ -329,11 +343,15 @@ def esegui(contesto):
     scadenzaRecensioni = min(scadenza or float("inf"), time.time() + 60 * (3 if veloci else MINUTI_MASSIMI_DELLE_RECENSIONI))
     try:
         with FilaDelChrome(), sync_playwright() as programma:
-            sessione = programma.chromium.launch_persistent_context(
-                PROFILO, headless=False, channel="chrome", args=["--window-position=-32000,-32000"],
-                locale="it-IT", viewport={"width": 1400, "height": 900})
+            browser = comune.chromeDiMaps(programma)  # il Chrome condiviso con l'account: qui si apre solo una scheda
+            sessione = browser.contexts[0].new_page()
             try:
-                pagina = sessione.pages[0] if sessione.pages else sessione.new_page()
+                pagina = sessione
+                pagina.set_viewport_size({"width": 1400, "height": 900})
+                # la scheda non disegna immagini, mappa e caratteri: le foto si leggono come indirizzi e si scaricano a parte (regola mapsSenzaImmagini)
+                if comune.regola("mapsSenzaImmagini"):
+                    pagina.route("**/*", lambda percorso, richiesta: percorso.abort() if richiesta.resource_type in ("image", "media", "font")
+                                 else percorso.continue_())
                 scheda, come, esame = trovaLaScheda(pagina, cliente)
                 if scheda is None:
                     contesto.scriviJson("scheda", "_01_VerificaDellaScheda.json", {"ricerca": regole.testoDellaRicerca(cliente), "collegamentoDelCrm": cliente.get("googleMaps", ""),
@@ -398,6 +416,9 @@ def esegui(contesto):
         passoRecensioni.limite = (f"la scheda ha {totali} recensioni e il motore ne ha lette 0: da rifare" if totali
                                   else "nessuna recensione letta e numero delle recensioni non trovato sulla scheda: da rifare")
     contesto.stato["recensioniConTesto"] = len([voce for voce in recensioni if voce["testo"]])
+    if contesto.stato["recensioniConTesto"] < RECENSIONI_MINIME and not veloci:
+        contesto.stato["materialeInsufficiente"] = (f"materiale insufficiente: {contesto.stato['recensioniConTesto']} recensioni con il testo, "
+                                                    f"ne servono almeno {RECENSIONI_MINIME}")
     if veloci:
         return [passoRecensioni], None
     return [passoFoto, passoRecensioni], len(foto)
