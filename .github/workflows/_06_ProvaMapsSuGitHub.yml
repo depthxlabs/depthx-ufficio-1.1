@@ -1,0 +1,41 @@
+# Prova: Google Maps aperto con Chrome da una macchina di GitHub, senza account, come lo apre il motore di download sul server.
+# Apre la scheda di un luogo pubblico (il Colosseo) e conta le foto e le recensioni che Maps carica: nessun dato dei clienti.
+name: Prova Maps su GitHub
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  prova:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.14" }
+      - run: pip install -q playwright
+      - name: Maps con Chrome
+        shell: python
+        run: |
+          import re, time
+          from playwright.sync_api import sync_playwright
+          with sync_playwright() as p:
+              browser = p.chromium.launch(channel="chrome", headless=False, args=["--lang=it-IT"])
+              pagina = browser.new_page(locale="it-IT", viewport={"width": 1400, "height": 900})
+              pagina.goto("https://www.google.com/maps/search/Colosseo+Roma", timeout=60000)
+              time.sleep(6)
+              for testo in ("Rifiuta tutto", "Reject all"):
+                  try:
+                      pagina.get_by_role("button", name=testo).first.click(timeout=4000); time.sleep(4); break
+                  except Exception:
+                      pass
+              print("titolo della pagina:", pagina.title())
+              print("vista limitata:", pagina.get_by_text(re.compile("vista limitata|limited view", re.I)).count() > 0)
+              foto = pagina.locator("img[src*='googleusercontent']").count()
+              print("immagini di Google caricate:", foto)
+              try:
+                  pagina.get_by_role("tab", name=re.compile(r"^(Recensioni|Reviews)")).first.click(timeout=20000)
+                  time.sleep(5)
+                  print("recensioni visibili:", pagina.locator("div[data-review-id]").count())
+              except Exception as errore:
+                  print("scheda Recensioni non raggiunta:", type(errore).__name__)
+              browser.close()
