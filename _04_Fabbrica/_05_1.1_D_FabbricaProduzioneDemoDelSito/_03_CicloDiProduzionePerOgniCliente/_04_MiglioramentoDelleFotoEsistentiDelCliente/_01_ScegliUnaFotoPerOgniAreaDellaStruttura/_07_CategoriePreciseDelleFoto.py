@@ -115,9 +115,11 @@ def categorieDaClaude(fotoInOrdine, fotoScaricate):
                 risposta = json.loads(esito.stdout).get("result", "")
                 categorie = json.loads(re.search(r"\{.*\}", risposta, re.S).group(0))
             except (ValueError, AttributeError, subprocess.TimeoutExpired):
-                return {}
+                categorie = None
         if not categorie:
-            return {}
+            # nessun modello ha risposto: è un errore di sistema, non un cliente senza foto. Senza questo controllo tutte le foto
+            # restavano "altro" e il cliente veniva escluso per materiale insufficiente (24/11/2026, prima prova su GitHub)
+            raise RuntimeError("riconoscimento delle foto non riuscito: nessun modello ha risposto")
     ammesse = set(regole["categorie"])
     precise = {}
     for nome, giudizio in categorie.items():

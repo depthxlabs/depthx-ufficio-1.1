@@ -82,6 +82,18 @@ jobs:
           [IO.File]::WriteAllText("$chiave\_01_ChiaveUnica.txt", $env:CHIAVE.Trim())
           Start-Process node -ArgumentList "server/dist/index.js" -WorkingDirectory $env:FREELLM -WindowStyle Hidden -RedirectStandardOutput C:\freellm.log -RedirectStandardError C:\freellm_errori.log
           for ($i = 0; $i -lt 60; $i++) { try { (New-Object Net.Sockets.TcpClient).Connect("127.0.0.1", 3001); Write-Host "FreeLLMAPI acceso"; break } catch { Start-Sleep 2 } }
+      - name: Controllo di FreeLLMAPI
+        env:
+          CHIAVE: ${{ secrets.FREELLM_CHIAVE_UNICA }}
+        run: |
+          $intestazioni = @{ Authorization = "Bearer $($env:CHIAVE.Trim())" }
+          foreach ($modello in "nemotron-3.5-super-vl", "auto") {
+            $corpo = @{ model = $modello; messages = @(@{ role = "user"; content = "Rispondi solo con la parola OK." }) } | ConvertTo-Json -Depth 5
+            try {
+              $risposta = Invoke-WebRequest -Uri http://127.0.0.1:3001/v1/chat/completions -Method Post -Headers $intestazioni -ContentType "application/json" -Body $corpo -TimeoutSec 90
+              Write-Host "modello $modello`: risposta $($risposta.StatusCode), $($risposta.Content.Length) caratteri"
+            } catch { Write-Host "modello $modello`: NOTGO $($_.Exception.Response.StatusCode.value__)" }
+          }
       - uses: actions/setup-python@v5
         with: { python-version: "3.14" }
       - run: pip install -q pillow==13.0.0 pillow_heif==1.8.1 numpy==2.5.4 onnxruntime==1.31.1 requests==2.34.2 cryptography==50.0.2
@@ -107,6 +119,7 @@ jobs:
           New-Item -ItemType Directory -Force $uscita | Out-Null
           Copy-Item C:\esito\* $uscita -ErrorAction SilentlyContinue
           Copy-Item C:\freellm_errori.log "$uscita\freellm_errori.log" -ErrorAction SilentlyContinue
+          Copy-Item C:\freellm.log "$uscita\freellm.log" -ErrorAction SilentlyContinue
           $registro = "$env:FABBRICA\_01_StrumentiDellaFabbrica\_04_RegistroLogDellaFabbrica\_02_RegistroProduzione"
           if (Test-Path $registro) { Copy-Item $registro "$uscita\registro" -Recurse }
           $scheda = "$env:FABBRICA\_01_StrumentiDellaFabbrica\_09_DemoInApprovazione\$env:CLIENTE"
