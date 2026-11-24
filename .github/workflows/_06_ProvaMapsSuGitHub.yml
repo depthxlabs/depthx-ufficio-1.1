@@ -1,5 +1,5 @@
 # Prova: Google Maps aperto con Chrome da una macchina di GitHub, senza account, come lo apre il motore di download sul server.
-# Apre la scheda di un luogo pubblico (il Colosseo) e conta le foto e le recensioni che Maps carica: nessun dato dei clienti.
+# Apre la scheda diretta di un luogo pubblico (il Colosseo), conta le foto e le recensioni che Maps carica: nessun dato dei clienti.
 name: Prova Maps su GitHub
 on:
   workflow_dispatch:
@@ -18,24 +18,51 @@ jobs:
         run: |
           import re, time
           from playwright.sync_api import sync_playwright
+          SCHEDA = "https://www.google.com/maps/search/?api=1&query=Colosseo&query_place_id=ChIJrRMgU7ZhLxMRxAOFkC7I8Sg&hl=it"
           with sync_playwright() as p:
               browser = p.chromium.launch(channel="chrome", headless=False, args=["--lang=it-IT"])
               pagina = browser.new_page(locale="it-IT", viewport={"width": 1400, "height": 900})
-              pagina.goto("https://www.google.com/maps/search/Colosseo+Roma", timeout=60000)
+              pagina.goto(SCHEDA, timeout=60000)
               time.sleep(6)
               for testo in ("Rifiuta tutto", "Reject all"):
                   try:
-                      pagina.get_by_role("button", name=testo).first.click(timeout=4000); time.sleep(4); break
+                      pagina.get_by_role("button", name=testo).first.click(timeout=4000); time.sleep(5); break
                   except Exception:
                       pass
-              print("titolo della pagina:", pagina.title())
+              try:
+                  pagina.wait_for_selector("h1", timeout=30000)
+              except Exception:
+                  pass
+              time.sleep(4)
+              pagina.screenshot(path="maps_scheda.png")
+              print("indirizzo della pagina:", pagina.url[:120])
+              print("titolo della scheda:", (pagina.locator("h1").first.inner_text(timeout=5000) if pagina.locator("h1").count() else "nessuno"))
               print("vista limitata:", pagina.get_by_text(re.compile("vista limitata|limited view", re.I)).count() > 0)
-              foto = pagina.locator("img[src*='googleusercontent']").count()
-              print("immagini di Google caricate:", foto)
+              print("immagini di Google nella scheda:", pagina.locator("img[src*='googleusercontent']").count())
               try:
                   pagina.get_by_role("tab", name=re.compile(r"^(Recensioni|Reviews)")).first.click(timeout=20000)
-                  time.sleep(5)
-                  print("recensioni visibili:", pagina.locator("div[data-review-id]").count())
+                  time.sleep(6)
+                  pannello = pagina.locator("div[data-review-id]")
+                  for giro in range(4):
+                      pagina.mouse.move(300, 600); pagina.mouse.wheel(0, 4000); time.sleep(2)
+                  print("recensioni caricate:", len(set(pannello.evaluate_all("e => e.map(x => x.getAttribute('data-review-id'))"))))
+                  pagina.screenshot(path="maps_recensioni.png")
               except Exception as errore:
                   print("scheda Recensioni non raggiunta:", type(errore).__name__)
+              try:
+                  pagina.goto(SCHEDA, timeout=60000); time.sleep(6)
+                  pagina.get_by_role("button", name=re.compile(r"^(Foto|Photos)")).first.click(timeout=20000)
+                  time.sleep(6)
+                  for giro in range(4):
+                      pagina.mouse.move(300, 600); pagina.mouse.wheel(0, 4000); time.sleep(2)
+                  print("foto caricate nella galleria:", pagina.locator("a[data-photo-index], div[data-photo-index]").count())
+                  pagina.screenshot(path="maps_foto.png")
+              except Exception as errore:
+                  print("galleria delle foto non raggiunta:", type(errore).__name__)
               browser.close()
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: schermate-maps
+          path: maps_*.png
+          retention-days: 3
