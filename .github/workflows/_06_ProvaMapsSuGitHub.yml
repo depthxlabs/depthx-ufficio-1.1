@@ -86,3 +86,52 @@ jobs:
           name: schermate-maps
           path: maps_*.png
           retention-days: 3
+  motore:
+    # la stessa prova con il Chrome del motore di download (Chrome acceso a parte e collegato con CDP), sulla scheda pubblica del Colosseo
+    runs-on: windows-latest
+    timeout-minutes: 20
+    defaults:
+      run: { shell: bash }
+    steps:
+      - uses: actions/checkout@v4
+        with: { sparse-checkout: _02_Download }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.14" }
+      - run: pip install -q -r _02_Download/_00_LibrerieDelMotore.txt
+      - name: Maps con il Chrome del motore
+        env:
+          PYTHONIOENCODING: utf-8
+          MAPS_SESSIONE_GOOGLE: ${{ secrets.MAPS_SESSIONE_GOOGLE }}
+        run: |
+          cd _02_Download/_01_StrumentiDelMotore/_04_CoordinatoreDelMotore
+          python -B - <<'PROVA'
+          import time
+          import _02_PercorsiChiaviEFunzioniComuni as comune
+          import _01_DownloadDiSchedaFotoERecensioniDaGoogleMaps as maps
+          from playwright.sync_api import sync_playwright
+          SCHEDA = "https://www.google.com/maps/place/?q=place_id:ChIJrRMgU7ZhLxMRxAOFkC7I8Sg"
+          print("cookie preparati:", len(comune.cookieDellaSessioneGoogle()))
+          with sync_playwright() as programma:
+              browser = comune.chromeDiMaps(programma)
+              contesto = browser.contexts[0]
+              print("contesti:", len(browser.contexts), "cookie di google nel contesto:", len([c for c in contesto.cookies() if "google" in c["domain"]]))
+              for giro in ("prima apertura", "seconda apertura"):
+                  pagina = contesto.new_page()
+                  pagina.set_viewport_size({"width": 1400, "height": 900})
+                  try:
+                      maps.apri(pagina, SCHEDA)
+                      print(giro, "vista completa, indirizzo:", pagina.url[:60])
+                  except maps.FermoDiMaps as fermo:
+                      print(giro, "fermo:", str(fermo)[:80], "indirizzo:", pagina.url[:60])
+                  print(giro, "titolo:", (pagina.locator("h1").first.inner_text(timeout=5000) if pagina.locator("h1").count() else "nessuno"),
+                        "account:", pagina.locator("a[aria-label*='Account Google'], a[aria-label*='Google Account']").count())
+                  pagina.screenshot(path=f"motore_{giro.split()[0]}.png")
+                  pagina.close()
+                  time.sleep(3)
+          PROVA
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: schermate-motore
+          path: _02_Download/_01_StrumentiDelMotore/_04_CoordinatoreDelMotore/motore_*.png
+          retention-days: 3
