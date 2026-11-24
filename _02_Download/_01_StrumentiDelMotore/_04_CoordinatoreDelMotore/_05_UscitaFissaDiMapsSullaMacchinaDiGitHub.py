@@ -110,7 +110,32 @@ def verifica():
     visto = indirizzoVistoDaFuori()
     fisso = bool(atteso) and visto == atteso
     print("indirizzo fisso:", "sì" if fisso else "no", flush=True)
+    if not fisso:
+        print("motivo:", motivo(atteso, visto), flush=True)
     return fisso
+
+
+def motivo(atteso, visto):
+    """Perché l'indirizzo non è quello del server, senza stampare indirizzi né chiavi."""
+    if not atteso:
+        return "MAPS_INDIRIZZO_DEL_SERVER mancante"
+    if visto:
+        return "Google vede un indirizzo diverso da quello del server"
+    try:
+        async def prova():
+            lettore, scrittore = await asyncio.wait_for(asyncio.open_connection("127.0.0.1", PORTA_DEL_TUNNEL), 10)
+            accesso = base64.b64encode(f"maps:{chiave()}".encode()).decode()
+            scrittore.write(f"CONNECT api.ipify.org:443 HTTP/1.1\r\nHost: api.ipify.org:443\r\nProxy-Authorization: Basic {accesso}\r\n\r\n".encode())
+            await scrittore.drain()
+            riga = (await asyncio.wait_for(lettore.readline(), 30)).decode("latin-1").strip()
+            scrittore.close()
+            return riga
+        riga = asyncio.run(prova())
+    except Exception as errore:
+        return f"tunnel non raggiunto ({type(errore).__name__})"
+    if " 407 " in riga + " ":
+        return "chiave rifiutata dal proxy del server"
+    return f"risposta del proxy del server: {riga[:40] or 'vuota'}"
 
 
 if __name__ == "__main__":

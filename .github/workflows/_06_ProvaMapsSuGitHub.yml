@@ -26,10 +26,11 @@ jobs:
         run: |
           $u = "_02_Download/_01_StrumentiDelMotore/_04_CoordinatoreDelMotore/_05_UscitaFissaDiMapsSullaMacchinaDiGitHub.py"
           Invoke-WebRequest -UseBasicParsing https://github.com/cloudflare/cloudflared/releases/download/2026.10.3/cloudflared-windows-amd64.exe -OutFile cloudflared.exe
-          Start-Process .\cloudflared.exe -ArgumentList "access","tcp","--hostname","uscita-maps.depthxlabs.com","--url","127.0.0.1:8899" -WindowStyle Hidden
+          Start-Process .\cloudflared.exe -ArgumentList "access","tcp","--hostname","uscita-maps.depthxlabs.com","--url","127.0.0.1:8899","--logfile","cloudflared_uscita.log" -WindowStyle Hidden
           Start-Process python -ArgumentList "-B",$u,"avvia" -WindowStyle Hidden
           Start-Sleep 8
           python -B $u verifica
+          if ($LASTEXITCODE) { if (Test-Path cloudflared_uscita.log) { Get-Content cloudflared_uscita.log -Tail 15 }; exit 1 }
       - name: Maps con Chrome
         shell: python
         env:
@@ -123,10 +124,11 @@ jobs:
         run: |
           $u = "_02_Download/_01_StrumentiDelMotore/_04_CoordinatoreDelMotore/_05_UscitaFissaDiMapsSullaMacchinaDiGitHub.py"
           Invoke-WebRequest -UseBasicParsing https://github.com/cloudflare/cloudflared/releases/download/2026.10.3/cloudflared-windows-amd64.exe -OutFile cloudflared.exe
-          Start-Process .\cloudflared.exe -ArgumentList "access","tcp","--hostname","uscita-maps.depthxlabs.com","--url","127.0.0.1:8899" -WindowStyle Hidden
+          Start-Process .\cloudflared.exe -ArgumentList "access","tcp","--hostname","uscita-maps.depthxlabs.com","--url","127.0.0.1:8899","--logfile","cloudflared_uscita.log" -WindowStyle Hidden
           Start-Process python -ArgumentList "-B",$u,"avvia" -WindowStyle Hidden
           Start-Sleep 8
           python -B $u verifica
+          if ($LASTEXITCODE) { if (Test-Path cloudflared_uscita.log) { Get-Content cloudflared_uscita.log -Tail 15 }; exit 1 }
       - name: Maps con il Chrome del motore
         env:
           PYTHONIOENCODING: utf-8
