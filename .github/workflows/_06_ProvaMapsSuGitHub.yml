@@ -110,6 +110,8 @@ jobs:
           import _01_DownloadDiSchedaFotoERecensioniDaGoogleMaps as maps
           from playwright.sync_api import sync_playwright
           SCHEDA = "https://www.google.com/maps/place/?q=place_id:ChIJrRMgU7ZhLxMRxAOFkC7I8Sg"
+          import os
+          os.makedirs(comune.CARTELLA_DEL_REGISTRO, exist_ok=True); os.makedirs(comune.CARTELLA_TEMPORANEA, exist_ok=True)
           print("cookie preparati:", len(comune.cookieDellaSessioneGoogle()))
           with sync_playwright() as programma:
               browser = comune.chromeDiMaps(programma)
