@@ -109,7 +109,32 @@ jobs:
           New-Item -ItemType Directory -Force C:\esito | Out-Null
           $inizio = Get-Date
           Push-Location "$env:FABBRICA\_02_CoordinatoreDiLavoroDellaFabbrica"
-          cmd /c "python -B _01_CoordinatoreDellaFabbrica.py --cliente %CLIENTE% > C:\esito\fabbrica.log 2>&1"
+          $fabbrica = Start-Process cmd -ArgumentList "/c python -B _01_CoordinatoreDellaFabbrica.py --cliente $env:CLIENTE > C:\esito\fabbrica.log 2>&1" -PassThru -WindowStyle Hidden
+          # la prova dal vivo: ogni 15 secondi i passi con il loro esito e le chiamate ai modelli con i secondi, senza dati del cliente
+          $eventi = "$env:FABBRICA\_01_StrumentiDellaFabbrica\_04_RegistroLogDellaFabbrica\_02_RegistroProduzione\_01_EventiDellaProduzione"
+          $lettiEventi = 0; $lettiModelli = 0
+          while ($true) {
+            $finita = $fabbrica.HasExited
+            $file = Get-ChildItem $eventi -Recurse -Filter _01_EventiDelGiorno.jsonl -ErrorAction SilentlyContinue | Select-Object -First 1
+            if ($file) {
+              $righe = @(Get-Content $file.FullName -Encoding utf8)
+              if ($righe.Count -gt $lettiEventi) {
+                foreach ($riga in $righe[$lettiEventi..($righe.Count - 1)]) {
+                  try { $e = $riga | ConvertFrom-Json; Write-Host ("[{0:N1} min] {1} {2} {3}" -f ((Get-Date) - $inizio).TotalMinutes, $e.tipo, $e.passo, $e.esito) } catch {}
+                }
+                $lettiEventi = $righe.Count
+              }
+            }
+            if (Test-Path C:\esito\fabbrica.log) {
+              $modelli = @(Get-Content C:\esito\fabbrica.log -Encoding utf8 -ErrorAction SilentlyContinue | Where-Object { $_ -like '[[]modello]*' })
+              if ($modelli.Count -gt $lettiModelli) {
+                foreach ($riga in $modelli[$lettiModelli..($modelli.Count - 1)]) { Write-Host "   $riga" }
+                $lettiModelli = $modelli.Count
+              }
+            }
+            if ($finita) { break }
+            Start-Sleep 15
+          }
           Pop-Location
           $minuti = [math]::Round(((Get-Date) - $inizio).TotalMinutes, 1)
           [IO.File]::WriteAllText("C:\esito\minuti.txt", "$minuti")

@@ -11,6 +11,7 @@ mai una demo con meno fatti.
 Restituisce {"provati": chiave -> {citazione, fonte}, "dati": graffa -> {valore, citazione, fonte}}.
 """
 
+import sys
 import json
 import re
 from pathlib import Path
@@ -67,6 +68,12 @@ def _unaChiamata(chiave, modello, contenuto, secondi):
     return json.loads(re.search(r"\{.*\}", testo, re.S).group(0))
 
 
+def _registroDelModello(modello, inizio, esito):
+    """Una riga per ogni chiamata a un modello: nome, secondi ed esito, senza dati del cliente (la legge la prova della fabbrica)."""
+    import time
+    print(f"[modello] {modello} {round(time.monotonic() - inizio)}s {esito}", file=sys.stderr, flush=True)
+
+
 def chiediAFreeLLM(istruzioni, immagini=(), secondi=330, valida=None, partenza=0):
     """I modelli gratuiti di FreeLLMAPI, con le ripetizioni. immagini: percorsi JPG da mandare insieme alle istruzioni,
     nell'ordine in cui le istruzioni le nominano. valida: controllo della risposta; una risposta che non lo passa vale come
@@ -96,14 +103,18 @@ def chiediAFreeLLM(istruzioni, immagini=(), secondi=330, valida=None, partenza=0
             rimasti = scadenza - time.monotonic()
             if rimasti < 20:
                 break
+            inizio = time.monotonic()
             try:
                 risposta = _unaChiamata(chiave, modello, contenuto, min(secondi, rimasti))
             except Exception as errore:  # noqa: BLE001
                 errori.append(f"{modello}: {type(errore).__name__} {str(errore)[:80]}")
+                _registroDelModello(modello, inizio, "NOTGO " + type(errore).__name__)
                 continue
             if isinstance(risposta, dict) and (valida is None or valida(risposta)):
+                _registroDelModello(modello, inizio, "GO")
                 return risposta
             errori.append(f"{modello}: risposta non valida")
+            _registroDelModello(modello, inizio, "risposta non valida")
         attesa = SECONDI_DELLA_PRIMA_ATTESA * 2 ** giro
         if giro == RIPETIZIONI - 1 or scadenza - time.monotonic() < attesa + 20:
             break
