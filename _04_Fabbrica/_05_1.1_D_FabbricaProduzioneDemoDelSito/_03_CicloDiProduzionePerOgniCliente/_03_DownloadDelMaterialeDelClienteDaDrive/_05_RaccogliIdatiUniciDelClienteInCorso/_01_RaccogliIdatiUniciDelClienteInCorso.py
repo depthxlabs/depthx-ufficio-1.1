@@ -44,6 +44,16 @@ def raccogliIdatiUniciDelClienteInCorso(cartellaDiLavoro):
     if not dati["crm"]:
         raise RuntimeError(f"su Drive mancano i dati del CRM del cliente ({FILE_DEI_DATI['crm']})")
     dati["sitoAttuale"] = testoDelSitoAttuale(dati.pop("pagineDelSito", {}))
+    # il nome pulito (Michele, 24/11/2026): lo stesso in titolo, testata, piede e testi; il nome di Google resta in nomeGoogle
+    from ..._05_PersonalizzazioneDelTemplateConLidentitàDelCliente._01_ScriviIlNomeDelClienteNelFileDiConfigurazione._03_NomePulitoDellaStruttura import \
+        nomePulitoDellaStruttura
+    crm = dati["crm"]
+    nome = (crm.get("nome") or (dati["schedaGoogle"].get("displayName") or {}).get("text") or "").strip()
+    codice = str(cartellaDiLavoro.get("idCliente") or crm.get("idCliente") or crm.get("ID cliente") or "")
+    tipo = codice.split("_")[1] if codice.count("_") >= 3 else (crm.get("tipo") or cartellaDiLavoro.get("tipo") or "")
+    if nome:
+        crm["nomeGoogle"] = nome
+        crm["nome"] = nomePulitoDellaStruttura(nome, tipo)
     return dati
 
 
