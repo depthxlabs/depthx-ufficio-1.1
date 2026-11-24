@@ -1,0 +1,82 @@
+# Uscite automatiche dal CRM della Linea 1.1: lo strumento degli esclusi (_02_Download/_08_EsclusiDalFlusso/_07_UsciteAutomaticheDalCrm.py).
+# Legge il CRM su Google Sheets (accesso rclone dal segreto FABBRICA_RCLONE_SCRITTURA), lo stato del download e gli eventi della
+# fabbrica dall'archivio privato (_08_Fabbrica), sposta le cartelle su Drive nel cestino di Drive, toglie la demo da R2 di Cloudflare
+# (segreto CLOUDFLARE_API_TOKEN), cancella le righe dal CRM e scrive esiti ed eventi nell'archivio privato (_08_Fabbrica/uscite).
+# Nel registro pubblico di GitHub vanno solo i numeri. Con "prova" elenca soltanto, senza modifiche.
+name: Uscite automatiche dal CRM
+on:
+  workflow_dispatch:
+    inputs:
+      prova: { description: "Solo l'elenco, nessuna modifica", type: boolean, default: true }
+concurrency: { group: uscite-automatiche-dal-crm, cancel-in-progress: false }
+permissions:
+  contents: read
+jobs:
+  uscite:
+    name: Uscite dal CRM
+    runs-on: windows-latest
+    timeout-minutes: 40
+    env:
+      PYTHONIOENCODING: utf-8
+      PYTHONDONTWRITEBYTECODE: "1"
+      TZ: Europe/Rome
+      USCITE_DATI: ${{ github.workspace }}\dati\_08_Fabbrica
+      USCITE_FABBRICA: ${{ github.workspace }}\codice\_04_Fabbrica\_05_1.1_D_FabbricaProduzioneDemoDelSito
+      USCITE_RCLONE: ${{ github.workspace }}\rclone\rclone.exe
+      USCITE_RCLONE_CONFIGURAZIONE: ${{ github.workspace }}\rclone\rclone_scrittura.conf
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    defaults:
+      run: { shell: pwsh }
+    steps:
+      - run: |
+          git config --system core.longpaths true
+          New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name LongPathsEnabled -Value 1 -PropertyType DWORD -Force | Out-Null
+      - uses: actions/checkout@v4
+        with:
+          path: codice
+          sparse-checkout: |
+            _02_Download
+            _04_Fabbrica/_05_1.1_D_FabbricaProduzioneDemoDelSito/_03_CicloDiProduzionePerOgniCliente/_06_PubblicazioneSuDepthxlabsDemo
+      - uses: actions/checkout@v4
+        with:
+          repository: depthxlabs/depthx-dati-1.1
+          ssh-key: "${{ secrets.CHIAVE_DATI_RICERCA }}"
+          path: dati
+          sparse-checkout: |
+            /_08_Fabbrica/stato.json
+            /_08_Fabbrica/_02_CartelleDeiClientiSuDrive.json
+            /_08_Fabbrica/esiti/
+            /_08_Fabbrica/uscite/
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.14" }
+      - name: rclone con la configurazione di scrittura
+        env:
+          SCRITTURA: ${{ secrets.FABBRICA_RCLONE_SCRITTURA }}
+        run: |
+          New-Item -ItemType Directory -Force rclone | Out-Null
+          Invoke-WebRequest https://downloads.rclone.org/rclone-current-windows-amd64.zip -OutFile rclone.zip
+          Expand-Archive rclone.zip -DestinationPath rclone_zip
+          Copy-Item (Get-ChildItem rclone_zip -Recurse -Filter rclone.exe | Select-Object -First 1).FullName $env:USCITE_RCLONE
+          [IO.File]::WriteAllText($env:USCITE_RCLONE_CONFIGURAZIONE, $env:SCRITTURA)
+      - name: Le uscite automatiche
+        run: |
+          $prova = if ("${{ github.event_name }}" -eq "workflow_dispatch" -and "${{ inputs.prova }}" -eq "true") { "--prova" } else { "" }
+          python -B codice\_02_Download\_08_EsclusiDalFlusso\_07_UsciteAutomaticheDalCrm.py $prova
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Esiti nell'archivio privato
+        if: always()
+        run: |
+          cd dati
+          git config user.name "DepthX Fabbrica 1.1"; git config user.email outbound@depthxlabs.com
+          git add --sparse -A _08_Fabbrica
+          git diff --cached --quiet
+          if ($LASTEXITCODE -eq 0) { exit 0 }
+          git commit -qm "Uscite automatiche dal CRM: esiti"
+          for ($n = 1; $n -le 30; $n++) {
+            git pull -q --rebase origin main
+            git push -q origin HEAD:main
+            if ($LASTEXITCODE -eq 0) { exit 0 }
+            Start-Sleep -Seconds (Get-Random -Minimum 1 -Maximum 6)
+          }
+          exit 1

@@ -45,10 +45,11 @@ jobs:
           New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name LongPathsEnabled -Value 1 -PropertyType DWORD -Force | Out-Null
           New-Item -ItemType Directory -Force "$env:LINEA" | Out-Null
           New-Item -ItemType Junction -Path "$env:FABBRICA" -Target "$env:GITHUB_WORKSPACE\codice\_04_Fabbrica\_05_1.1_D_FabbricaProduzioneDemoDelSito" | Out-Null
-          $motore = "$env:LINEA\_03_1.1_C_DownloadMaterialeClienti"
-          New-Item -ItemType Directory -Force "$motore\_01_StrumentiDelMotore\_05_RegistroEStatoDelMotore", "$motore\_06_CaricamentoSuDrive" | Out-Null
-          Copy-Item dati\_08_Fabbrica\stato.json "$motore\_01_StrumentiDelMotore\_05_RegistroEStatoDelMotore\stato.json"
-          Copy-Item dati\_08_Fabbrica\_02_CartelleDeiClientiSuDrive.json "$motore\_06_CaricamentoSuDrive\_02_CartelleDeiClientiSuDrive.json"
+          # lo stato del download e le cartelle dei clienti: sul server stanno nella memoria dati del Centro Gestione (_12_MotoreDiDownload)
+          $motore = "C:\_02_DepthXSoftware\_01_CentroGestioneDepthX\V1.0(161126_1124)\_01_StrumentiDiLavoroPerIlServer\_03_MemoriaDatiDelCentroGestione\_12_MotoreDiDownload"
+          New-Item -ItemType Directory -Force "$motore" | Out-Null
+          Copy-Item dati\_08_Fabbrica\stato.json "$motore\stato.json"
+          Copy-Item dati\_08_Fabbrica\_02_CartelleDeiClientiSuDrive.json "$motore\_02_CartelleDeiClientiSuDrive.json"
       - name: rclone con le sue configurazioni
         env:
           LETTURA: ${{ secrets.FABBRICA_RCLONE_LETTURA }}

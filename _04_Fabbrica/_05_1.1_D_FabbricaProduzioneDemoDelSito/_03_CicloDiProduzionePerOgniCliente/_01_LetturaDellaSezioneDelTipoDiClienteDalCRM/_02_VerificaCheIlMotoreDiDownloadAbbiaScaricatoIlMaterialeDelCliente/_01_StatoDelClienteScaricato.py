@@ -6,8 +6,8 @@ Lo stato del motore è un dato del motore: la fabbrica lo legge e non lo modific
 import json
 from pathlib import Path
 
-MOTORE_DI_DOWNLOAD = Path(__file__).absolute().parents[4] / "_03_1.1_C_DownloadMaterialeClienti"
-FILE_DELLO_STATO_DEL_MOTORE = MOTORE_DI_DOWNLOAD / "_01_StrumentiDelMotore" / "_05_RegistroEStatoDelMotore" / "stato.json"
+MOTORE_DI_DOWNLOAD = Path(r"C:\_02_DepthXSoftware\_01_CentroGestioneDepthX\V1.0(161126_1124)\_01_StrumentiDiLavoroPerIlServer\_03_MemoriaDatiDelCentroGestione\_12_MotoreDiDownload")
+FILE_DELLO_STATO_DEL_MOTORE = MOTORE_DI_DOWNLOAD / "stato.json"
 ESITI_SCARICATI = ("GO", "PARZIALE")
 
 

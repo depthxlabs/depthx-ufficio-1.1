@@ -60,12 +60,14 @@ LETTURA_DAL_CRM = os.path.join(RADICE_DEL_MOTORE, "_02_LetturaDalCRM")
 DOWNLOAD_DALLE_FONTI = os.path.join(RADICE_DEL_MOTORE, "_03_DownloadDalleFonti")
 CARICAMENTO_SU_DRIVE = os.path.join(RADICE_DEL_MOTORE, "_06_CaricamentoSuDrive")
 
-PYTHON_DEL_MOTORE = os.path.join(STRUMENTI_DEL_MOTORE, "_01_AmbientePythonDelMotore", "Scripts", "python.exe")
-CARTELLA_DELLE_CHIAVI = os.path.join(STRUMENTI_DEL_MOTORE, "_02_ChiaviDiAccessoAServiziDiTerzeParti")
+# Sul server il codice gira da una copia del repository: le variabili MOTORE_* portano registro, chiavi, Python e profilo Chrome
+# nelle loro cartelle del server (memoria dati del Centro Gestione, chiavi del Centro Gestione, cartella del Chrome del motore).
+PYTHON_DEL_MOTORE = os.environ.get("MOTORE_PYTHON") or os.path.join(STRUMENTI_DEL_MOTORE, "_01_AmbientePythonDelMotore", "Scripts", "python.exe")
+CARTELLA_DELLE_CHIAVI = os.environ.get("MOTORE_CARTELLA_DELLE_CHIAVI") or os.path.join(STRUMENTI_DEL_MOTORE, "_02_ChiaviDiAccessoAServiziDiTerzeParti")
 FILE_DELLE_REGOLE = os.path.join(STRUMENTI_DEL_MOTORE, "_03_RegoleDelMotore", "_01_RegoleNumericheDelMotore.json")
-CARTELLA_DEL_REGISTRO = os.path.join(STRUMENTI_DEL_MOTORE, "_05_RegistroEStatoDelMotore")
-CARTELLA_TEMPORANEA = os.path.join(STRUMENTI_DEL_MOTORE, "_06_FileTemporaneiDelMotore")
-CARTELLA_DEL_PROFILO_CHROME = os.path.join(STRUMENTI_DEL_MOTORE, "_07_ProfiloChromeDellAccountDelMotore")
+CARTELLA_DEL_REGISTRO = os.environ.get("MOTORE_CARTELLA_DEL_REGISTRO") or os.path.join(STRUMENTI_DEL_MOTORE, "_05_RegistroEStatoDelMotore")
+CARTELLA_TEMPORANEA = os.environ.get("MOTORE_CARTELLA_TEMPORANEA") or os.path.join(STRUMENTI_DEL_MOTORE, "_06_FileTemporaneiDelMotore")
+CARTELLA_DEL_PROFILO_CHROME = os.environ.get("MOTORE_PROFILO_CHROME") or os.path.join(STRUMENTI_DEL_MOTORE, "_07_ProfiloChromeDellAccountDelMotore")
 
 SCRIPT_DI_LETTURA_DEI_FOGLI = os.path.join(LETTURA_DAL_CRM, "_01_LetturaDeiFogliDaGoogleSheets.js")
 FILE_DELLE_IMPOSTAZIONI_DEL_CRM = os.path.join(LETTURA_DAL_CRM, "_03_ColonneEImpostazioniDelCrm.json")
@@ -74,7 +76,7 @@ FILE_DEI_FOGLI_DEL_CRM = os.path.join(LETTURA_DAL_CRM, "_04_ElencoDeiBlocchiDelC
 URL_DEI_BLOCCHI_DEL_CRM = "http://127.0.0.1:8787/api/crm11"
 FILE_DEL_BLOCCO_DI_DOWNLOAD = os.path.join(LETTURA_DAL_CRM, "_05_BloccoDiDownloadInCorso.json")
 SCRIPT_YTDLP = os.path.join(DOWNLOAD_DALLE_FONTI, "_05_VideoConYtDlp", "_02_AvvioDiYtDlpConIPercorsiBrevi.py")
-FILE_DELLE_CARTELLE_DEI_CLIENTI = os.path.join(CARICAMENTO_SU_DRIVE, "_02_CartelleDeiClientiSuDrive.json")
+FILE_DELLE_CARTELLE_DEI_CLIENTI = os.environ.get("MOTORE_FILE_DELLE_CARTELLE_DEI_CLIENTI") or os.path.join(CARICAMENTO_SU_DRIVE, "_02_CartelleDeiClientiSuDrive.json")
 
 # ogni passo ha il suo codice nella sua cartella: Python li trova tutti, in ordine
 CARTELLE_DEL_CODICE = [CARTELLA_DEL_COORDINATORE, LETTURA_DAL_CRM] + [

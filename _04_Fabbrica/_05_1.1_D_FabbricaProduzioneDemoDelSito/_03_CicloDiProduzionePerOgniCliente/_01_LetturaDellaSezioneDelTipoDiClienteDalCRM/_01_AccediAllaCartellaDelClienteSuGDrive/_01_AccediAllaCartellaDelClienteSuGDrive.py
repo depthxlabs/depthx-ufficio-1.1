@@ -7,8 +7,8 @@ il nome della cartella, la sezione del CRM e il tipo di struttura. È un dato de
 import json
 from pathlib import Path
 
-MOTORE_DI_DOWNLOAD = Path(__file__).absolute().parents[4] / "_03_1.1_C_DownloadMaterialeClienti"
-FILE_DELLE_CARTELLE_DEI_CLIENTI = MOTORE_DI_DOWNLOAD / "_06_CaricamentoSuDrive" / "_02_CartelleDeiClientiSuDrive.json"
+MOTORE_DI_DOWNLOAD = Path(r"C:\_02_DepthXSoftware\_01_CentroGestioneDepthX\V1.0(161126_1124)\_01_StrumentiDiLavoroPerIlServer\_03_MemoriaDatiDelCentroGestione\_12_MotoreDiDownload")
+FILE_DELLE_CARTELLE_DEI_CLIENTI = MOTORE_DI_DOWNLOAD / "_02_CartelleDeiClientiSuDrive.json"
 
 
 def accediAllaCartellaDelClienteSuGDrive(idCliente):
