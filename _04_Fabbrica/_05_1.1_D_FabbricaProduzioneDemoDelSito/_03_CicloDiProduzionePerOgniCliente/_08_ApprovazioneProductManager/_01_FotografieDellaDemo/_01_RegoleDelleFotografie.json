@@ -1,7 +1,0 @@
-{
- "descrizione": "Regole del passo 8.1: il programma Chrome sul server, lo schermo di ogni fotografia in punti (larghezza, altezza e se è un telefono: la pagina si fotografa intera dall'alto al basso) e i millisecondi che la pagina ha per caricare foto e script prima della fotografia.",
- "chrome": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
- "fotografie": {"computer": [1440, 900, false], "telefono": [390, 844, true]},
- "millisecondiPerCaricare": 3000,
- "secondiMassimi": 180
-}

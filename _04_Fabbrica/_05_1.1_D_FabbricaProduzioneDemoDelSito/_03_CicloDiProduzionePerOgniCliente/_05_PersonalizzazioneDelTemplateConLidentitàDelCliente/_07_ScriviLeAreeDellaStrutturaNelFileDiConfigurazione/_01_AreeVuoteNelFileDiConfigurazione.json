@@ -1,8 +1,0 @@
-{
- "descrizione": "Cosa fa ogni template con un'area della struttura senza foto: togli = l'area esce dal file di configurazione e main.js toglie il blocco; svuota = l'area resta con le foto vuote e il riquadro sparisce.",
- "HOTEL_CONFIG": "togli",
- "BEB_CONFIG": "togli",
- "AGRI_CONFIG": "svuota",
- "CASA_CONFIG": "svuota",
- "SITO_CONFIG": "togli"
-}

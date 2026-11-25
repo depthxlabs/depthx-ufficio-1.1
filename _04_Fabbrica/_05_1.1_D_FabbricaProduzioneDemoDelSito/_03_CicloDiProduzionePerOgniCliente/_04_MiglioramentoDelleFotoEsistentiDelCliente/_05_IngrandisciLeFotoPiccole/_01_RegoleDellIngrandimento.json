@@ -1,7 +1,0 @@
-{
- "descrizione": "Regole del passo 4.5 (Michele, 8/11/2026): un taglio più piccolo del lato lungo della foto base (latoLungoDelleFoto del passo 4.9) si ingrandisce con il modello Real-ESRGAN generale x4v3, sul processore, a pezzi quadrati con un bordo comune che nasconde le giunture. Sotto la scala minima la foto resta com'è; la scala non supera mai 4. La forza mescola il risultato del modello con l'ingrandimento classico, per restare fedeli alla foto del cliente.",
- "scalaMinima": 1.15,
- "latoDelPezzo": 256,
- "bordoDelPezzo": 16,
- "forzaDellIngrandimento": 0.5
-}
