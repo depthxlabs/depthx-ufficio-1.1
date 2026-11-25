@@ -1,7 +1,7 @@
 """Riconoscimento delle foto: scarto delle foto piccole, sfocate o doppie e classificazione di tutte le foto valide.
 
 Le misure (lato, nitidezza, firma per i doppioni) e una miniatura temporanea si fanno al momento dello scaricamento.
-La classificazione usa la vista di Claude (claude -p) su mosaici numerati, come la fabbrica dei siti.
+La classificazione si fa sulla macchina con il modello addestrato.
 Leggero sui token (Michele, 4/11/2026): piano Claude Max, sonnet con sforzo basso, un prompt di sistema di una riga al posto di quello
 di Claude Code e un solo strumento, quello che legge l'immagine. I token di ogni mosaico vanno in
 _05_RegistroEStatoDelMotore/tokenDelRiconoscimentoDelleFoto.jsonl.
@@ -62,14 +62,6 @@ DOMANDA_DEL_MOSAICO = (
     "\"qualita\" voto da 1 a 10 come foto professionale per il sito: basso se sgranata, sfocata, mossa, buia, storta o con scritte sopra. "
     "Nessun altro testo."
 )
-
-
-def programmaClaude():
-    trovato = shutil.which("claude")
-    if trovato:
-        return trovato
-    nellaCartellaUtente = os.path.join(os.path.expanduser("~"), ".local", "bin", "claude.exe")
-    return nellaCartellaUtente if os.path.isfile(nellaCartellaUtente) else None
 
 
 def leggiRispostaJson(testo):
@@ -163,95 +155,10 @@ def votoDiQualita(riga, massimo):
 
 
 def esegui(contesto):
-    passo = Passo("Riconoscimento delle foto")
-    if comune.regola("riconoscimentoSullaMacchina") and os.path.isfile(FILE_DELLO_STRATO):
-        return eseguiSullaMacchina(contesto, passo)
-    if not programmaClaude():
-        raise comune.ChiaveMancante("Il programma claude non è installato: il riconoscimento delle foto non si fa.")
-    valide, scartate, firmeViste = [], [], {}
-    for chiave, voce in contesto.stato["elementi"].items():
-        if not voce.get("foto"):
-            continue
-        try:
-            miniatura = miniaturaDellaFoto(contesto, chiave, voce)
-        except Exception as errore:
-            scartate.append({"chiave": chiave, "nome": voce["nome"], "motivo": "non leggibile: " + comune.messaggioSicuro(type(errore).__name__)})
-            continue
-        misure = voce["misure"]
-        riga = {"chiave": chiave, "id": voce["id"], "nome": voce["nome"], "fonte": voce["passo"], "larghezza": misure.get("larghezza"),
-                "altezza": misure.get("altezza"), "nitidezza": misure.get("nitidezza"), "miniatura": miniatura}
-        if min(misure.get("larghezza") or 0, misure.get("altezza") or 0) < LATO_CORTO_MINIMO:
-            scartate.append({**riga, "motivo": "piccola"})
-        elif (misure.get("nitidezza") or 0) < NITIDEZZA_MINIMA:
-            scartate.append({**riga, "motivo": "sfocata"})
-        elif misure.get("firma") in firmeViste:
-            scartate.append({**riga, "motivo": "doppione di " + firmeViste[misure["firma"]]})
-        else:
-            firmeViste[misure.get("firma")] = voce["nome"]
-            valide.append(riga)
-    passo.attesi = len(valide)
-    perMosaico = int(comune.regola("fotoPerMosaicoDelRiconoscimento"))
-    secondiMassimi = int(comune.regola("secondiMassimiDelRiconoscimento"))
-    cartellaMosaici = os.path.join(contesto.temporanea, "_mosaici")
-    os.makedirs(cartellaMosaici, exist_ok=True)
-    daFare = [valide[inizio:inizio + perMosaico] for inizio in range(0, len(valide), perMosaico)]
-    for ripetizione in range(int(comune.regola("ripetizioniPerMetodo"))):
-        if not daFare:
-            break
-        inCorso, ancora = [], []
-        for numeroGruppo, gruppo in enumerate(daFare):
-            mosaico = os.path.join(cartellaMosaici, f"mosaico_{ripetizione}_{numeroGruppo:04d}.jpg")
-            creaMosaico([riga["miniatura"] for riga in gruppo], mosaico)
-            domanda = DOMANDA_DEL_MOSAICO.format(mosaico=mosaico, quante=len(gruppo), nome=contesto.cliente.get("nome", ""),
-                                                 tipo=contesto.industria.get("tipoDiAttivita", ""), prodotti=contesto.industria.get("descrizioneDeiProdotti", ""))
-            while len([voce for voce in inCorso if voce[0].poll() is None]) >= VISTE_INSIEME:
-                time.sleep(0.5)
-            comando = [programmaClaude(), "-p", domanda, "--tools", "Read", "--allowedTools", "Read", "--system-prompt", SISTEMA, "--effort", "low",
-                       "--output-format", "json", "--setting-sources", "local", "--strict-mcp-config",
-                       "--no-session-persistence", "--model", str(comune.regola("modelloDelRiconoscimento"))]
-            processo = subprocess.Popen(comando, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL, text=True, encoding="utf-8",
-                                        errors="ignore", cwd=cartellaMosaici, creationflags=comune.PRIORITA_BASSA | comune.SENZA_FINESTRA)
-            inCorso.append((processo, gruppo, time.time()))
-        for processo, gruppo, inizio in inCorso:
-            try:
-                uscita, _ = processo.communicate(timeout=max(5, secondiMassimi - (time.time() - inizio)))
-            except subprocess.TimeoutExpired:
-                processo.kill()
-                processo.communicate()
-                ancora.append(gruppo)
-                continue
-            uscita, token = rispostaETokenDellaBusta(uscita)
-            risposta = leggiRispostaJson(uscita)
-            scriviToken(contesto.idCliente, token, "GO" if isinstance(risposta, list) else "NOTGO")
-            assegnate = set()
-            for voce in risposta if isinstance(risposta, list) else []:
-                try:
-                    riga = gruppo[int(voce["n"]) - 1]
-                    riga["categoria"] = voce.get("categoria") if voce.get("categoria") in CATEGORIE else "altro"
-                    riga["qualita"] = max(1, min(10, int(voce.get("qualita") or 1)))
-                    assegnate.add(id(riga))
-                except (KeyError, ValueError, TypeError, IndexError):
-                    continue
-            mancanti = [riga for riga in gruppo if id(riga) not in assegnate]
-            if mancanti:
-                ancora.append(mancanti)
-        daFare = ancora
-        if daFare:
-            time.sleep(comune.regola("secondiDiAttesaTraLeRipetizioni")[min(ripetizione, 2)])
-    shutil.rmtree(cartellaMosaici, ignore_errors=True)
-    for gruppo in daFare:
-        for riga in gruppo:
-            passo.irraggiungibili.append({"elemento": riga["nome"], "motivo": "la vista di Claude non ha dato categoria e voto dopo le ripetizioni"})
-    passo.scaricati = len([riga for riga in valide if riga.get("categoria")])
-    for riga in valide + scartate:
-        riga.pop("miniatura", None)
-    conteggio = {categoria: len([riga for riga in valide if riga.get("categoria") == categoria]) for categoria in CATEGORIE}
-    ordinate = sorted(valide, key=lambda riga: (-(riga.get("qualita") or 0), -(riga.get("nitidezza") or 0)))
-    contesto.scriviJson("foto", "_01_RiconoscimentoDelleFoto.json", {"idCliente": contesto.idCliente, "categorie": conteggio, "valide": ordinate, "scartate": scartate})
-    contesto.scriviJson("resto", NOME_FILE_FOTO_VALIDE, ordinate)
-    contesto.stato["fotoValide"], contesto.stato["fotoScartate"], contesto.stato["categorie"] = len(valide), len(scartate), conteggio
-    passo.dettagli = {"fotoRaccolte": len(valide) + len(scartate), "valide": len(valide), "scartate": len(scartate), "categorie": conteggio}
-    return [passo]
+    """Il riconoscimento si fa solo sulla macchina (dal 25/11/2026): nel download non esiste nessuna chiamata a Claude."""
+    if not os.path.isfile(FILE_DELLO_STRATO):
+        raise comune.ChiaveMancante("Manca il modello addestrato accanto al codice: il riconoscimento delle foto non si fa.")
+    return eseguiSullaMacchina(contesto, Passo("Riconoscimento delle foto"))
 
 
 def eseguiSullaMacchina(contesto, passo):

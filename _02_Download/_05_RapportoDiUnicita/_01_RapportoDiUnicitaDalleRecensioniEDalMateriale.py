@@ -24,7 +24,6 @@ import time
 import unicodedata
 
 import _02_PercorsiChiaviEFunzioniComuni as comune
-from _01_RiconoscimentoESmistamentoDelleFotoPerCategoria import programmaClaude
 from _04_ContestoDelClienteEConteggioDeiPassi import NOME_FILE_DATI_CRM, Passo
 
 NOME_DEL_PASSO = "Rapporto di unicità"
@@ -125,39 +124,19 @@ def scriviToken(**campi):
         pass
 
 
-def chiediAClaude(contesto, materiale):
+def chiediIlRapporto(contesto, materiale):
+    """Solo i modelli gratuiti di FreeLLMAPI sul server (dal 25/11/2026), con le ripetizioni delle regole del motore."""
     domanda = DOMANDA.format(materiale=materiale, nome=contesto.cliente.get("nome", ""), tipo=contesto.industria.get("tipoDiAttivita", "struttura ricettiva"))
-    # prima i modelli gratuiti di FreeLLMAPI sul server: più veloci e senza l'abbonamento; Claude resta la riserva
-    scriviToken(tipo="inizio", idCliente=contesto.idCliente, modello="FreeLLMAPI")
-    rapporto = leggiOggettoJson(comune.chiediAFreeLLM(domanda, SISTEMA) or "")
-    if isinstance(rapporto, dict) and isinstance(rapporto.get("settori"), dict):
-        scriviToken(tipo="fine", idCliente=contesto.idCliente, token=0, esito="GO", modello="FreeLLMAPI")
-        return rapporto, "", 0
-    scriviToken(tipo="fine", idCliente=contesto.idCliente, token=0, esito="NOTGO", modello="FreeLLMAPI", motivo="nessun rapporto valido, si passa a Claude")
-    # il materiale va nella domanda, senza strumenti: nessun giro in più che rilegge tutto; la risposta in JSON porta anche i token usati
-    comando = [programmaClaude(), "-p", "--model", str(comune.regola("modelloDelRapportoDiUnicita")), "--effort", "low", "--tools", "",
-               "--system-prompt", SISTEMA, "--output-format", "json", "--setting-sources", "local", "--strict-mcp-config", "--no-session-persistence"]
-    ultimo = ""
     for ripetizione in range(int(comune.regola("ripetizioniPerMetodo"))):
         comune.battito()
-        scriviToken(tipo="inizio", idCliente=contesto.idCliente)
-        token = 0
-        try:
-            risultato = subprocess.run(comando, input=domanda, capture_output=True, text=True, encoding="utf-8", errors="ignore", cwd=contesto.temporanea,
-                                       timeout=int(comune.regola("secondiMassimiDelRapportoDiUnicita")), creationflags=comune.PRIORITA_BASSA | comune.SENZA_FINESTRA)
-            busta = leggiOggettoJson(risultato.stdout) or {}
-            uso = busta.get("usage") or {}
-            token = sum(int(uso.get(chiave) or 0) for chiave in ("input_tokens", "cache_creation_input_tokens", "cache_read_input_tokens", "output_tokens"))
-            rapporto = leggiOggettoJson(busta.get("result") or "")
-            if isinstance(rapporto, dict) and isinstance(rapporto.get("settori"), dict):
-                scriviToken(tipo="fine", idCliente=contesto.idCliente, token=token, esito="GO")
-                return rapporto, "", token
-            ultimo = "risposta di Claude senza un rapporto valido"
-        except subprocess.TimeoutExpired:
-            ultimo = "Claude non ha risposto in tempo"
-        scriviToken(tipo="fine", idCliente=contesto.idCliente, token=token, esito="NOTGO", motivo=ultimo)
+        scriviToken(tipo="inizio", idCliente=contesto.idCliente, modello="FreeLLMAPI")
+        rapporto = leggiOggettoJson(comune.chiediAFreeLLM(domanda, SISTEMA) or "")
+        if isinstance(rapporto, dict) and isinstance(rapporto.get("settori"), dict):
+            scriviToken(tipo="fine", idCliente=contesto.idCliente, token=0, esito="GO", modello="FreeLLMAPI")
+            return rapporto, "", 0
+        scriviToken(tipo="fine", idCliente=contesto.idCliente, token=0, esito="NOTGO", modello="FreeLLMAPI", motivo="nessun rapporto valido")
         time.sleep(comune.regola("secondiDiAttesaTraLeRipetizioni")[min(ripetizione, 2)])
-    return None, ultimo, 0
+    return None, "i modelli gratuiti non hanno dato un rapporto valido", 0
 
 
 def provaValida(prova, corpo):
@@ -180,13 +159,11 @@ def verifica(rapporto, materiale):
 
 def esegui(contesto):
     passo = Passo(NOME_DEL_PASSO)
-    if not programmaClaude():
-        raise comune.ChiaveMancante("Il programma claude non è installato: il rapporto di unicità non si fa.")
     materiale, conteggio = materialeDelCliente(contesto)
     if not any(conteggio.values()):
         passo.piattaforma = "nessuna recensione con testo e nessun testo di sito, Instagram o YouTube: il rapporto si basa solo sui dati del CRM"
     passo.attesi = 1
-    rapporto, motivo, token = chiediAClaude(contesto, materiale)
+    rapporto, motivo, token = chiediIlRapporto(contesto, materiale)
     if not rapporto:
         passo.irraggiungibili.append({"elemento": NOME_FILE_DEL_RAPPORTO, "motivo": motivo})
         return [passo]
