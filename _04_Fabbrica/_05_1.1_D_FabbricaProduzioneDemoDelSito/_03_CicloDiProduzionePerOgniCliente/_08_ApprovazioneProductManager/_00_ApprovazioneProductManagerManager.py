@@ -8,14 +8,14 @@ correzione del passo 10.
 """
 
 from ._01_FotografieDellaDemo._00_FotografieDellaDemoManager import fotografieDellaDemoManager
-from ._02_GiudizioEsteticoDiClaude._00_GiudizioEsteticoDiClaudeManager import giudizioEsteticoDiClaudeManager
+from ._02_GiudizioEsteticoAI._00_GiudizioEsteticoAIManager import giudizioEsteticoAIManager
 from ._03_ControlliDellaPaginaVista._00_ControlliDellaPaginaVistaManager import controlliDellaPaginaVistaManager
 
 
 def approvazioneProductManagerManager(copiaDelTemplate, materiale):
     fotografie = fotografieDellaDemoManager(copiaDelTemplate["sito"], copiaDelTemplate["cartellaDelClienteInCorso"])
     paginaVista = controlliDellaPaginaVistaManager(fotografie)
-    giudizio = giudizioEsteticoDiClaudeManager(copiaDelTemplate["sito"], fotografie, materiale.get("recensioni") or [])
+    giudizio = giudizioEsteticoAIManager(copiaDelTemplate["sito"], fotografie, materiale.get("recensioni") or [])
     note = dict(giudizio["note"])
     if paginaVista:
         note["paginaVista"] = paginaVista

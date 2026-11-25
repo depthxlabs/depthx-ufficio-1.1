@@ -68,7 +68,7 @@ def giudizioDaiModelliGratuiti(fotografie, frasi):
     return esitoDelGiudizio(giudizio)
 
 
-def giudizioEsteticoDiClaude(sito, fotografie, recensioni):
+def giudizioEsteticoAI(sito, fotografie, recensioni):
     regole = json.loads(FILE_DELLE_REGOLE.read_text(encoding="utf-8-sig"))
     ospiti = " ".join(" ".join((voce.get("testo") or "").split()) for voce in recensioni)
     frasi = []
