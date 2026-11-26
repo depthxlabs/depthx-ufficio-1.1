@@ -106,21 +106,22 @@ class DestinazioneDrive:
     def esegui(self, richiesta):
         from googleapiclient.errors import HttpError
 
-        for giro in range(6):
+        for giro in range(10):
             try:
                 return richiesta.execute()
             except HttpError as errore:
                 codice = errore.resp.status if errore.resp is not None else 0
                 if codice == 401:
                     raise ConsensoMancante() from None
-                if codice not in comune.CODICI_DA_RIPETERE and not (codice == 403 and "rate" in str(errore).lower()):
+                limite = codice in (403, 429) and any(p in str(errore).lower() for p in ("quota", "ratelimit", "rate limit"))
+                if codice not in comune.CODICI_DA_RIPETERE and not limite:
                     raise
-                if giro == 5:
+                if giro == 9:
                     raise
             except OSError:
-                if giro == 5:
+                if giro == 9:
                     raise
-            time.sleep(2 ** (giro + 2))
+            time.sleep(min(2 ** (giro + 2), 65))
 
     @staticmethod
     def _testo(nome):
@@ -196,8 +197,10 @@ class DestinazioneDrive:
                 richiesta = self.servizio.files().update(fileId=presenti[nome]["id"], media_body=contenuto, fields="id,md5Checksum,size")
             else:
                 richiesta = self.servizio.files().create(body={"name": nome, "parents": [idCartella]}, media_body=contenuto, fields="id,md5Checksum,size")
-            risultato = self._aPezzi(richiesta)
-            del contenuto
+            try:
+                risultato = self._aPezzi(richiesta)
+            finally:
+                contenuto.stream().close()
             if risultato.get("md5Checksum") == md5 and int(risultato.get("size") or -1) == byte:
                 presenti[nome] = {"id": risultato["id"], "md5": md5, "byte": byte}
                 return risultato["id"]
@@ -218,9 +221,10 @@ class DestinazioneDrive:
                 errori += 1
                 if codice == 401:
                     raise ConsensoMancante() from None
-                if codice not in comune.CODICI_DA_RIPETERE or errori > 6:
+                limite = codice in (403, 429) and any(p in str(errore).lower() for p in ("quota", "ratelimit", "rate limit"))
+                if (codice not in comune.CODICI_DA_RIPETERE and not limite) or errori > 9:
                     raise
-                time.sleep(2 ** errori)
+                time.sleep(min(2 ** (errori + 1), 65))
             except OSError:
                 errori += 1
                 if errori > 6:
