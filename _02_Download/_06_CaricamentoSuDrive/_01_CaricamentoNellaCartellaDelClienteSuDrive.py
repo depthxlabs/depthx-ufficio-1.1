@@ -32,6 +32,25 @@ CONFIGURAZIONE_RCLONE = os.environ.get("MOTORE_RCLONE_CONF") or r"C:\_02_DepthXS
 PROGRAMMA_RCLONE = os.environ.get("MOTORE_RCLONE") or r"C:\_02_DepthXSoftware\_02_RCloneDepthX\rclone.exe"
 
 
+# Al massimo 600 richieste a Drive in 60 secondi, contate su tutti i fili del lavoratore
+RICHIESTE_AL_MINUTO = max(1, int(os.environ.get("MOTORE_RICHIESTE_AL_MINUTO") or 600))
+_richiesteFatte = []
+_bloccoDelleRichieste = threading.Lock()
+
+
+def aspettaIlTurno():
+    while True:
+        with _bloccoDelleRichieste:
+            adesso = time.monotonic()
+            while _richiesteFatte and adesso - _richiesteFatte[0] >= 60:
+                _richiesteFatte.pop(0)
+            if len(_richiesteFatte) < RICHIESTE_AL_MINUTO:
+                _richiesteFatte.append(adesso)
+                return
+            attesa = 60 - (adesso - _richiesteFatte[0])
+        time.sleep(max(0.2, attesa))
+
+
 def credenzialiDrive(conConsenso=False):
     """Credenziali di Drive dal token nella cartella delle chiavi (il file resta dov'è).
 
