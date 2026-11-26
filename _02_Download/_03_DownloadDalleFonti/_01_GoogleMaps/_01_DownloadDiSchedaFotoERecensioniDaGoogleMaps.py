@@ -428,6 +428,7 @@ def esegui(contesto):
                     if comune.regola("mapsSenzaImmagini"):
                         pagina.route("**/*", lambda percorso, richiesta: percorso.abort() if richiesta.resource_type in ("image", "media", "font")
                                      else percorso.continue_())
+                    comune.dalVivo(cliente["idCliente"], "cerco la scheda su Google Maps")
                     scheda, come, esame = trovaLaScheda(pagina, cliente)
                     if scheda is None:
                         contesto.scriviJson("scheda", "_01_VerificaDellaScheda.json", {"ricerca": regole.testoDellaRicerca(cliente), "collegamentoDelCrm": cliente.get("googleMaps", ""),
@@ -441,7 +442,9 @@ def esegui(contesto):
                         return [passoFoto, passoRecensioni], 0
                     voto, numeroDellaTestata = votoDellaScheda(pagina)
                     conRecensioni = bool(numeroDellaTestata) or bool(pagina.get_by_role("tab", name=re.compile(r"^(Recensioni|Reviews)")).count())
+                    comune.dalVivo(cliente["idCliente"], "leggo la galleria delle foto", recensioniSullaScheda=numeroDellaTestata, voto=voto)
                     foto = [] if veloci else fotoDellaGalleria(pagina, scheda["displayName"]["text"])
+                    comune.dalVivo(cliente["idCliente"], "leggo le recensioni", fotoTrovate=len(foto))
                     if conRecensioni:
                         # la galleria lascia la pagina in un altro stato: la scheda si riapre e le recensioni hanno il loro tempo da qui
                         apri(pagina, scheda["googleMapsUri"])
@@ -470,6 +473,9 @@ def esegui(contesto):
     passoFoto.attesi = len(foto)
     passoFoto.scadenza = scadenza
 
+    fatte = []
+    comune.dalVivo(contesto.cliente["idCliente"], "scarico le foto e le carico su Drive", fotoTrovate=len(foto), fotoScaricate=0, recensioniLette=len(recensioni), recensioniSullaScheda=totali)
+
     def unaFoto(numero, collegamento):
         def originale(percorso, collegamento=collegamento):
             return comune.scaricaInFile(collegamento + "=s0", percorso)
@@ -480,6 +486,8 @@ def esegui(contesto):
     with ThreadPoolExecutor(max_workers=int(comune.regola("fotoMapsInParallelo")), thread_name_prefix="fotoMaps") as fili:
         for futuro in [fili.submit(unaFoto, numero, collegamento) for numero, collegamento in enumerate(foto, start=1)]:
             futuro.result()
+            fatte.append(1)
+            comune.dalVivo(contesto.cliente["idCliente"], "scarico le foto e le carico su Drive", fotoScaricate=len(fatte))
     contesto.giroDiRecupero(passoFoto)
     passoFoto.dettagli = {"fotoDellaGalleria": len(foto), "metodo": "servizio Maps del server" if WORKER_DI_MAPS else "Chrome del motore"}
 

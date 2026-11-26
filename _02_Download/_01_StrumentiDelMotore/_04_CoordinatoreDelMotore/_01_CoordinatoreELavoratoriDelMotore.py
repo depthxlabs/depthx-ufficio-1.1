@@ -68,6 +68,7 @@ SOLO_MAPS = {"attivo": False}
 def lavoraCliente(cliente, voceIndustria, destinazione, rifai):
     idCliente = cliente["idCliente"]
     registro.evento("inizio_cliente", industria=voceIndustria["cartellaDrive"], idCliente=idCliente, nome=cliente.get("nome"))
+    comune.dalVivo(idCliente, "preparo la cartella su Drive", nome=cliente.get("nome", ""))
     contesto = Contesto(cliente, voceIndustria, destinazione)
     try:
         contesto.preparaCartelle()
@@ -137,6 +138,7 @@ def lavoraCliente(cliente, voceIndustria, destinazione, rifai):
         # i limiti della piattaforma restano scritti nel motivo anche quando il cliente è GO
         nonGo += [f"{nome}: {motivo}" for nome, (e, motivo) in esiti.items() if e == "GO" and motivo]
         concludi(contesto, esito, " | ".join(nonGo), esiti)
+        comune.dalVivo(idCliente, "concluso", esito=esito)
         return esito
     finally:
         contesto.chiudiCaricamenti()

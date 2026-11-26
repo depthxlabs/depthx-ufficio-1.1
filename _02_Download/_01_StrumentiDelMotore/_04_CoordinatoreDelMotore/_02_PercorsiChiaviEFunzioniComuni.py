@@ -252,6 +252,28 @@ def industria(numero):
     raise ChiaveMancante(f"Il blocco {numero} non è nel file _02_LetturaDalCRM/_04_ElencoDeiBlocchiDelCrm.json.")
 
 
+_dalVivo = {}
+
+
+def dalVivo(idCliente, fase, **altro):
+    """Che cosa sta facendo il motore in questo istante, per la pagina del Download (file indicato da MOTORE_FILE_DAL_VIVO)."""
+    percorso = os.environ.get("MOTORE_FILE_DAL_VIVO")
+    if not percorso:
+        return
+    if _dalVivo.get("idCliente") != idCliente:
+        _dalVivo.clear()
+        _dalVivo.update(idCliente=idCliente, dal=adesso(), passi=[])
+    if _dalVivo.get("fase") != fase:
+        _dalVivo["passi"] = (_dalVivo["passi"] + [{"fase": fase, "ora": adesso()}])[-12:]
+    _dalVivo.update(fase=fase, aggiornato=adesso(), pid=os.getpid(), **altro)
+    try:
+        with open(percorso + ".nuovo", "w", encoding="utf-8") as file:
+            json.dump(_dalVivo, file, ensure_ascii=False)
+        os.replace(percorso + ".nuovo", percorso)
+    except OSError:
+        pass
+
+
 def adesso():
     return datetime.datetime.now().astimezone().isoformat(timespec="seconds")
 
