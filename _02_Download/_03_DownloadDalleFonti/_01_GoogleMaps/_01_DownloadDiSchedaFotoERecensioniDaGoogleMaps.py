@@ -38,7 +38,7 @@ GIRI_MASSIMI_DELLA_GALLERIA = 80  # scorrimenti della galleria; si ferma prima s
 FOTO_MASSIME_DELLA_GALLERIA = int(comune.regola("fotoMapsMassime") or 40)  # il riconoscimento ne sceglie 15 che coprano le categorie
 GIRI_MASSIMI_DELLE_RECENSIONI = 3000  # si ferma all'obiettivo, quando non ne compaiono di nuove o al tempo massimo
 MINUTI_MASSIMI_DELLE_RECENSIONI = float(comune.regola("minutiMassimiDelleRecensioni") or 2)
-RECENSIONI_MINIME = 6  # il pacchetto Advanced ne mostra 6: sotto, il cliente è escluso per materiale insufficiente
+RECENSIONI_MINIME = 3  # recensioni da 4 o 5 stelle: con meno di 3 il cliente è escluso
 RISULTATI_DELLA_RICERCA = 10  # schede della ricerca esaminate una per una
 FOTO_DELLA_SCHEDA = re.compile(r"https://lh\d\.googleusercontent\.com/(?:p|gps-cs-s|gps-proxy)/[A-Za-z0-9_\-]+")  # foto della scheda, non avatar né Street View
 MOTIVO_ANTI_ROBOT = "Google ha chiesto la verifica anti robot: non si aggira, il cliente si riprende nel giro successivo"
@@ -102,7 +102,8 @@ def controllaPagina(pagina):
     """Ferma la fonte se Google chiede la verifica anti robot o se il profilo non ha l'accesso."""
     if "/sorry/" in pagina.url or "recaptcha" in pagina.content()[:200000].lower():
         raise FermoDiMaps(MOTIVO_ANTI_ROBOT)
-    if "insieme limitato di dati" in pagina.inner_text("body"):
+    # senza account Maps mostra la vista limitata: l'avviso, oppure il pulsante Accedi
+    if "insieme limitato di dati" in pagina.inner_text("body") or ("/maps" in pagina.url and pagina.locator('a[href*="ServiceLogin"]').count()):
         raise FermoDiMaps(MOTIVO_SENZA_ACCESSO)
 
 
@@ -491,9 +492,9 @@ def esegui(contesto):
         passoRecensioni.limite = (f"la scheda ha {totali} recensioni e il motore ne ha lette 0: da rifare" if totali
                                   else "nessuna recensione letta e numero delle recensioni non trovato sulla scheda: da rifare")
     contesto.stato["recensioniConTesto"] = len([voce for voce in recensioni if voce["testo"]])
-    if contesto.stato["recensioniConTesto"] < RECENSIONI_MINIME and not veloci:
-        contesto.stato["materialeInsufficiente"] = (f"materiale insufficiente: {contesto.stato['recensioniConTesto']} recensioni con il testo, "
-                                                    f"ne servono almeno {RECENSIONI_MINIME}")
+    buone = len([voce for voce in recensioni if (voce.get("voto") or 0) >= 4])
+    if buone < RECENSIONI_MINIME and not veloci:
+        contesto.stato["materialeInsufficiente"] = f"materiale insufficiente: {buone} recensioni da 4 o 5 stelle, ne servono almeno {RECENSIONI_MINIME}"
     if veloci:
         return [passoRecensioni], None
     return [passoFoto, passoRecensioni], len(foto)
