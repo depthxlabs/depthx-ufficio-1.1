@@ -47,6 +47,25 @@ def accessoDaRclone(richiesta=None, scopes=None):
     return gettone["access_token"], scadenza.astimezone(datetime.timezone.utc).replace(tzinfo=None)
 
 
+# Al massimo 60 richieste a Drive in 60 secondi, contate su tutti i fili del lavoratore; con più macchine insieme la quota si divide
+RICHIESTE_AL_MINUTO = max(1, int(os.environ.get("MOTORE_RICHIESTE_AL_MINUTO") or 60))
+_richiesteFatte = []
+_bloccoDelleRichieste = __import__("threading").Lock()
+
+
+def aspettaIlTurno():
+    while True:
+        with _bloccoDelleRichieste:
+            adesso = time.monotonic()
+            while _richiesteFatte and adesso - _richiesteFatte[0] >= 60:
+                _richiesteFatte.pop(0)
+            if len(_richiesteFatte) < RICHIESTE_AL_MINUTO:
+                _richiesteFatte.append(adesso)
+                return
+            attesa = 60 - (adesso - _richiesteFatte[0])
+        time.sleep(max(0.2, attesa))
+
+
 def credenzialiDrive(conConsenso=False):
     """Credenziali di Drive dal token nella cartella delle chiavi (il file resta dov'è).
 
@@ -108,6 +127,7 @@ class DestinazioneDrive:
 
         for giro in range(10):
             try:
+                aspettaIlTurno()
                 return richiesta.execute()
             except HttpError as errore:
                 codice = errore.resp.status if errore.resp is not None else 0
@@ -214,6 +234,7 @@ class DestinazioneDrive:
         risposta, errori = None, 0
         while risposta is None:
             try:
+                aspettaIlTurno()
                 _, risposta = richiesta.next_chunk()
                 errori = 0
             except HttpError as errore:
