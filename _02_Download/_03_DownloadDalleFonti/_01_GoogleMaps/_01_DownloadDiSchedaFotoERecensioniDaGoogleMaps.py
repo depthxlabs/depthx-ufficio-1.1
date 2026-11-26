@@ -233,8 +233,8 @@ def votoDellaScheda(pagina):
     import re as _re
     voto = _re.search(r"([1-5][,.]\d)", dati.get("riga") or "") or _re.search(r"([1-5][,.]\d)", dati.get("stelle") or "")
     numero = _re.search(r"\(([\d.,]+)\)", dati.get("riga") or "")
-    return (float(voto.group(1).replace(",", ".")) if voto else None,
-            int(_re.sub(r"[.,]", "", numero.group(1))) if numero else 0)
+    quante = int(_re.sub(r"[.,]", "", numero.group(1))) if numero else 0
+    return float(voto.group(1).replace(",", ".")) if voto and quante else None, quante
 
 
 LETTURA = {"senzaRecensioni": False}  # la scheda Google non ha nessuna recensione (11/11/2026)
@@ -434,10 +434,22 @@ def esegui(contesto):
                                                                                       "esito": regole.MOTIVO_NON_VERIFICATA, "risultati": esame, "metodo": "Chrome del motore"})
                         passoFoto.limite = passoRecensioni.limite = f"{regole.MOTIVO_NON_VERIFICATA}: {len(esame)} risultati esaminati, nessuno ha almeno due dati uguali al CRM"
                         return [passoFoto, passoRecensioni], None
+                    if re.search(r"Chiuso (definitivamente|temporaneamente)", pagina.locator("div[role=main]").first.inner_text()):
+                        # la struttura chiusa esce dal flusso e al suo posto entra il successivo
+                        contesto.stato["materialeInsufficiente"] = "struttura chiusa su Google Maps"
+                        passoFoto.attesi = passoFoto.scaricati = passoRecensioni.attesi = passoRecensioni.scaricati = 0
+                        return [passoFoto, passoRecensioni], 0
                     voto, numeroDellaTestata = votoDellaScheda(pagina)
+                    conRecensioni = bool(numeroDellaTestata) or bool(pagina.get_by_role("tab", name=re.compile(r"^(Recensioni|Reviews)")).count())
                     foto = [] if veloci else fotoDellaGalleria(pagina, scheda["displayName"]["text"])
-                    recensioni, totali = recensioniDellaPagina(pagina, obiettivo, scadenzaRecensioni)
-                    totali = totali or numeroDellaTestata
+                    if conRecensioni:
+                        # la galleria lascia la pagina in un altro stato: la scheda si riapre e le recensioni hanno il loro tempo da qui
+                        apri(pagina, scheda["googleMapsUri"])
+                        recensioni, totali = recensioniDellaPagina(pagina, obiettivo, time.time() + 60 * MINUTI_MASSIMI_DELLE_RECENSIONI)
+                        totali = totali or numeroDellaTestata
+                    else:
+                        LETTURA["senzaRecensioni"] = True
+                        recensioni, totali = [], 0
                 finally:
                     sessione.close()
     except FermoDiMaps as fermo:
