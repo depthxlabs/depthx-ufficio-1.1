@@ -32,40 +32,6 @@ CONFIGURAZIONE_RCLONE = os.environ.get("MOTORE_RCLONE_CONF") or r"C:\_02_DepthXS
 PROGRAMMA_RCLONE = os.environ.get("MOTORE_RCLONE") or r"C:\_02_DepthXSoftware\_02_RCloneDepthX\rclone.exe"
 
 
-def accessoDaRclone(richiesta=None, scopes=None):
-    """Rinnova l'accesso con rclone e lo legge dalla sua configurazione: (accesso, scadenza). Non si stampa mai."""
-    import datetime
-    import json
-    import re
-    import subprocess
-
-    subprocess.run([PROGRAMMA_RCLONE, "about", "gdrivescrittura:", "--config", CONFIGURAZIONE_RCLONE], capture_output=True, timeout=120)
-    with open(CONFIGURAZIONE_RCLONE, encoding="utf-8") as file:
-        sezione = file.read().split("[gdrivescrittura]", 1)[1].split("\n[", 1)[0]
-    gettone = json.loads(re.search(r"^token\s*=\s*(\{.*\})\s*$", sezione, re.M).group(1))
-    scadenza = datetime.datetime.fromisoformat(re.sub(r"(\.\d{6})\d+", r"\1", gettone["expiry"]).replace("Z", "+00:00"))
-    return gettone["access_token"], scadenza.astimezone(datetime.timezone.utc).replace(tzinfo=None)
-
-
-# Al massimo 600 richieste a Drive in 60 secondi, contate su tutti i fili del lavoratore; con più macchine insieme la quota si divide
-RICHIESTE_AL_MINUTO = max(1, int(os.environ.get("MOTORE_RICHIESTE_AL_MINUTO") or 600))
-_richiesteFatte = []
-_bloccoDelleRichieste = __import__("threading").Lock()
-
-
-def aspettaIlTurno():
-    while True:
-        with _bloccoDelleRichieste:
-            adesso = time.monotonic()
-            while _richiesteFatte and adesso - _richiesteFatte[0] >= 60:
-                _richiesteFatte.pop(0)
-            if len(_richiesteFatte) < RICHIESTE_AL_MINUTO:
-                _richiesteFatte.append(adesso)
-                return
-            attesa = 60 - (adesso - _richiesteFatte[0])
-        time.sleep(max(0.2, attesa))
-
-
 def credenzialiDrive(conConsenso=False):
     """Credenziali di Drive dal token nella cartella delle chiavi (il file resta dov'è).
 
@@ -76,8 +42,19 @@ def credenzialiDrive(conConsenso=False):
 
     if not os.path.isfile(CONFIGURAZIONE_RCLONE):
         raise ConsensoMancante()
-    accesso, scadenza = accessoDaRclone()
-    return Credentials(token=accesso, expiry=scadenza, refresh_handler=accessoDaRclone)
+    import json
+    import re
+
+    # il client di Drive e il suo rinnovo stanno nella configurazione di rclone: si leggono e non si stampano
+    with open(CONFIGURAZIONE_RCLONE, encoding="utf-8") as file:
+        sezione = file.read().split("[gdrivescrittura]", 1)[1].split("\n[", 1)[0]
+    voce = lambda nome: re.search(rf"^{nome}\s*=\s*(.+?)\s*$", sezione, re.M).group(1)
+    credenziali = Credentials(token=None, refresh_token=json.loads(voce("token"))["refresh_token"], client_id=voce("client_id"),
+                              client_secret=voce("client_secret"), token_uri="https://oauth2.googleapis.com/token")
+    from google.auth.transport.requests import Request
+
+    credenziali.refresh(Request())
+    return credenziali
 
 
 def scriviToken(fileDelToken, credenziali):
