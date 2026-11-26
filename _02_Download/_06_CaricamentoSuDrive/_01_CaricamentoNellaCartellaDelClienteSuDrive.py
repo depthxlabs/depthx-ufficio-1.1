@@ -47,8 +47,8 @@ def accessoDaRclone(richiesta=None, scopes=None):
     return gettone["access_token"], scadenza.astimezone(datetime.timezone.utc).replace(tzinfo=None)
 
 
-# Al massimo 60 richieste a Drive in 60 secondi, contate su tutti i fili del lavoratore; con più macchine insieme la quota si divide
-RICHIESTE_AL_MINUTO = max(1, int(os.environ.get("MOTORE_RICHIESTE_AL_MINUTO") or 60))
+# Al massimo 600 richieste a Drive in 60 secondi, contate su tutti i fili del lavoratore; con più macchine insieme la quota si divide
+RICHIESTE_AL_MINUTO = max(1, int(os.environ.get("MOTORE_RICHIESTE_AL_MINUTO") or 600))
 _richiesteFatte = []
 _bloccoDelleRichieste = __import__("threading").Lock()
 
