@@ -10,7 +10,7 @@
  "oreSenzaBattitoPrimaDelRiavvio": 3,
  "oreMassimePerClienteNelPrimoGiro": 2,
  "oreMassimePerClienteNelSecondoGiro": 3,
- "recensioniGoogleDaScaricare": 30,
+ "recensioniGoogleDaScaricare": 500,
  "pagineMassimeDelSito": 60,
  "altezzaMassimaDeiVideo": 1080,
  "byteMinimiDiUnFile": 1,
@@ -41,7 +41,7 @@
   6
  ],
  "fotoMapsMassime": 40,
- "minutiMassimiDelleRecensioni": 2,
+ "minutiMassimiDelleRecensioni": 5,
  "descrizioneMaps": "Maps: al massimo 40 foto della galleria (il riconoscimento ne sceglie 15 che coprono le categorie) e 30 recensioni in 2 minuti; sotto 6 recensioni con il testo il cliente è escluso",
  "sezioniDaNonScaricare": [
   "S4"
