@@ -36,7 +36,7 @@ ESCLUSI = "[99] CRM Clienti Esclusi/[03] Esclusi dal flusso/[01] EsclusiDalFluss
 ESITO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "_03_EsitoDegliEsclusi.json")
 RCLONE = r"C:\_02_DepthXSoftware\_02_RCloneDepthX\rclone.exe"
 SCRITTURA_DRIVE = r"C:\_02_DepthXSoftware\_02_RCloneDepthX\rclone_scrittura.conf"
-AREA_1B = "14FxlnyNznn9oBq8N0Pqegznp8bO1prPo"
+AREA_1B = "1Lf_1OndQT_30Doj3HE8XMfaMKauQfXHZ"
 PUBBLICAZIONE = r"C:\_02_DepthXSoftware\_01_CentroGestioneDepthX\V1.0(161126_1124)\_01_StrumentiDiLavoroPerIlServer\_02_ServerAutonomiDelCentroGestione\_01_UfficiLinea1Produzione\_08_ServerScadenzaDemo12GiorniECancellazione72Ore\_01_RegistroDelleDemoPubblicate.py"
 PRIMA_RIGA_CLIENTI = 3
 

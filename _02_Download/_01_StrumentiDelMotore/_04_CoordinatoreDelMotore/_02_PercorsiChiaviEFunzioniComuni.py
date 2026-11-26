@@ -173,7 +173,7 @@ def _fogliDeiCrmNuovi():
             "nome": blocco,
             "blocco": blocco,
             "cartellaDrive": "/".join(parti),  # nome dell'industria nel registro: sezione/tipo/blocco
-            "percorsoDrive": [SEZIONE_SU_DRIVE.get(parti[0], parti[0])] + parti[1:],  # cartelle annidate nell'Area 1B: sezione con il nome completo, poi tipo e blocco
+            "percorsoDrive": parti[1:],  # cartelle annidate nell'Area 1B: sezione con il nome completo, poi tipo e blocco
             "sezione": parti[0],
             "idCrm": voce["id"],
             "idCartellaDrive": "",

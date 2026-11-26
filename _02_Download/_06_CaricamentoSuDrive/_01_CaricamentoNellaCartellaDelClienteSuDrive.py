@@ -22,9 +22,29 @@ import _02_PercorsiChiaviEFunzioniComuni as comune
 AMBITI_DRIVE = ["https://www.googleapis.com/auth/drive"]
 ACCOUNT_DRIVE = "depthxlabs@gmail.com"
 TIPO_CARTELLA = "application/vnd.google-apps.folder"
-ID_CARTELLA_1B = "14FxlnyNznn9oBq8N0Pqegznp8bO1prPo"  # _01_Area_1B_CartelleDeiClientiCompleteProntePerIniziareLaProduzione su Drive
-NOME_CARTELLA_1B = "_01_Area_1B_CartelleDeiClientiCompleteProntePerIniziareLaProduzione"
+ID_CARTELLA_1B = "1Lf_1OndQT_30Doj3HE8XMfaMKauQfXHZ"  # _03_1.1_C_DownloadMaterialeClienti su Drive, accanto a _02_1.1_B_CRM_Clienti
+NOME_CARTELLA_1B = "_03_1.1_C_DownloadMaterialeClienti"
 PEZZO = 8 * 1024 * 1024
+
+
+# L'accesso a Drive è quello di rclone: su GitHub la configurazione arriva dal segreto, sul server è il file di rclone in scrittura
+CONFIGURAZIONE_RCLONE = os.environ.get("MOTORE_RCLONE_CONF") or r"C:\_02_DepthXSoftware\_02_RCloneDepthX\rclone_scrittura.conf"
+PROGRAMMA_RCLONE = os.environ.get("MOTORE_RCLONE") or r"C:\_02_DepthXSoftware\_02_RCloneDepthX\rclone.exe"
+
+
+def accessoDaRclone(richiesta=None, scopes=None):
+    """Rinnova l'accesso con rclone e lo legge dalla sua configurazione: (accesso, scadenza). Non si stampa mai."""
+    import datetime
+    import json
+    import re
+    import subprocess
+
+    subprocess.run([PROGRAMMA_RCLONE, "about", "gdrivescrittura:", "--config", CONFIGURAZIONE_RCLONE], capture_output=True, timeout=120)
+    with open(CONFIGURAZIONE_RCLONE, encoding="utf-8") as file:
+        sezione = file.read().split("[gdrivescrittura]", 1)[1].split("\n[", 1)[0]
+    gettone = json.loads(re.search(r"^token\s*=\s*(\{.*\})\s*$", sezione, re.M).group(1))
+    scadenza = datetime.datetime.fromisoformat(re.sub(r"(\.\d{6})\d+", r"\1", gettone["expiry"]).replace("Z", "+00:00"))
+    return gettone["access_token"], scadenza.astimezone(datetime.timezone.utc).replace(tzinfo=None)
 
 
 def credenzialiDrive(conConsenso=False):
@@ -33,34 +53,12 @@ def credenzialiDrive(conConsenso=False):
     Senza consenso valido solleva ConsensoDriveMancante; con conConsenso=True apre il browser per il consenso di Michele.
     """
     comune.percorsiBreviPerWindows()
-    from google.auth.transport.requests import Request
     from google.oauth2.credentials import Credentials
 
-    fileDelToken = comune.percorsoChiave("tokenDrive")
-    credenziali = None
-    if os.path.isfile(fileDelToken):
-        try:
-            credenziali = Credentials.from_authorized_user_file(fileDelToken, AMBITI_DRIVE)
-        except (ValueError, KeyError):
-            credenziali = None
-    if credenziali and not credenziali.valid and credenziali.refresh_token:
-        try:
-            credenziali.refresh(Request())
-            scriviToken(fileDelToken, credenziali)
-        except Exception:
-            credenziali = None
-    if credenziali and credenziali.valid:
-        return credenziali
-    if not conConsenso:
+    if not os.path.isfile(CONFIGURAZIONE_RCLONE):
         raise ConsensoMancante()
-    from google_auth_oauthlib.flow import InstalledAppFlow
-
-    flusso = InstalledAppFlow.from_client_secrets_file(comune.percorsoChiave("clienteDrive"), AMBITI_DRIVE)
-    credenziali = flusso.run_local_server(port=0, open_browser=True, timeout_seconds=900, authorization_prompt_message="",
-                                          success_message="Consenso dato. Il motore DepthX può caricare su Google Drive. La pagina si può chiudere.",
-                                          prompt="consent", access_type="offline", login_hint=ACCOUNT_DRIVE)
-    scriviToken(fileDelToken, credenziali)
-    return credenziali
+    accesso, scadenza = accessoDaRclone()
+    return Credentials(token=accesso, expiry=scadenza, refresh_handler=accessoDaRclone)
 
 
 def scriviToken(fileDelToken, credenziali):

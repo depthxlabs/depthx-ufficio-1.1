@@ -41,7 +41,6 @@ jobs:
       TZ: Europe/Rome
       MOTORE_SENZA_CLAUDE: "1"
       MOTORE_CODA: ${{ github.workspace }}\dati\_04_Download\Coda\${{ inputs.codice }}.json
-      CHIAVE_GOOGLE_MAPS: ${{ secrets.CHIAVE_GOOGLE_MAPS }}
       # Google Maps si legge solo sul server, nell'unico Chrome con l'account del motore: qui si chiede la scheda al servizio Maps del server
       # e la sessione Google non esce mai dal server
       MAPS_WORKER: https://maps-download.depthxlabs.com
@@ -65,21 +64,23 @@ jobs:
           CARTELLA=$(cygpath -w "$(dirname "$(find "$PWD/ffmpeg" -name ffprobe.exe | head -n 1)")")
           echo "$CARTELLA" >> "$GITHUB_PATH"
           "$(find "$PWD/ffmpeg" -name ffprobe.exe | head -n 1)" -version > /dev/null && echo "ffprobe pronto"
+      - name: rclone, l'accesso a Drive
+        env:
+          CONFIGURAZIONE: ${{ secrets.DRIVE_RCLONE_CONF }}
+        run: |
+          curl -sSL -o rclone.zip https://downloads.rclone.org/rclone-current-windows-amd64.zip
+          unzip -q rclone.zip -d rclone
+          PROGRAMMA=$(cygpath -w "$(find "$PWD/rclone" -name rclone.exe | head -n 1)")
+          printf '%s' "$CONFIGURAZIONE" > "$RUNNER_TEMP/rclone.conf"
+          echo "MOTORE_RCLONE=$PROGRAMMA" >> "$GITHUB_ENV"
+          echo "MOTORE_RCLONE_CONF=$(cygpath -w "$RUNNER_TEMP/rclone.conf")" >> "$GITHUB_ENV"
       - name: Chiavi del motore dai segreti
         env:
-          MAPPE: ${{ secrets.MOTORE_CHIAVE_MAPPE }}
-          YOUTUBE: ${{ secrets.MOTORE_CHIAVE_YOUTUBE }}
           META: ${{ secrets.MOTORE_TOKEN_META }}
-          OAUTH: ${{ secrets.MOTORE_DRIVE_OAUTH }}
-          TOKEN: ${{ secrets.MOTORE_DRIVE_TOKEN }}
         run: |
           K=_02_Download/_01_StrumentiDelMotore/_02_ChiaviDiAccessoAServiziDiTerzeParti
           mkdir -p "$K"
-          printf '%s' "$MAPPE" > "$K/_01_ChiaveGoogleMapsApi.md"
-          printf '%s' "$YOUTUBE" > "$K/_02_ChiaveAPIYoutube.md"
           printf '%s' "$META" > "$K/_04_TokenAccessoMetaDevelopers.md"
-          printf '%s' "$OAUTH" > "$K/_05_AccessoGoogleDriveOAuth.json"
-          printf '%s' "$TOKEN" > "$K/_06_TokenGoogleDrive.json"
       - name: Il motore scarica il gruppo
         run: |
           python -c "import json,os; c=json.load(open(os.environ['MOTORE_CODA'],encoding='utf-8')); json.dump(c['elenco'], open('_02_Download/_02_LetturaDalCRM/_04_ElencoDeiBlocchiDelCrm.json','w',encoding='utf-8'), ensure_ascii=False)"
